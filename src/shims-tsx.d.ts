@@ -1,4 +1,6 @@
-import Vue, { VNode } from "vue";
+import Vue, { VNode } from 'vue';
+
+import { Liff } from './view-models/liff.vm';
 
 declare global {
   namespace JSX {
@@ -9,5 +11,9 @@ declare global {
     interface IntrinsicElements {
       [elem: string]: any;
     }
+  }
+
+  interface Window {
+    liff: Liff;
   }
 }

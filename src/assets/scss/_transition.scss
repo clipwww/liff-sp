@@ -1,0 +1,69 @@
+//globl transition css
+.page-enter-active,
+.page-leave-active
+{
+  transition: opacity .5s
+}
+.page-enter,
+.page-leave-active,
+.page-leave-to
+{
+  opacity: 0
+}
+
+
+/*fade*/
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.28s;
+}
+
+.fade-enter,
+.fade-leave-active,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/*breadcrumb*/
+.breadcrumb-enter-active,
+.breadcrumb-leave-active {
+  transition: all .5s;
+}
+
+.breadcrumb-enter,
+.breadcrumb-leave-active,
+.breadcrumb-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.breadcrumb-move {
+  transition: all .5s;
+}
+
+.breadcrumb-leave-active {
+  position: absolute;
+}
+
+
+/*scale*/
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.2s;
+}
+.scale-enter,
+.scale-leave-active,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: transform 0.25s;
+}
+.slide-left-enter,
+.slide-left-leave-active,
+.slide-left-leave-to {
+  transform: translateX(100%);
+}

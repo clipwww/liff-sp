@@ -1,0 +1,71 @@
+@mixin clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin scrollBar {
+  &::-webkit-scrollbar-track-piece {
+    background: #d3dce6;
+  }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #99a9bf;
+    border-radius: 20px;
+  }
+}
+
+@mixin relative {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/*瀏覽器*/
+$lgw: 1370px;
+$mdw: 1000px;
+$sdw: 750px;
+$ssw: 340px;
+$smw: $mdw - 200;
+$ssw: 320px;
+$breakpoints: ( 'md': 'screen and (max-width: #{$lgw})', 'mmd': 'screen and (max-width: #{$smw})', 'sm': 'screen and (max-width: #{$mdw})', 'ssm': 'screen and (max-width: #{$sdw})', 'ss': 'screen and (max-width: #{$ssw})');
+@mixin respond-to($name) {
+    @media #{map-get($breakpoints, $name)} {
+        @content;
+    }
+}
+
+/*等分*/
+
+@mixin flex-center {
+  -ms-flex-pack: center;
+  justify-content: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+@mixin flex-b {
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@mixin txt-overflow($width) {
+  width: 100%;
+  max-width: $width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+@mixin en() {
+  html[lang*='en'] & {
+    @content;
+  }
+}
