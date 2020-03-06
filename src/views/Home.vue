@@ -12,10 +12,10 @@
       <van-swipe-item>4</van-swipe-item>
     </van-swipe>
     <van-grid class="margin-t-10" :gutter="10" :column-num="2">
-      <van-grid-item clickable icon="video-o" text="電影時刻查詢" :to="{ name: 'Movie' }" />
-      <van-grid-item icon="photo-o" text="文字" />
-      <van-grid-item icon="photo-o" text="文字" />
-      <van-grid-item icon="photo-o" text="文字" />
+      <van-grid-item clickable dot  icon="video-o" text="電影時刻查詢" :to="{ name: 'Movie' }" />
+      <van-grid-item icon="photo-o" text="施工中" />
+      <van-grid-item icon="photo-o" text="施工中" />
+      <van-grid-item icon="photo-o" text="施工中" />
     </van-grid>
   </div>
 </template>

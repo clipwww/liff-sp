@@ -6,11 +6,16 @@
     </template>-->
     <div class="theater__container">
       <van-dropdown-menu class="dropdown">
-        <van-dropdown-item v-model="cityId" :options="cityOptions" />
+        <van-dropdown-item v-model="cityId" :options="cityOptions" placeholder="安安" />
       </van-dropdown-menu>
       <div class="theater__list">
         <TheaterList :cityId="cityId" :key="cityId" />
       </div>
+
+      <!-- <van-tabbar fixed v-model="activeTab">
+        <van-tabbar-item icon="search" name="search">搜尋</van-tabbar-item>
+        <van-tabbar-item icon="like" name="like">我的最愛</van-tabbar-item>
+      </van-tabbar> -->
     </div>
   </div>
 </template>
@@ -32,6 +37,7 @@ export default {
     return {
       cityId: window.localStorage.getItem('cityId') || '',
       citys: [],
+      activeTab: 'search'
     };
   },
   computed: {
@@ -41,7 +47,7 @@ export default {
           text: item.name,
           value: item.id,
         };
-      });
+      })
     },
   },
   watch: {
@@ -57,6 +63,9 @@ export default {
       const data = snapshot.val();
       if (data) {
         this.citys = data.items;
+        if (!this.cityId) {
+          this.cityId = this.citys[0].id;
+        }
       }
     });
     this.getCityList();
@@ -95,7 +104,7 @@ export default {
   &__container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 54px);
+    height: calc(100vh - 0px);
   }
 
   &__list {

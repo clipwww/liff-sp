@@ -1,9 +1,10 @@
 <template>
   <div>
-    <van-swipe-cell :title="item.name" v-for="item in theaters" :key="item.id">
-      <van-cell @click="goDetails(item)">{{ item.name }}</van-cell>
-    </van-swipe-cell>
-    <div v-show="!theaters.length">
+    <van-cell @click="goDetails(item)" v-for="item in theaters" :key="item.id">
+      <van-icon slot="icon" name="like-o" class="lh-inherit margin-r-10"/>
+      {{ item.name }}
+    </van-cell>
+    <div v-show="!theaters.length && cityId">
       <van-cell v-for="n in 10" :key="n">
         <van-skeleton title :row="0" />
       </van-cell>

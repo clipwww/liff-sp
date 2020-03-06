@@ -2,9 +2,9 @@
   <div>
     <van-panel :title="theaterInfo.name" :desc="theaterInfo.address">
       <div slot="footer">
-        <van-tag plain>{{ theaterInfo.openingHours }}</van-tag>
-        <van-tag plain class="margin-l-5">{{ theaterInfo.telephone }}</van-tag>
-        <a :href="theaterInfo.url" class="margin-l-5" target="_blank">
+        <van-tag plain class="margin-r-5 margin-bt-5">營業時間 {{ theaterInfo.openingHours }}</van-tag>
+        <van-tag plain class="margin-r-5 margin-bt-5">電話 {{ theaterInfo.telephone }}</van-tag>
+        <a :href="theaterInfo.url" class="margin-bt-5" target="_blank">
           <van-tag plain>網站</van-tag>
         </a>
       </div>
@@ -39,6 +39,11 @@ import { movieSVC } from '@/services';
 import { movieRef } from '@/plugins/firebase';
 
 export default {
+  metaInfo() {
+    return {
+      title: this.theaterInfo.name
+    }
+  },
   data() {
     return {
       theaterInfo: {},
