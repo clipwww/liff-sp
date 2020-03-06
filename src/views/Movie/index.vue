@@ -7,7 +7,7 @@
           <div>電影院查詢</div>
         </div>
       </van-grid-item>
-      <van-grid-item clickable @click="onClick">
+      <van-grid-item clickable :to="{ name: 'MovieList' }">
         <div class="text-center">
           <van-icon class="fs-30" name="video" />
           <div>上映中電影查詢</div>
@@ -23,9 +23,7 @@ export default {
     return {};
   },
   methods: {
-    onClick() {
-      this.$toast('施工中');
-    },
+
   },
 };
 </script>

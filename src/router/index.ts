@@ -45,6 +45,22 @@ const routes: RouteConfig[] = [
         meta: {
           label: '電影院查詢'
         },
+      },
+      {
+        path: 'list',
+        name: 'MovieList',
+        component: loadComponents('Movie/List'),
+        meta: {
+          label: '上映中電影查詢'
+        },
+      },
+      {
+        path: ':id',
+        name: 'MovieDetails',
+        component: loadComponents('Movie/Details'),
+        meta: {
+          label: '上映中電影查詢'
+        },
       }
     ]
   }

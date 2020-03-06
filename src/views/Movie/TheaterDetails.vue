@@ -9,10 +9,15 @@
         </a>
       </div>
     </van-panel>
-    <van-card v-for="item in movies" :key="item.id" :title="item.title" :thumb="item.image">
+    <van-card v-for="item in movies" :key="item.id" :title="item.title" :thumb="item.image" @click-thumb="goMovie(item)">
+      <div class="margin-t-10 text-left" slot="footer">
+        <van-image  width="49" height="20" :src="item.cerImg" />
+      </div>
+
       <div slot="desc">
+        <div>片長: {{ item.runtime }} 分</div>
         <div v-for="(v, i) in item.versions" :key="i">
-          <van-divider>{{ v.name || '數位' }}</van-divider>
+          <van-divider content-position="left">{{ v.name || '數位' }}</van-divider>
           <van-tag
             class="margin-a-5"
             :type="isExpired(time) ? 'default' : 'success'"
@@ -95,6 +100,9 @@ export default {
     isExpired(time) {
       return moment().isAfter(moment(time, 'HH：mm'));
     },
+    goMovie({ id }) {
+      this.$router.push({ name: 'MovieDetails', params: { id, } })
+    }
   },
 };
 </script>

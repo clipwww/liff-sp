@@ -80,17 +80,11 @@ export default {
         return;
       }
 
-      const citys = [];
-      ret.items.forEach(item => {
-        if (!citys.find(city => city.id === item.id)) {
-          citys.push(item);
-        }
-      });
 
-      if (!_isEqual(this.citys, citys)) {
+      if (!_isEqual(this.citys, ret.items)) {
         console.log('new!');
         movieRef.child('citys').set({
-          items: citys,
+          items: this.citys,
           dateCreated: +moment(),
         });
       }
