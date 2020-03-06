@@ -1,23 +1,52 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
+import VueRouter, { RouteConfig } from 'vue-router';
 
 import Home from '../views/Home.vue';
-import Login from '../views/Login.vue';
 
 import { loadComponents } from './utils';
 
 Vue.use(VueRouter);
 
-const routes = [
+const routes: RouteConfig[] = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: {
+      label: '首頁'
+    }
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: Login
+    path: '/movie',
+    name: 'Movie',
+    component: loadComponents('Movie/Layout'),
+    redirect: { name: 'MovieSearchTypeChoice' },
+    children: [
+      {
+        path: '',
+        name: 'MovieSearchTypeChoice',
+        component: loadComponents('Movie', true),
+        meta: {
+          label: '電影時刻查詢'
+        },
+      },
+      {
+        path: 'theater',
+        name: 'MovieTheaterList',
+        component: loadComponents('Movie/Theater'),
+        meta: {
+          label: '電影院查詢'
+        },
+      },
+      {
+        path: 'theater/:id',
+        name: 'MovieTheaterDetails',
+        component: loadComponents('Movie/TheaterDetails'),
+        meta: {
+          label: '電影院查詢'
+        },
+      }
+    ]
   }
 ];
 

@@ -1,4 +1,4 @@
-# liff-money
+# liff-sp
 
 ## Project setup
 ```

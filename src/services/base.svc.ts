@@ -17,25 +17,28 @@ export interface CustomAxiosResponse extends AxiosResponse {
 export const createAxiosInstance = () => {
   console.log('createAxiosInstance');
   const axiosInstace = axios.create({
+    baseURL: process.env.VUE_APP_API_URL,
     timeout: 60000,
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
   });
 
   axiosInstace.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
-      const { ignoreErrorMessage = false, ignoreLoader = false } = config;
+      const { ignoreErrorMessage = false, ignoreLoader = true } = config;
 
       if (!ignoreLoader) {
-        store.dispatch('updateLoading', true);
+        Toast.loading({
+          forbidClick: true
+        });
       }
 
       return config;
     },
     err => {
       console.error(err);
-      store.dispatch('updateLoading', false);
+      Toast.clear();
     }
   );
 
@@ -43,12 +46,12 @@ export const createAxiosInstance = () => {
     (response: CustomAxiosResponse) => {
       const {
         ignoreErrorMessage = false,
-        ignoreLoader = false
+        ignoreLoader = true
       } = response.config;
       const { success, resultCode, resultMessage } = response.data as ResultVM;
 
       if (!ignoreLoader) {
-        store.dispatch('updateLoading', false);
+        Toast.clear();
       }
 
       if (!success && !ignoreErrorMessage) {
@@ -59,12 +62,12 @@ export const createAxiosInstance = () => {
     },
     err => {
       console.error(err);
-      store.dispatch('updateLoading', false);
+      Toast.clear();
       Toast.fail(err.message);
     }
   );
 
-  async function request<T>(config: AxiosRequestConfig): Promise<T> {
+  async function request<T>(config: CustomAxiosRequestConfig): Promise<T> {
     return axiosInstace
       .request(config)
       .then(res => res.data)

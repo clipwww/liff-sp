@@ -22,7 +22,7 @@ git add -A
 git commit -m 'deploy'
 
 # if you are deploying to https://<USERNAME>.github.io
-git remote add origin git@github.com:clipwww/liff-money
+git remote add origin git@github.com:clipwww/liff-sp
 git push -f origin gh-pages
 
 cd -

@@ -25,14 +25,12 @@
   height: 100%;
 }
 
-/*瀏覽器*/
-$lgw: 1370px;
-$mdw: 1000px;
-$sdw: 750px;
-$ssw: 340px;
-$smw: $mdw - 200;
-$ssw: 320px;
-$breakpoints: ( 'md': 'screen and (max-width: #{$lgw})', 'mmd': 'screen and (max-width: #{$smw})', 'sm': 'screen and (max-width: #{$mdw})', 'ssm': 'screen and (max-width: #{$sdw})', 'ss': 'screen and (max-width: #{$ssw})');
+// RWD
+$breakpoints: (
+  'sm': 'screen and (min-width: 768px)', 
+  'md': 'screen and (min-width: 992px)', 
+  'lg': 'screen and (min-width: 1200px)', 
+);
 @mixin respond-to($name) {
     @media #{map-get($breakpoints, $name)} {
         @content;
