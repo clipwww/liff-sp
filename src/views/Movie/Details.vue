@@ -1,7 +1,7 @@
 <template>
   <div>
     <van-panel v-if="!movieInfo.id">
-      <div class="padding-b-15">
+      <div slot="header" class="padding-bt-10">
         <van-skeleton title avatar avatar-shape :row="4"></van-skeleton>
       </div>
     </van-panel>
@@ -15,11 +15,19 @@
         <van-col span="7"><van-image :src="movieInfo.poster"></van-image></van-col>
         <van-col span="17">
           <p class="fs-14">{{ movieInfo.description }}</p>
+          <van-tag plain class="margin-r-5 margin-bt-5">片長: {{ movieInfo.runtime }} 分</van-tag>
+          <van-tag plain class="margin-bt-5">上映日期: {{ movieInfo.releaseDate }}</van-tag>
         </van-col>
       </van-row>
       <div slot="footer">
-        <van-tag plain class="margin-r-5 margin-bt-5">片長: {{ movieInfo.runtime }} 分</van-tag>
-        <van-tag plain class="margin-bt-5">上映日期: {{ movieInfo.releaseDate }}</van-tag>
+        <div class="text-left">
+          <van-button :icon="isFavorite ? 'like' : 'like-o'" 
+            color="#f48fb1" 
+            type="default" 
+            :plain="!isFavorite" 
+            size="small" 
+            @click="toggleFavorite">{{ isFavorite ? '已收藏電影' : '收藏電影' }}</van-button>
+        </div>
       </div>
     </van-panel>
       
@@ -47,6 +55,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import moment from 'moment';
 import _isEqual from 'lodash/isEqual';
 
@@ -64,16 +73,24 @@ export default {
       movieInfo: {},
       theaterList: [],
       cacheTheaterList: [],
+      favoriteList: [],
       cityId: window.localStorage.getItem('cityId') || '',
       isEmpty: false,
     }
   },
   computed: {
+    ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
+      profile: 'profile'
+    }),
     citys() {
       return this.movieInfo?.citys ?? []
     },
     movieId() {
       return this.$route.params.id;
+    },
+    isFavorite() {
+      return !!this.favoriteList.find(item => item.id === this.movieInfo.id);
     }
   },
   watch: {
@@ -92,6 +109,14 @@ export default {
         this.theaterList = [];
         this.getMovieTimesById();
         // window.localStorage.setItem('cityId', val)
+      }
+    },
+    isLoggedIn: {
+      immediate: true,
+      handler(bool) {
+        if (bool) {
+          this.getFavoriteMovies();
+        }
       }
     }
   },
@@ -128,6 +153,34 @@ export default {
 
       this.movieInfo = ret.item;
       this.theaterList = ret.items;
+    },
+    getFavoriteMovies() {
+      if (!this.isLoggedIn) {
+        return;
+      }
+      movieRef.child(`favorite-movie-${this.profile.userId}`).once('value', snapshot => {
+        const data = snapshot.val();
+        if (data && data?.length) {
+          this.favoriteList = data || [];
+        }
+      })
+    },
+    toggleFavorite() {
+      if (!this.isLoggedIn) {
+        this.$toast.fail('必須要登入才可以使用唷！');
+        return;
+      }
+
+      if (this.isFavorite) {
+        this.favoriteList = this.favoriteList.filter(item => item.id !== this.movieInfo.id);
+      } else {
+        this.favoriteList.push({ 
+          ...this.movieInfo, 
+          dateCreated: +moment()
+        })
+      }
+
+      movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList);
     },
     isExpired(time) {
       return moment().isAfter(moment(time, 'HH：mm'));

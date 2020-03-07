@@ -22,7 +22,7 @@ export interface Liff {
    * 若沒有取得 openid 的權限會獲得null
    */
   getDecodedIDToken(): Promise<DecodedIDToken | null>;
-  getProfile(): LineProfile;
+  getProfile(): Promise<LineProfile>;
   /**
    * 取得與 該LINE Login Channel連結的 官方帳號 (LINE Official Account) 友誼狀態
    * friendFlag: true代表有與官方帳號加好友

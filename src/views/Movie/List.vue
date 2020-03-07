@@ -81,9 +81,10 @@ export default {
   }
 
   &__list {
-      flex: 1;
-      overflow: auto;
-      height: 100%;
-    }
+    flex: 1;
+    overflow: auto;
+    height: 100%;
+    padding-bottom: 30px;
+  }
 }
 </style>

@@ -61,6 +61,14 @@ const routes: RouteConfig[] = [
         meta: {
           label: '上映中電影查詢'
         },
+      },
+      {
+        path: 'favorite/list',
+        name: 'MovieFavoriteList',
+        component: loadComponents('Movie/FavoriteList'),
+        meta: {
+          label: '收藏的電影'
+        },
       }
     ]
   }
