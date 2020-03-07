@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse, Canceler } from 'axios';
 import { Toast } from 'vant';
 
 import { ResultVM, ResultCode } from '@/view-models/result.vm';
@@ -24,9 +24,34 @@ export const createAxiosInstance = () => {
     },
   });
 
+  let requestList: Array<{
+    url: string;
+    method: string;
+    cancelFn: Canceler;
+  }> = [];
+
+  function addRequest(url: string = '', method: string = '', cancelFn: Canceler): void {
+    requestList.push({
+      url,
+      method,
+      cancelFn,
+    });
+  }
+
+  function removeRequest(url: string = '', method: string = ''): void {
+    requestList = requestList.filter(item => {
+      if (item.url === url && item.method === method) {
+        item.cancelFn('Request Canceled');
+        return false;
+      }
+      return true;
+    });
+  }
+
+
   axiosInstace.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
-      const { ignoreErrorMessage = false, ignoreLoader = true } = config;
+      const { ignoreErrorMessage = false, ignoreLoader = true, url, method } = config;
 
       if (!ignoreLoader) {
         Toast.loading({
@@ -34,11 +59,18 @@ export const createAxiosInstance = () => {
         });
       }
 
+      removeRequest(url, method);
+      config.cancelToken = new axios.CancelToken(c => {
+        addRequest(url, method, c);
+      });
+
+
       return config;
     },
     err => {
       console.error(err);
       Toast.clear();
+      return Promise.reject(err);
     }
   );
 
@@ -46,9 +78,13 @@ export const createAxiosInstance = () => {
     (response: CustomAxiosResponse) => {
       const {
         ignoreErrorMessage = false,
-        ignoreLoader = true
+        ignoreLoader = true,
+        url,
+        method
       } = response.config;
       const { success, resultCode, resultMessage } = response.data as ResultVM;
+      
+      removeRequest(url, method);
 
       if (!ignoreLoader) {
         Toast.clear();
@@ -63,7 +99,10 @@ export const createAxiosInstance = () => {
     err => {
       console.error(err);
       Toast.clear();
-      Toast.fail(err.message);
+      if (err.message !== 'Request Canceled') {
+        Toast.fail(err.message);
+      }
+      return Promise.reject(err);
     }
   );
 

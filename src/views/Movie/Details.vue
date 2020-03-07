@@ -64,39 +64,36 @@ export default {
       movieInfo: {},
       theaterList: [],
       cacheTheaterList: [],
-      citys: [],
-      cityId: window.localStorage.getItem('cityId') || '',
+      cityId: '',
       isEmpty: false,
     }
   },
   computed: {
+    citys() {
+      return this.movieInfo?.citys ?? []
+    },
     movieId() {
       return this.$route.params.id;
     }
   },
   watch: {
+    citys(val) {
+      if (!this.cityId && val.length) {
+        const lsId = window.localStorage.getItem('cityId');
+        const lsCity = val.find(item => item.id === lsId);
+        this.cityId = lsCity ? lsId : val[0].id
+      }
+    },
     cityId: {
       immediate: true,
-      handler() {
+      handler(val) {
         this.theaterList = [];
-        this.getMovieTimesById()
+        this.getMovieTimesById();
+        window.localStorage.setItem('cityId', val)
       }
     }
   },
   created() {
-    this.isLoading = true;
-    movieRef.child('citys').on('value', snapshot => {
-      const data = snapshot.val();
-      if (data) {
-        this.citys = data.items;
-        if (!this.cityId) {
-          this.cityId = this.citys[0].id;
-        }
-      } else {
-        this.getCityList();
-      }
-    });
-
     movieRef.child(`movie-${this.movieId}`).on('value', snapshot => {
       const data = snapshot.val();
       if (data) {
@@ -104,13 +101,9 @@ export default {
         this.cacheTheaterList = data.items;
       }
     });
-    
   },
   methods: {
     async getMovieTimesById() {
-      if (!this.cityId) {
-        return;
-      }
       this.isEmpty = false;
 
       const ret = await movieSVC.getMovieTimesById(this.movieId, this.cityId);
@@ -120,10 +113,9 @@ export default {
 
       if (!ret.items.length) {
         this.isEmpty = true;
-        return;
       }
       
-      if (!_isEqual(this.cacheTheaterList, ret.items)) {
+      if (!_isEqual(this.cacheTheaterList, ret.items) || !_isEqual(this.movieInfo, ret.item)) {
         console.log('new')
         movieRef.child(`movie-${this.movieId}`).set({
           item: ret.item,
@@ -134,19 +126,6 @@ export default {
 
       this.movieInfo = ret.item;
       this.theaterList = ret.items;
-    },
-    async getCityList() {
-      const ret = await movieSVC.getCityList();
-      if (!ret.success) {
-        return;
-      }
-
-      this.citys = ret.items;
-
-      movieRef.child('citys').set({
-        items: citys,
-        dateCreated: +moment(),
-      });
     },
     isExpired(time) {
       return moment().isAfter(moment(time, 'HH：mm'));
