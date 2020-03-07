@@ -64,7 +64,7 @@ export default {
       movieInfo: {},
       theaterList: [],
       cacheTheaterList: [],
-      cityId: '',
+      cityId: window.localStorage.getItem('cityId') || '',
       isEmpty: false,
     }
   },
@@ -77,19 +77,21 @@ export default {
     }
   },
   watch: {
-    citys(val) {
-      if (!this.cityId && val.length) {
-        const lsId = window.localStorage.getItem('cityId');
-        const lsCity = val.find(item => item.id === lsId);
-        this.cityId = lsCity ? lsId : val[0].id
+    citys(arr) {
+      if (arr.length) {
+        const lsCity = arr.find(item => item.id === this.cityId);
+        if (!lsCity) {
+          this.cityId = arr[0].id
+        }
       }
     },
     cityId: {
       immediate: true,
-      handler(val) {
+      handler(val, oldVal) {
+        console.log(val, oldVal);
         this.theaterList = [];
         this.getMovieTimesById();
-        window.localStorage.setItem('cityId', val)
+        // window.localStorage.setItem('cityId', val)
       }
     }
   },
