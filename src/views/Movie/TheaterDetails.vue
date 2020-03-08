@@ -9,9 +9,16 @@
         </a>
       </div>
     </van-panel>
-    <van-card v-for="item in movies" :key="item.id" :title="item.title" :thumb="item.image" @click-thumb="goMovie(item)">
-      <div class="margin-t-10 text-left" slot="footer">
-        <van-image  width="49" height="20" :src="item.cerImg" />
+
+    <van-cell class="margin-t-5" :value="formatDate" is-link @click="showCalendar = true"></van-cell>
+    <van-calendar v-model="showCalendar" :show-confirm="false" :max-date="maxDate" close-on-popstate @confirm="onDateChange" />
+
+    <van-card v-for="item in movies" :key="item.id" :title="item.title" @click-thumb="goMovie(item)">
+      <div slot="thumb" >
+        <van-image height="88" fit="cover" :src="item.image" lazy-load></van-image>
+        <div class="margin-t-5">
+          <van-image width="40" fit="contain" :src="item.cerImg" lazy-load/>
+        </div>
       </div>
 
       <div slot="desc">
@@ -28,7 +35,7 @@
         </div>
       </div>
     </van-card>
-    <template v-if="!movies.length">
+    <template v-if="!movies.length && !isEmpty">
       <van-card v-for="n in 3" :key="n">
         <van-skeleton slot="desc" title avatar avatar-size="88px" avatar-shape="square" :row="3" />
       </van-card>
@@ -54,6 +61,8 @@ export default {
       theaterInfo: {},
       movies: [],
       date: moment(),
+      showCalendar: false,
+      isEmpty: false,
     };
   },
   computed: {
@@ -66,36 +75,84 @@ export default {
     formatDate() {
       return this.date.format('YYYYMMDD');
     },
+    maxDate() {
+      return new Date(moment().add(7, 'day'));
+    },
+    isToday() {
+      return moment().isSame(this.date, 'day');
+    }
+  },
+  watch: {
+    formatDate: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        this.movies = [];
+
+        movieRef.child(`theater-${this.theaterId}-${oldVal}`).off();
+        movieRef.child(`theater-${this.theaterId}-${newVal}`).off();
+        movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).on('value', snapshot => {
+          const data = snapshot.val();
+          if (data) {
+            if (this.isToday) {
+              this.theaterInfo = data.item;
+            }
+            this.movies = data.items;
+          }
+        });
+      }
+    },
+    showCalendar: {
+      immediate: true,
+      handler(bool) {
+        if (!bool) {
+          document.body?.classList?.remove('van-overflow-hidden');
+        }
+      }
+    }
   },
   created() {
-    movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).on('value', snapshot => {
-      const data = snapshot.val();
-      console.log('value', data);
-      if (data) {
-        this.theaterInfo = data.item;
-        this.movies = data.items;
-      }
+   
+    movieRef.on('value', snapshot => {
+      const keys = Object.keys(snapshot.val());
+      keys.filter(key => key.includes('theater-')).forEach(key => {
+        const data = snapshot.child(key).val();
+        if (moment().isAfter(data.dateCreated, 'day')) {
+          console.log(key)
+          movieRef.child(key).remove();
+        }
+      })      
     });
+            
     this.getTheaterById();
   },
   beforeDestroy() {
-    movieRef.child(`theater-${this.theaterId}`).off();
+    movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).off();
+    movieRef.off();
   },
   methods: {
     async getTheaterById() {
-      const ret = await movieSVC.getTheaterById(this.theaterId, this.cityId);
+      this.isEmpty = false;
+      const ret = await movieSVC.getTheaterById(this.theaterId, this.cityId, this.formatDate);
       if (!ret.success) {
         return;
       }
 
+      if (!ret.items.length) {
+        this.isEmpty = true
+      }
+
       if (!_isEqual(this.movies, ret.items)) {
-        console.log('new');
         movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).set({
           item: ret.item,
           items: ret.items,
           dateCreated: +moment(),
         });
       }
+    },
+    onDateChange(value) {
+      this.date = moment(value);
+      this.showCalendar = false;
+      this.getTheaterById();
     },
     isExpired(time) {
       return moment().isAfter(moment(time, 'HH：mm'));

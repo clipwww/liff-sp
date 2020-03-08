@@ -12,7 +12,9 @@
         </van-cell>
       </div>
       <van-row class="padding-lr-15" :gutter="15">
-        <van-col span="7"><van-image :src="movieInfo.poster"></van-image></van-col>
+        <van-col span="7">
+          <van-image :src="posterSrc"></van-image>
+        </van-col>
         <van-col span="17">
           <p class="fs-14">{{ movieInfo.description }}</p>
           <van-tag plain class="margin-r-5 margin-bt-5">片長: {{ movieInfo.runtime }} 分</van-tag>
@@ -21,20 +23,23 @@
       </van-row>
       <div slot="footer">
         <div class="text-left">
-          <van-button :icon="isFavorite ? 'like' : 'like-o'" 
-            color="#f48fb1" 
-            type="default" 
-            :plain="!isFavorite" 
-            size="small" 
-            @click="toggleFavorite">{{ isFavorite ? '已收藏電影' : '收藏電影' }}</van-button>
+          <van-button
+            :icon="isFavorite ? 'like' : 'like-o'"
+            color="#f48fb1"
+            type="default"
+            :plain="!isFavorite"
+            size="small"
+            @click="toggleFavorite"
+          >{{ isFavorite ? '已收藏電影' : '收藏電影' }}</van-button>
         </div>
       </div>
     </van-panel>
-      
+
     <van-tabs class="margin-t-10" v-model="cityId">
       <van-tab v-for="item in citys" :key="item.id" :title="item.name" :name="item.id"></van-tab>
     </van-tabs>
-    <van-card v-for="item in theaterList" :key="item.id" :title="item.name">
+    <van-card v-for="item in theaterList" :key="item.id">
+      <div slot="title" @click="goTheater(item)">{{ item.name }}</div>
       <div slot="desc">
         <div v-for="(v, i) in item.versions" :key="i">
           <van-divider content-position="left">{{ v.name || '數位' }}</van-divider>
@@ -55,18 +60,18 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import moment from 'moment';
-import _isEqual from 'lodash/isEqual';
+import { mapGetters } from "vuex";
+import moment from "moment";
+import _isEqual from "lodash/isEqual";
 
-import { movieSVC } from '@/services';
-import { movieRef } from '@/plugins/firebase';
+import { movieSVC } from "@/services";
+import { movieRef } from "@/plugins/firebase";
 
 export default {
   metaInfo() {
     return {
       title: this.movieInfo.name
-    }
+    };
   },
   data() {
     return {
@@ -74,23 +79,29 @@ export default {
       theaterList: [],
       cacheTheaterList: [],
       favoriteList: [],
-      cityId: window.localStorage.getItem('cityId') || '',
-      isEmpty: false,
-    }
+      cityId: window.localStorage.getItem("cityId") || "",
+      isEmpty: false
+    };
   },
   computed: {
     ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile'
+      isLoggedIn: "isLoggedIn",
+      profile: "profile"
     }),
     citys() {
-      return this.movieInfo?.citys ?? []
+      return this.movieInfo?.citys ?? [];
     },
     movieId() {
       return this.$route.params.id;
     },
     isFavorite() {
       return !!this.favoriteList.find(item => item.id === this.movieInfo.id);
+    },
+    posterSrc() {
+      return !this.movieInfo.poster ||
+        this.movieInfo.poster.includes("l10l010l3322l1")
+        ? "https://via.placeholder.com/250x370?text=404"
+        : this.movieInfo.poster;
     }
   },
   watch: {
@@ -98,15 +109,31 @@ export default {
       if (arr.length) {
         const lsCity = arr.find(item => item.id === this.cityId);
         if (!lsCity) {
-          this.cityId = arr[0].id
+          this.cityId = arr[0].id;
         }
       }
     },
     cityId: {
       immediate: true,
-      handler(val, oldVal) {
-        console.log(val, oldVal);
+      handler(newVal, oldVal) {
         this.theaterList = [];
+
+        movieRef.child(`movie-${this.movieId}`).off();
+        movieRef.child(`movie-${this.movieId}-${oldVal}`).off();
+        movieRef.child(`movie-${this.movieId}-${newVal}`).off();
+        movieRef.child(`movie-${this.movieId}${newVal ? `-${newVal}` : ''}`).on("value", snapshot => {
+          const data = snapshot.val();
+          if (data) {
+            this.movieInfo = data.item;
+            this.cacheTheaterList = data.items;
+
+            if (moment().isSame(data.dateCreated, 'day')) {
+              // 同一天的資料
+              this.theaterList = this.cacheTheaterList;
+            }
+          }
+        });
+
         this.getMovieTimesById();
         // window.localStorage.setItem('cityId', val)
       }
@@ -120,14 +147,9 @@ export default {
       }
     }
   },
-  created() {
-    movieRef.child(`movie-${this.movieId}`).on('value', snapshot => {
-      const data = snapshot.val();
-      if (data) {
-        this.movieInfo = data.item;
-        this.cacheTheaterList = data.items;
-      }
-    });
+  beforeDestroy() {
+    movieRef.child(`movie-${this.movieId}`).off();
+    movieRef.child(`movie-${this.movieId}-${this.cityId}`).off();
   },
   methods: {
     async getMovieTimesById() {
@@ -141,13 +163,16 @@ export default {
       if (!ret.items.length) {
         this.isEmpty = true;
       }
-      
-      if (!_isEqual(this.cacheTheaterList, ret.items) || !_isEqual(this.movieInfo, ret.item)) {
-        console.log('new')
-        movieRef.child(`movie-${this.movieId}`).set({
+
+      if (
+        !_isEqual(this.cacheTheaterList, ret.items) ||
+        !_isEqual(this.movieInfo, ret.item)
+      ) {
+        console.log("new");
+        movieRef.child(`movie-${this.movieId}${this.cityId ? `-${this.cityId}` : ''}`).set({
           item: ret.item,
           items: ret.items,
-          dateCreated: +moment(),
+          dateCreated: +moment()
         });
       }
 
@@ -158,37 +183,49 @@ export default {
       if (!this.isLoggedIn) {
         return;
       }
-      movieRef.child(`favorite-movie-${this.profile.userId}`).once('value', snapshot => {
-        const data = snapshot.val();
-        if (data && data?.length) {
-          this.favoriteList = data || [];
-        }
-      })
+      movieRef
+        .child(`favorite-movie-${this.profile.userId}`)
+        .once("value", snapshot => {
+          const data = snapshot.val();
+          if (data && data?.length) {
+            this.favoriteList = data || [];
+          }
+        });
     },
     toggleFavorite() {
       if (!this.isLoggedIn) {
-        this.$toast.fail('必須要登入才可以使用唷！');
+        this.$toast.fail("必須要登入才可以使用唷！");
         return;
       }
 
       if (this.isFavorite) {
-        this.favoriteList = this.favoriteList.filter(item => item.id !== this.movieInfo.id);
+        this.favoriteList = this.favoriteList.filter(
+          item => item.id !== this.movieInfo.id
+        );
       } else {
-        this.favoriteList.push({ 
-          ...this.movieInfo, 
+        this.favoriteList.push({
+          ...this.movieInfo,
           dateCreated: +moment()
-        })
+        });
       }
 
-      movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList);
+      movieRef
+        .child(`favorite-movie-${this.profile.userId}`)
+        .set(this.favoriteList);
     },
     isExpired(time) {
-      return moment().isAfter(moment(time, 'HH：mm'));
+      return moment().isAfter(moment(time, "HH：mm"));
     },
+    goTheater(item) {
+      this.$router.push({
+        name: "MovieTheaterDetails",
+        params: { id: item.id },
+        query: { cityId: this.cityId }
+      });
+    }
   }
-}
+};
 </script>
 
 <style lang="scss">
-
 </style>

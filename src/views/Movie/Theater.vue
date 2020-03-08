@@ -27,7 +27,7 @@
           <div>必須要登入才可以使用「我的最愛」唷！</div>
         </div>
       </van-cell>
-      <van-cell v-show="isFavorteMode && !filterList.length && isLoggedIn">
+      <van-cell v-show="isFavorteMode && isEmpty">
         <div class="text-center">
           <van-icon class="fs-30" name="info" />
           <div>這裡還什麼都沒有</div>
@@ -35,7 +35,7 @@
       </van-cell>
     </div>
 
-    <van-tabbar fixed v-model="activeTab">
+    <van-tabbar fixed v-model="activeTab" safe-area-inset-bottom>
       <van-tabbar-item icon="search"  name="search">地區搜尋</van-tabbar-item>
       <van-tabbar-item icon="like" name="favorite">我的最愛</van-tabbar-item>
     </van-tabbar>
@@ -59,7 +59,8 @@ export default {
       theaters: [],
       favoriteList: [],
       activeTab:  window.localStorage.getItem('theaters-activeTab') || 'search',
-      keyword: ''
+      keyword: '',
+      isEmpty: false,
     };
   },
   computed: {
@@ -137,6 +138,7 @@ export default {
       if (!this.cityId) {
         return;
       }
+
       await movieRef.child(`theaters-${this.cityId}`).once('value', snapshot => {
         const data = snapshot.val();
         if (data) {
@@ -162,10 +164,17 @@ export default {
       if (!this.isLoggedIn) {
         return;
       }
+
+      this.isEmpty = false;
       movieRef.child(`favorite-theaters-${this.profile.userId}`).once('value', snapshot => {
+        
         const data = snapshot.val();
         if (data && data?.length) {
           this.favoriteList = data || [];
+        }
+
+        if (!this.filterList.length) {
+          this.isEmpty = true;
         }
       })
     },
@@ -207,7 +216,7 @@ export default {
     flex: 1;
     overflow: auto;
     height: 100%;
-    padding-bottom: 60px;
+    padding-bottom: 80px;
   }
 }
 

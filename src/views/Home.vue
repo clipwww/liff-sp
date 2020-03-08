@@ -7,7 +7,7 @@
     >哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦土鳳梨酥！！！</van-notice-bar>
     <van-swipe class="my-swipe" :autoplay="5000" indicator-color="white">
       <van-swipe-item v-for="n in 5" :key="n">
-        <van-image src="./images/howhow.jpg" height="150" fit="cover"></van-image>
+        <van-image src="./images/howhow.jpg" width="100%" height="150" fit="cover"></van-image>
       </van-swipe-item>
     </van-swipe>
     <van-grid class="margin-t-10" :gutter="10" :column-num="2">

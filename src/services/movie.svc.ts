@@ -11,6 +11,13 @@ export function getMovieList() {
   })
 }
 
+export function getMovieListGroupByDate() {
+  return axiosInstace.request({
+    method: 'GET',
+    url: `${baseURL}/list-group-by-date`
+  })
+}
+
 export function getCityList() {
   return axiosInstace.request({
     method: 'GET',
@@ -28,17 +35,18 @@ export function getTheaterList(cityId: string) {
   })
 }
 
-export function getTheaterById(theaterId: string, cityId: string) {
+export function getTheaterById(theaterId: string, cityId: string = '', date?: string) {
   return axiosInstace.request({
     method: 'GET',
     url: `${baseURL}/theater/${theaterId}`,
     params: {
       cityId,
+      date,
     }
   })
 }
 
-export function getMovieTimesById(movieId: string, cityId: string) {
+export function getMovieTimesById(movieId: string, cityId: string = '') {
   return axiosInstace.request({
     method: 'GET',
     url: `${baseURL}/times/${movieId}`,

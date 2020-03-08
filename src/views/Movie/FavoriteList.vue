@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="padding-b-60">
     <van-panel v-show="isLoading">
       <div slot="header" class="padding-bt-10">
         <van-skeleton title avatar avatar-shape :row="4"></van-skeleton>
@@ -8,11 +8,13 @@
     <van-panel class="margin-bt-10" v-show="!isLoading" v-for="item in favoriteList" :key="item.id">
       <div slot="header">
         <van-cell :title="item.name" size="large">
-          <van-image slot="right-icon" width="49" height="20" :src="item.cerImg"  />
+          <van-image slot="right-icon" width="49" height="20" :src="item.cerImg" lazy-load />
         </van-cell>
       </div>
       <van-row class="padding-lr-15" :gutter="15">
-        <van-col span="7"><van-image :src="item.poster" @click="goMovie(item)"></van-image></van-col>
+        <van-col span="7">
+          <van-image :src="getSrc(item.poster)" width="100%" @click="goMovie(item)" lazy-load></van-image>
+        </van-col>
         <van-col span="17">
           <p class="fs-14">{{ item.description }}</p>
           <van-tag plain class="margin-r-5 margin-bt-5">片長: {{ item.runtime }} 分</van-tag>
@@ -89,8 +91,6 @@ export default {
       try {
         await this.$dialog.confirm({
           title: '確定要刪除收藏嗎？',
-          cancelButtonText: '取消',
-          confirmButtonText: '確認'
         });
         
         this.favoriteList = this.favoriteList.filter(f => f.id !== item.id);
@@ -99,6 +99,9 @@ export default {
       } catch (err) {
         console.log(err);
       }
+    },
+    getSrc(src = '') {
+      return !src || src.includes('l10l010l3322l1') ? 'https://via.placeholder.com/250x370?text=404' : src;
     },
     goMovie({ id }) {
       this.$router.push({ name: 'MovieDetails', params: { id, } })

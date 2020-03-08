@@ -2,7 +2,7 @@
   <div id="app">
     <router-view />
     <div class="fixed-control">
-      <van-image :src="pictureUrl" fit="cover" round></van-image>
+      <van-image :src="pictureUrl" fit="cover" round @click="login"></van-image>
     </div>
   </div>
 </template>
@@ -19,9 +19,25 @@ export default {
   },
   computed: {
     ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
       profile: 'profile',
       pictureUrl: 'pictureUrl'
     })
+  },
+  methods: {
+    login() {
+      if (this.isLoggedIn) {
+        this.$toast({
+          message:`Hi, ${this.profile.displayName}`,
+          icon: 'smile'
+        })
+        return;
+      }
+
+      window.liff.login({
+        redirectUri: window.location.href,
+      })
+    }
   }
 };
 </script>
