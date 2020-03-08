@@ -17,8 +17,16 @@
         </van-col>
         <van-col span="17">
           <p class="fs-14">{{ movieInfo.description }}</p>
-          <van-tag plain class="margin-r-5 margin-bt-5">片長: {{ movieInfo.runtime }} 分</van-tag>
-          <van-tag plain class="margin-bt-5">上映日期: {{ movieInfo.releaseDate }}</van-tag>
+          <van-tag
+            v-if="movieInfo.runtime"
+            plain
+            class="margin-r-5 margin-bt-5"
+          >片長: {{ movieInfo.runtime }} 分</van-tag>
+          <van-tag
+            v-if="movieInfo.releaseDate"
+            plain
+            class="margin-bt-5"
+          >上映日期: {{ movieInfo.releaseDate }}</van-tag>
         </van-col>
       </van-row>
       <div slot="footer">
@@ -31,6 +39,15 @@
             size="small"
             @click="toggleFavorite"
           >{{ isFavorite ? '已收藏電影' : '收藏電影' }}</van-button>
+          <van-button
+            v-if="movieInfo.trailer"
+            class="margin-l-10"
+            type="info"
+            icon="video-o"
+            size="small"
+            plain
+            @click="watchTrailer"
+          >電影預告</van-button>
         </div>
       </div>
     </van-panel>
@@ -121,18 +138,20 @@ export default {
         movieRef.child(`movie-${this.movieId}`).off();
         movieRef.child(`movie-${this.movieId}-${oldVal}`).off();
         movieRef.child(`movie-${this.movieId}-${newVal}`).off();
-        movieRef.child(`movie-${this.movieId}${newVal ? `-${newVal}` : ''}`).on("value", snapshot => {
-          const data = snapshot.val();
-          if (data) {
-            this.movieInfo = data.item;
-            this.cacheTheaterList = data.items;
+        movieRef
+          .child(`movie-${this.movieId}${newVal ? `-${newVal}` : ""}`)
+          .on("value", snapshot => {
+            const data = snapshot.val();
+            if (data) {
+              this.movieInfo = data.item;
+              this.cacheTheaterList = data.items || [];
 
-            if (moment().isSame(data.dateCreated, 'day')) {
-              // 同一天的資料
-              this.theaterList = this.cacheTheaterList;
+              if (moment().isSame(data.dateCreated, "day")) {
+                // 同一天的資料
+                this.theaterList = this.cacheTheaterList;
+              }
             }
-          }
-        });
+          });
 
         this.getMovieTimesById();
         // window.localStorage.setItem('cityId', val)
@@ -168,12 +187,13 @@ export default {
         !_isEqual(this.cacheTheaterList, ret.items) ||
         !_isEqual(this.movieInfo, ret.item)
       ) {
-        console.log("new");
-        movieRef.child(`movie-${this.movieId}${this.cityId ? `-${this.cityId}` : ''}`).set({
-          item: ret.item,
-          items: ret.items,
-          dateCreated: +moment()
-        });
+        movieRef
+          .child(`movie-${this.movieId}${this.cityId ? `-${this.cityId}` : ""}`)
+          .set({
+            item: ret.item,
+            items: ret.items,
+            dateCreated: +moment()
+          });
       }
 
       this.movieInfo = ret.item;
@@ -215,6 +235,18 @@ export default {
     },
     isExpired(time) {
       return moment().isAfter(moment(time, "HH：mm"));
+    },
+    watchTrailer() {
+      const url = this.movieInfo.trailer;
+      if (window.liff.isInClient()) {
+        window.liff.openWindow({
+          url,
+          external: true
+        })
+      } else {
+        window.open(url);
+      }
+      
     },
     goTheater(item) {
       this.$router.push({

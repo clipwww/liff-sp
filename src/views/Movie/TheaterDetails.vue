@@ -117,7 +117,7 @@ export default {
       keys.filter(key => key.includes('theater-')).forEach(key => {
         const data = snapshot.child(key).val();
         if (moment().isAfter(data.dateCreated, 'day')) {
-          console.log(key)
+          console.log('key', key)
           movieRef.child(key).remove();
         }
       })      

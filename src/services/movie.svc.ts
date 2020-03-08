@@ -18,6 +18,13 @@ export function getMovieListGroupByDate() {
   })
 }
 
+export function getMovieNextList() {
+  return axiosInstace.request({
+    method: 'GET',
+    url: `${baseURL}/next`
+  })
+}
+
 export function getCityList() {
   return axiosInstace.request({
     method: 'GET',

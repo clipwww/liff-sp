@@ -76,7 +76,7 @@ export default {
     this.isLoading = true;
     movieRef.child(`favorite-movie-${this.profile.userId}`).on('value', snapshot => {
       const data = snapshot.val();
-      console.log('List', data)
+
       if (data && data?.length) {
         this.favoriteList = data || [];
       }

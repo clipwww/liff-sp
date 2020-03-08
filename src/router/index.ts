@@ -55,7 +55,7 @@ const routes: RouteConfig[] = [
         },
       },
       {
-        path: ':id',
+        path: 'details/:id',
         name: 'MovieDetails',
         component: loadComponents('Movie/Details'),
         meta: {
@@ -68,6 +68,14 @@ const routes: RouteConfig[] = [
         component: loadComponents('Movie/FavoriteList'),
         meta: {
           label: '收藏的電影'
+        },
+      },
+      {
+        path: 'next',
+        name: 'MovieNext',
+        component: loadComponents('Movie/Next'),
+        meta: {
+          label: '近期上映'
         },
       }
     ]

@@ -3,14 +3,7 @@
     <div class="movie-list__container">
       <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋" />
       <div v-if="isListMode" class="movie-list__list">
-        <van-cell v-for="item in filterMovies" 
-          :key="item.id"
-          :title="item.name"
-          :label="item.description"
-          @click="goDetails(item)">
-          <van-image slot="icon" class="margin-r-10" width="40" :src="item.poster" lazy-load />
-          <van-image slot="right-icon" class="margin-l-5" width="40" fit="contain" :src="item.cerImg" lazy-load />
-        </van-cell>
+        <MovieListCell :items="filterMovies" />
         <div v-show="!movies.length">
           <van-cell v-for="n in 10" :key="n">
             <van-skeleton :row="1" />
@@ -21,14 +14,7 @@
         <van-cell-group v-for="(group, index) in filterMoviesGroupByDate"
           :key="index">
           <van-tag slot="title" type="primary" size="large" plain>{{ group.releaseDate }}</van-tag>
-          <van-cell v-for="item in group.movies" 
-            :key="item.id"
-            :title="item.name"
-            :label="item.description"
-            @click="goDetails(item)">
-            <van-image slot="icon" class="margin-r-10" width="40" :src="item.poster" lazy-load />
-            <van-image slot="right-icon" class="margin-l-5" width="40" fit="contain" :src="item.cerImg" lazy-load />
-          </van-cell>
+          <MovieListCell :items="group.movies" />
         </van-cell-group>
         <div v-show="!moviesGroupByDate.length">
           <van-cell v-for="n in 10" :key="n">
@@ -52,7 +38,12 @@ import _isEqual from 'lodash/isEqual';
 import { movieSVC } from '@/services';
 import { movieRef } from '@/plugins/firebase'
 
+import MovieListCell from '@/components/MovieListCell.vue'
+
 export default {
+  components: {
+    MovieListCell,
+  },
   data() {
     return {
       keyword: '',
@@ -123,6 +114,10 @@ export default {
     this.getMovies();
     this.getMoviesGroupBtDate();
   },
+  beforeDestroy() {
+    movieRef.child('movies').off();
+    movieRef.child('movies-group-by-date').off();
+  },
   methods: {
     async getMovies() {
       const ret = await movieSVC.getMovieList();
@@ -131,7 +126,6 @@ export default {
       }
 
       if (!_isEqual(this.movies, ret.items)) {
-        console.log('new!');
         movieRef.child('movies').set({
           items: ret.items,
           dateCreated: +moment(),
@@ -145,16 +139,13 @@ export default {
       }
 
       if (!_isEqual(this.moviesGroupByDate, ret.items)) {
-        console.log('new!');
         movieRef.child('movies-group-by-date').set({
           items: ret.items,
           dateCreated: +moment(),
         });
       }
     },
-    goDetails(item) {
-      this.$router.push({ name: 'MovieDetails', params: { id: item.id } });
-    }
+    
   }
 }
 </script>

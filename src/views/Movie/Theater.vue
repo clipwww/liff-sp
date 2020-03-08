@@ -127,7 +127,6 @@ export default {
       }
 
       if (!_isEqual(this.citys, ret.items)) {
-        console.log('new!');
         movieRef.child('citys').set({
           items: ret.items,
           dateCreated: +moment(),
@@ -152,7 +151,6 @@ export default {
       }
 
       if (!_isEqual(this.theaters, ret.items)) {
-        console.log('new!');
         movieRef.child(`theaters-${this.cityId}`).set({
           items: ret.items,
           dateCreated: +moment(),
