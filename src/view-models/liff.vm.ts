@@ -46,6 +46,13 @@ export interface Liff {
    * 只在Line內部以及iOs < 9.19.0版本
    */
   scanCode?(): Promise<{ value: string }>;
+  /**
+   * 顯示群組、好友選擇
+   * 可將客製化訊息傳送出去
+   * @param messages 
+   * ref. https://developers.line.biz/flex-simulator/
+   */
+  shareTargetPicker(messages: Array<any>): Promise<void>;
   closeWindow(): void;
   initPlugins(pluginNames: Array<string>): Promise<void | string>;
   bluetooth: {
@@ -87,4 +94,11 @@ export interface DecodedIDToken {
   amr: string[];
   name: string;
   picture: string;
+}
+
+
+export interface FlexMessage {
+  type: 'flex';
+  altText: string; // 替代文字
+  contents: any[];
 }

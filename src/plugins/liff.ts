@@ -46,3 +46,16 @@ export const scanCode = async () => {
     return;
   }
 };
+
+
+export const shareTargetPicker = async (message: any[]) => {
+  try {
+    await liff.shareTargetPicker(message);
+
+    return true;
+  } catch (err) {
+    console.error(err)
+    alert(err.message);
+    return false;
+  }
+}

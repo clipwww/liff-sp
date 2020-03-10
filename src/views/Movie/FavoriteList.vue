@@ -8,7 +8,7 @@
     <van-panel class="margin-bt-10" v-show="!isLoading" v-for="item in favoriteList" :key="item.id">
       <div slot="header">
         <van-cell :title="item.name" size="large">
-          <van-image slot="right-icon" width="49" height="20" :src="item.cerImg" lazy-load />
+          <van-image slot="right-icon" width="40" fit="contain" :src="item.cerImg" lazy-load />
         </van-cell>
       </div>
       <van-row class="padding-lr-15" :gutter="15">
@@ -24,10 +24,7 @@
       <div slot="footer">
         <div class="flex-between">
           <div class="little-text">加入收藏日期 {{ item.dateCreated | formatDate }}</div>
-          <van-button icon="delete"
-            type="danger" 
-            size="small" 
-            @click="removeFavorite(item)">刪除收藏</van-button>
+          <van-button icon="delete" type="danger" size="small" @click="removeFavorite(item)">刪除收藏</van-button>
         </div>
       </div>
     </van-panel>
@@ -54,21 +51,21 @@ export default {
     return {
       favoriteList: [],
       isLoading: false,
-    }
+    };
   },
   computed: {
     ...mapGetters({
       isLoggedIn: 'isLoggedIn',
-      profile: 'profile'
+      profile: 'profile',
     }),
   },
-  beforeRouteEnter(to, from , next) {
+  beforeRouteEnter(to, from, next) {
     const isLoggedIn = store.state.isLoggedIn;
 
     if (isLoggedIn) {
       next();
     } else {
-      Toast.fail('必須要登入才可以使用唷！')
+      Toast.fail('必須要登入才可以使用唷！');
       next({ name: 'MovieSearchTypeChoice' });
     }
   },
@@ -81,10 +78,10 @@ export default {
         this.favoriteList = data || [];
       }
       this.isLoading = false;
-    })
+    });
   },
   beforeDestroy() {
-    movieRef.child(`favorite-movie-${this.profile.userId}`).off()
+    movieRef.child(`favorite-movie-${this.profile.userId}`).off();
   },
   methods: {
     async removeFavorite(item) {
@@ -92,7 +89,7 @@ export default {
         await this.$dialog.confirm({
           title: '確定要刪除收藏嗎？',
         });
-        
+
         this.favoriteList = this.favoriteList.filter(f => f.id !== item.id);
 
         movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList);
@@ -104,12 +101,11 @@ export default {
       return !src || src.includes('l10l010l3322l1') ? 'https://via.placeholder.com/250x370?text=404' : src;
     },
     goMovie({ id }) {
-      this.$router.push({ name: 'MovieDetails', params: { id, } })
-    }
-  }
-}
+      this.$router.push({ name: 'MovieDetails', params: { id } });
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>

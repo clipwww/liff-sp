@@ -11,13 +11,24 @@
     </van-panel>
 
     <van-cell class="margin-t-5" :value="formatDate" is-link @click="showCalendar = true"></van-cell>
-    <van-calendar v-model="showCalendar" :show-confirm="false" :max-date="maxDate" close-on-popstate @confirm="onDateChange" />
+    <van-calendar
+      v-model="showCalendar"
+      :show-confirm="false"
+      :max-date="maxDate"
+      close-on-popstate
+      @confirm="onDateChange"
+    />
 
-    <van-card v-for="item in movies" :key="item.id" :title="item.title" @click-thumb="goMovie(item)">
-      <div slot="thumb" >
+    <van-card
+      v-for="item in movies"
+      :key="item.id"
+      :title="item.title"
+      @click-thumb="goMovie(item)"
+    >
+      <div slot="thumb">
         <van-image height="88" fit="cover" :src="item.image" lazy-load></van-image>
         <div class="margin-t-5">
-          <van-image width="40" fit="contain" :src="item.cerImg" lazy-load/>
+          <van-image class="square" width="35" fit="contain" :src="item.cerImg" lazy-load />
         </div>
       </div>
 
@@ -53,8 +64,8 @@ import { movieRef } from '@/plugins/firebase';
 export default {
   metaInfo() {
     return {
-      title: this.theaterInfo.name
-    }
+      title: this.theaterInfo.name,
+    };
   },
   data() {
     return {
@@ -80,7 +91,7 @@ export default {
     },
     isToday() {
       return moment().isSame(this.date, 'day');
-    }
+    },
   },
   watch: {
     formatDate: {
@@ -93,13 +104,11 @@ export default {
         movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).on('value', snapshot => {
           const data = snapshot.val();
           if (data) {
-            if (this.isToday) {
-              this.theaterInfo = data.item;
-            }
+            this.theaterInfo = data.item;
             this.movies = data.items;
           }
         });
-      }
+      },
     },
     showCalendar: {
       immediate: true,
@@ -107,22 +116,23 @@ export default {
         if (!bool) {
           document.body?.classList?.remove('van-overflow-hidden');
         }
-      }
-    }
+      },
+    },
   },
   created() {
-   
     movieRef.on('value', snapshot => {
       const keys = Object.keys(snapshot.val());
-      keys.filter(key => key.includes('theater-')).forEach(key => {
-        const data = snapshot.child(key).val();
-        if (moment().isAfter(data.dateCreated, 'day')) {
-          console.log('key', key)
-          movieRef.child(key).remove();
-        }
-      })      
+      keys
+        .filter(key => key.includes('theater-'))
+        .forEach(key => {
+          const data = snapshot.child(key).val();
+          if (moment().isAfter(data.dateCreated, 'day')) {
+            console.log('key', key);
+            movieRef.child(key).remove();
+          }
+        });
     });
-            
+
     this.getTheaterById();
   },
   beforeDestroy() {
@@ -138,7 +148,7 @@ export default {
       }
 
       if (!ret.items.length) {
-        this.isEmpty = true
+        this.isEmpty = true;
       }
 
       if (!_isEqual(this.movies, ret.items)) {
@@ -158,11 +168,18 @@ export default {
       return moment().isAfter(moment(time, 'HH：mm'));
     },
     goMovie({ id }) {
-      this.$router.push({ name: 'MovieDetails', params: { id, } })
-    }
+      this.$router.push({ name: 'MovieDetails', params: { id } });
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.square {
+  &::v-deep {
+    img {
+      border-radius: 0;
+    }
+  }
+}
 </style>

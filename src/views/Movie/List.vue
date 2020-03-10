@@ -11,9 +11,14 @@
         </div>
       </div>
       <div v-if="isGroupByDateMode" class="movie-list__list">
-        <van-cell-group v-for="(group, index) in filterMoviesGroupByDate"
-          :key="index">
-          <van-tag slot="title" type="primary" size="large" plain>{{ group.releaseDate }}</van-tag>
+        <van-cell-group v-for="group in filterMoviesGroupByDate" :key="group.releaseDate">
+          <van-tag
+            v-if="group.movies.length"
+            slot="title"
+            type="primary"
+            size="large"
+            plain
+          >{{ group.releaseDate }}</van-tag>
           <MovieListCell :items="group.movies" />
         </van-cell-group>
         <div v-show="!moviesGroupByDate.length">
@@ -23,9 +28,9 @@
         </div>
       </div>
     </div>
-    
-    <van-tabbar fixed v-model="activeTab" safe-area-inset-bottom	>
-      <van-tabbar-item icon="orders-o"  name="list">快速瀏覽</van-tabbar-item>
+
+    <van-tabbar fixed v-model="activeTab" safe-area-inset-bottom>
+      <van-tabbar-item icon="orders-o" name="list">快速瀏覽</van-tabbar-item>
       <van-tabbar-item icon="calender-o" name="date">依照上映日</van-tabbar-item>
     </van-tabbar>
   </div>
@@ -36,9 +41,9 @@ import moment from 'moment';
 import _isEqual from 'lodash/isEqual';
 
 import { movieSVC } from '@/services';
-import { movieRef } from '@/plugins/firebase'
+import { movieRef } from '@/plugins/firebase';
 
-import MovieListCell from '@/components/MovieListCell.vue'
+import MovieListCell from '@/components/MovieListCell.vue';
 
 export default {
   components: {
@@ -49,12 +54,13 @@ export default {
       keyword: '',
       movies: [],
       moviesGroupByDate: [],
-      activeTab: window.localStorage.getItem('movies-activeTab') || 'list'
-    }
+      activeTab: window.localStorage.getItem('movies-activeTab') || 'list',
+    };
   },
   computed: {
     filterMovies() {
-      return this.movies?.filter(item => this.keyword ? item.name.includes(this.keyword) : true)
+      return this.movies
+        ?.filter(item => (this.keyword ? item.name.includes(this.keyword) : true))
         .map(movie => {
           let otherInfo = {};
           this.moviesGroupByDate?.forEach(item => {
@@ -62,28 +68,29 @@ export default {
               if (m.id === movie.id) {
                 otherInfo = m;
               }
-            })
+            });
           });
 
           return {
             ...movie,
-            ...otherInfo
-          }
+            ...otherInfo,
+          };
         });
     },
     filterMoviesGroupByDate() {
-      return  this.moviesGroupByDate?.map(item => {
+      return this.moviesGroupByDate?.map(item => {
         return {
           ...item,
-          movies: item.movies.filter(m => this.keyword ? m.name.includes(this.keyword) : true)
+          movies: item.movies
+            .filter(m => (this.keyword ? m.name.includes(this.keyword) : true))
             .map(movie => {
               const otherInfo = this.movies?.find(m => m.id === movie.id);
               return {
                 ...movie,
-                ...otherInfo
-              }
-            })
-        }
+                ...otherInfo,
+              };
+            }),
+        };
       });
     },
     isListMode() {
@@ -91,7 +98,7 @@ export default {
     },
     isGroupByDateMode() {
       return this.activeTab === 'date';
-    }
+    },
   },
   watch: {
     activeTab(val) {
@@ -145,9 +152,8 @@ export default {
         });
       }
     },
-    
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
