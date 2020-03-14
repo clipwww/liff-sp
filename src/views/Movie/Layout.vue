@@ -9,18 +9,11 @@
 <script>
 export default {
   data() {
-    return {
-
-    };
+    return {};
   },
-  methods: {
-
-  },
+  methods: {},
 };
 </script>
 
 <style lang="scss" scoped>
-.movie-container {
-  
-}
 </style>

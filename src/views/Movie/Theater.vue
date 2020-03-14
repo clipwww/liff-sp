@@ -5,15 +5,14 @@
     </van-dropdown-menu>
     <van-search v-model.trim="keyword" placeholder="請輸入關鍵字篩選" />
     <div class="theater__list">
-      <van-cell v-for="item in filterList" 
-        :key="item.id" 
-        is-link	
-        @click="goDetails(item)">
-        <van-icon slot="icon" 
-          class="lh-inherit margin-r-10" 
+      <van-cell v-for="item in filterList" :key="item.id" is-link @click="goDetails(item)">
+        <van-icon
+          slot="icon"
+          class="lh-inherit margin-r-10"
           :name="isFavorite(item) ? 'like' : 'like-o'"
           color="#f48fb1"
-          @click.stop="toggleFavorite(item)" />
+          @click.stop="toggleFavorite(item)"
+        />
         {{ item.name }}
       </van-cell>
       <div v-show="!theaters.length && cityId">
@@ -36,7 +35,7 @@
     </div>
 
     <van-tabbar fixed v-model="activeTab" safe-area-inset-bottom>
-      <van-tabbar-item icon="search"  name="search">地區搜尋</van-tabbar-item>
+      <van-tabbar-item icon="search" name="search">地區搜尋</van-tabbar-item>
       <van-tabbar-item icon="like" name="favorite">我的最愛</van-tabbar-item>
     </van-tabbar>
   </div>
@@ -50,7 +49,6 @@ import _isEqual from 'lodash/isEqual';
 import { movieSVC } from '@/services';
 import { movieRef } from '@/plugins/firebase';
 
-
 export default {
   data() {
     return {
@@ -58,7 +56,7 @@ export default {
       citys: [],
       theaters: [],
       favoriteList: [],
-      activeTab:  window.localStorage.getItem('theaters-activeTab') || 'search',
+      activeTab: window.localStorage.getItem('theaters-activeTab') || 'search',
       keyword: '',
       isEmpty: false,
     };
@@ -66,11 +64,12 @@ export default {
   computed: {
     ...mapGetters({
       isLoggedIn: 'isLoggedIn',
-      profile: 'profile'
+      profile: 'profile',
     }),
     filterList() {
-      return (this.isFavorteMode ? this.favoriteList : this.theaters)
-      .filter(item => this.keyword ? item.name.includes(this.keyword) : true);
+      return (this.isFavorteMode ? this.favoriteList : this.theaters).filter(item =>
+        this.keyword ? item.name.includes(this.keyword) : true
+      );
     },
     cityOptions() {
       return this.citys.map(item => {
@@ -78,11 +77,11 @@ export default {
           text: item.name,
           value: item.id,
         };
-      })
+      });
     },
     isFavorteMode() {
-      return this.activeTab === 'favorite'
-    }
+      return this.activeTab === 'favorite';
+    },
   },
   watch: {
     cityId: {
@@ -101,8 +100,8 @@ export default {
         if (bool) {
           this.getFavoriteTheaters();
         }
-      }
-    }
+      },
+    },
   },
   created() {
     movieRef.child('citys').on('value', snapshot => {
@@ -133,7 +132,7 @@ export default {
         });
       }
     },
-     async getTheaterList() {
+    async getTheaterList() {
       if (!this.cityId) {
         return;
       }
@@ -165,7 +164,6 @@ export default {
 
       this.isEmpty = false;
       movieRef.child(`favorite-theaters-${this.profile.userId}`).once('value', snapshot => {
-        
         const data = snapshot.val();
         if (data && data?.length) {
           this.favoriteList = data || [];
@@ -174,14 +172,13 @@ export default {
         if (!this.filterList.length) {
           this.isEmpty = true;
         }
-      })
+      });
     },
     async toggleFavorite(item) {
       if (!this.isLoggedIn) {
         this.$toast.fail('必須要登入才可以使用唷！');
         return;
       }
-      
 
       if (!this.favoriteList.find(f => f.id === item.id)) {
         this.favoriteList.push(item);
@@ -214,7 +211,7 @@ export default {
     flex: 1;
     overflow: auto;
     height: 100%;
-    padding-bottom: 80px;
+    padding-bottom: $paddingBottom;
   }
 }
 

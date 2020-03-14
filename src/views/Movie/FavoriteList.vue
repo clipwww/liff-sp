@@ -1,5 +1,5 @@
 <template>
-  <div class="padding-b-60">
+  <div class="favorite-list">
     <van-panel v-show="isLoading">
       <div slot="header" class="padding-bt-10">
         <van-skeleton title avatar avatar-shape :row="4"></van-skeleton>
@@ -107,5 +107,8 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.favorite-list {
+  padding-bottom: $paddingBottom;
+}
 </style>

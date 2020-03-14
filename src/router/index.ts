@@ -79,6 +79,46 @@ const routes: RouteConfig[] = [
         },
       }
     ]
+  },
+  {
+    path: '/komica',
+    name: 'Komica',
+    component: loadComponents('Komica/Layout'),
+    redirect: { name: 'KomicaNew' },
+    children: [
+      {
+        path: 'new',
+        name: 'KomicaNew',
+        component: loadComponents('Komica/List'),
+        meta: {
+          label: '新番捏他'
+        }
+      },
+      {
+        path: 'new/:id',
+        name: 'KomicaNewDetails',
+        component: loadComponents('Komica/Details'),
+        meta: {
+          label: '新番捏他'
+        }
+      },
+      {
+        path: 'live',
+        name: 'KomicaLive',
+        component: loadComponents('Komica/List'),
+        meta: {
+          label: '新番實況'
+        }
+      },
+      {
+        path: 'live/:id',
+        name: 'KomicaLiveDetails',
+        component: loadComponents('Komica/Details'),
+        meta: {
+          label: '新番實況'
+        }
+      }
+    ]
   }
 ];
 
