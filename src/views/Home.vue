@@ -11,13 +11,18 @@
       </van-swipe-item>
     </van-swipe>
     <van-grid class="margin-t-10" :gutter="10" :column-num="2">
-      <van-grid-item clickable dot :to="{ name: 'Movie' }">
-        <van-icon class="fs-28 margin-b-5" name="video-o"></van-icon>
-        <div>電影時刻查詢</div>
-      </van-grid-item>
-      <van-grid-item clickable dot :to="{ name: 'Komica' }">
-        <van-image class="icon-img margin-b-5" src="./images/komica.png" alt="komica" />
-        <div>糟糕島</div>
+      <van-grid-item v-for="item in routes" :key="item.name" clickable :to="{ name: item.name }">
+        <template v-if="item.meta">
+          <van-icon class="margin-b-5" v-if="item.meta.icon" size="28" :name="item.meta.icon"></van-icon>
+          <van-image
+            class="margin-b-5"
+            v-if="item.meta.image"
+            width="28"
+            :src="item.meta.image"
+            alt="komica"
+          />
+        </template>
+        <div>{{ item.meta.label }}</div>
       </van-grid-item>
       <van-grid-item icon="photo-o" text="施工中" />
       <van-grid-item icon="photo-o" text="How Ger 好帥ㄛ" />
@@ -28,6 +33,11 @@
 <script>
 export default {
   components: {},
+  computed: {
+    routes() {
+      return (this.$router?.options?.routes ?? []).filter(item => item.path !== '/');
+    },
+  },
 };
 </script>
 
@@ -38,9 +48,5 @@ export default {
   // line-height: 150px;
   // text-align: center;
   // background-color: #39a9ed;
-}
-
-.icon-img {
-  width: 28px;
 }
 </style>

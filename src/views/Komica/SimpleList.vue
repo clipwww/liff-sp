@@ -25,7 +25,10 @@
             </div>
             <div slot="label">
               <span class="margin-r-5">{{ item.dateCreated | formatDate }}</span>
-              <van-tag plain size="mini">{{ item.replyCount }}</van-tag>
+              <!-- <van-tag plain size="mini">{{ item.replyCount }}</van-tag> -->
+            </div>
+            <div slot="right-icon">
+              <van-icon name="chat-o" size="25" :info="item.replyCount"></van-icon>
             </div>
           </van-cell>
         </van-cell-group>
@@ -38,6 +41,11 @@
 import { komicaSVC } from '@/services';
 
 export default {
+  metaInfo() {
+    return {
+      title: this.komicaType === 'new' ? '新番捏他' : '新番實況',
+    };
+  },
   data() {
     return {
       keyword: '',

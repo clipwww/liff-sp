@@ -18,22 +18,22 @@
 </template>
 
 <script>
-import moment from "moment";
-import _isEqual from "lodash/isEqual";
+import moment from 'moment';
+import _isEqual from 'lodash/isEqual';
 
-import { movieSVC } from "@/services";
-import { movieRef } from "@/plugins/firebase";
+import { movieSVC } from '@/services';
+import { movieRef } from '@/plugins/firebase';
 
-import MovieListCell from "@/components/MovieListCell.vue";
+import MovieListCell from '@/components/MovieListCell.vue';
 
 export default {
   components: {
-    MovieListCell
+    MovieListCell,
   },
   data() {
     return {
-      keyword: "",
-      moviesGroupByDate: []
+      keyword: '',
+      moviesGroupByDate: [],
     };
   },
   computed: {
@@ -41,15 +41,13 @@ export default {
       return this.moviesGroupByDate?.map(item => {
         return {
           ...item,
-          movies: item.movies.filter(m =>
-            this.keyword ? m.name.includes(this.keyword) : true
-          )
+          movies: item.movies.filter(m => (this.keyword ? m.name.includes(this.keyword) : true)),
         };
       });
-    }
+    },
   },
   created() {
-    movieRef.child("movies-next").on("value", snapshot => {
+    movieRef.child('movies-next').on('value', snapshot => {
       const data = snapshot.val();
       if (data) {
         this.moviesGroupByDate = data.items;
@@ -59,7 +57,7 @@ export default {
     this.getMoviesGroupBtDate();
   },
   beforeDestroy() {
-    movieRef.child("movies-next").off();
+    movieRef.child('movies-next').off();
   },
   methods: {
     async getMoviesGroupBtDate() {
@@ -69,13 +67,13 @@ export default {
       }
 
       if (!_isEqual(this.moviesGroupByDate, ret.items)) {
-        movieRef.child("movies-next").set({
+        movieRef.child('movies-next').set({
           items: ret.items,
-          dateCreated: +moment()
+          dateCreated: +moment(),
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -84,7 +82,7 @@ export default {
   &__container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - 46px);
   }
 
   &__list {

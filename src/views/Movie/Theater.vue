@@ -204,7 +204,7 @@ export default {
   &__container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 0px);
+    height: calc(100vh - 46px);
   }
 
   &__list {

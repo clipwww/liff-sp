@@ -13,7 +13,8 @@ const routes: RouteConfig[] = [
     name: 'Home',
     component: Home,
     meta: {
-      label: '首頁'
+      label: '首頁',
+      icon: 'wap-home'
     }
   },
   {
@@ -21,6 +22,10 @@ const routes: RouteConfig[] = [
     name: 'Movie',
     component: loadComponents('Movie/Layout'),
     redirect: { name: 'MovieSearchTypeChoice' },
+    meta: {
+      label: '電影時刻查詢',
+      icon: 'video-o'
+    },
     children: [
       {
         path: '',
@@ -85,6 +90,10 @@ const routes: RouteConfig[] = [
     name: 'Komica',
     component: loadComponents('Komica/Layout'),
     redirect: { name: 'KomicaNew' },
+    meta: {
+      label: '糟糕島',
+      image: './images/komica.png'
+    },
     children: [
       {
         path: 'new',
@@ -123,7 +132,7 @@ const routes: RouteConfig[] = [
         name: 'KomicaSimpleList',
         component: loadComponents('Komica/SimpleList'),
         meta: {
-          label: '新番'
+          label: '簡易列表'
         }
       },
     ]
