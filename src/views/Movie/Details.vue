@@ -247,6 +247,11 @@ export default {
       });
     },
     async share(item) {
+      if (!this.isLoggedIn) {
+        this.$toast.fail('必須要登入才可以使用唷！');
+        return;
+      }
+
       const contents = [];
       item.versions.forEach(v => {
         const timeArr = v.times.map(t => t.replace('：', ':'));

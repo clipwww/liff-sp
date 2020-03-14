@@ -108,9 +108,7 @@ export default {
   methods: {
     async getDetails() {
       this.post = null;
-      setTimeout(() => {
-        this.isRefreshing = false;
-      }, 300);
+      this.isRefreshing = false;
 
       const ret = await komicaSVC.getDetails(this.komicaType, this.postId);
 

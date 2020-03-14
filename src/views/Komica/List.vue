@@ -7,18 +7,19 @@
           :finished="isFinished"
           finished-text="没有更多了"
           error-text="Oops...發生錯誤"
+          offset="50"
           @load="getList"
         >
           <div slot="loading">
             <van-cell-group>
               <van-skeleton
                 class="padding-bt-15"
-                v-for="n in 4"
                 :row="4"
                 title
                 avatar
                 avatar-shape="square"
                 avatar-size="90"
+                v-for="n in 2"
                 :key="n"
               ></van-skeleton>
             </van-cell-group>
@@ -113,9 +114,7 @@ export default {
         this.items = [];
         this.page = 1;
         this.isFinished = false;
-        setTimeout(() => {
-          this.isRefreshing = false;
-        }, 300);
+        this.isRefreshing = false;
       }
 
       this.isLoading = true;

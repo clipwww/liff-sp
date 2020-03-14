@@ -117,7 +117,15 @@ const routes: RouteConfig[] = [
         meta: {
           label: '新番實況'
         }
-      }
+      },
+      {
+        path: 'simple-list',
+        name: 'KomicaSimpleList',
+        component: loadComponents('Komica/SimpleList'),
+        meta: {
+          label: '新番'
+        }
+      },
     ]
   }
 ];

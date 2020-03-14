@@ -173,3 +173,16 @@
 .with-safe-area-inset-bottom {
   padding-bottom: $paddingBottom;
 }
+
+.list {
+  &__container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  &__content {
+    flex: 1;
+    overflow: auto;
+    height: 100%;
+  }
+}

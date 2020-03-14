@@ -16,7 +16,7 @@
               icon="eye"
               size="mini"
               @click.stop="$emit('click-preview')"
-            ></van-button>
+            >預覽</van-button>
           </div>
         </div>
         <div class="little-text">No. {{ item.id }}</div>
