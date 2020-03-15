@@ -1,10 +1,10 @@
 <template>
-  <div class="theater__container">
+  <div class="list__container">
     <van-dropdown-menu v-show="!isFavorteMode" class="dropdown">
       <van-dropdown-item v-model="cityId" :options="cityOptions" placeholder="安安" />
     </van-dropdown-menu>
     <van-search v-model.trim="keyword" placeholder="請輸入關鍵字篩選" />
-    <div class="theater__list">
+    <div class="list__content with-safe-area-inset-bottom">
       <van-cell v-for="item in filterList" :key="item.id" is-link @click="goDetails(item)">
         <van-icon
           slot="icon"
@@ -193,28 +193,17 @@ export default {
       return !!this.favoriteList.find(f => f.id === item.id);
     },
     goDetails(item) {
-      this.$router.push({ name: 'MovieTheaterDetails', params: { id: item.id }, query: { cityId: this.cityId } });
+      this.$router.push({
+        name: 'MovieTheaterDetails',
+        params: { id: item.id },
+        query: { cityId: this.cityId, title: item.name },
+      });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.theater {
-  &__container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 46px);
-  }
-
-  &__list {
-    flex: 1;
-    overflow: auto;
-    height: 100%;
-    padding-bottom: $paddingBottom;
-  }
-}
-
 .dropdown {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 1;

@@ -46,6 +46,14 @@
       <van-tabbar-item icon="photo" name="iamges">瀏覽圖片</van-tabbar-item>
       <van-tabbar-item icon="arrow-down" name="down">至底</van-tabbar-item>
     </van-tabbar>
+
+    <van-button
+      class="fixed-btn padding-lr-5"
+      type="primary"
+      plain
+      size="mini"
+      @click="openOriginPage"
+    >開啟原頁面</van-button>
   </div>
 </template>
 
@@ -145,9 +153,20 @@ export default {
           break;
       }
     },
+    openOriginPage() {
+      window.liff.openWindow({
+        url: this.post.url,
+      });
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.fixed-btn {
+  position: fixed;
+  top: 9px;
+  right: 10px;
+  z-index: 1;
+}
 </style>

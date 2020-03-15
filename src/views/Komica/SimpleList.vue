@@ -1,7 +1,7 @@
 <template>
   <div class="list__container">
     <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋"></van-search>
-    <div class="list__content">
+    <div class="list__content with-safe-area-inset-bottom">
       <van-tabs class="margin-bt-5" v-model="komicaType" type="card">
         <van-tab title="新番捏他" name="new"></van-tab>
         <van-tab title="新番實況" name="live"></van-tab>
@@ -85,7 +85,7 @@ export default {
     },
     goDetails(item) {
       const name = this.komicaType === 'new' ? 'KomicaNewDetails' : 'KomicaLiveDetails';
-      this.$router.push({ name, params: { id: item.id } });
+      this.$router.push({ name, params: { id: item.id }, query: { title: item.title } });
     },
   },
 };

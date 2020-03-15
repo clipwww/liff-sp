@@ -1,9 +1,7 @@
 <template>
   <div id="app">
     <van-nav-bar fixed @click-left="showSidePopup = true">
-      <div slot="left">
-        <van-icon size="25px" name="wap-nav" />
-      </div>
+      <van-icon slot="left" class="padding-b-5" size="26px" name="wap-nav" />
     </van-nav-bar>
     <div class="main-container">
       <router-view />
@@ -46,6 +44,8 @@
                 slot="icon"
                 v-if="item.meta.image"
                 width="20"
+                height="20"
+                fit="contain"
                 :src="item.meta.image"
                 alt="komica"
               />
@@ -104,7 +104,7 @@ export default {
 
 <style lang="scss">
 .main-container {
-  padding-top: 46px;
+  padding-top: 40px;
 }
 
 .sidebar {

@@ -1,6 +1,6 @@
 <template>
-  <div class="komica__container">
-    <div class="komica__list">
+  <div class="list__container">
+    <div class="list__content with-safe-area-inset-bottom">
       <van-pull-refresh v-model="isRefreshing" head-height="150" @refresh="getList(true)">
         <van-list
           v-model="isLoading"
@@ -137,24 +137,11 @@ export default {
     },
     goDetails(item) {
       const name = this.komicaType === 'new' ? 'KomicaNewDetails' : 'KomicaLiveDetails';
-      this.$router.push({ name, params: { id: item.id } });
+      this.$router.push({ name, params: { id: item.id }, query: { title: item.title } });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.komica {
-  &__container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 46px);
-  }
-  &__list {
-    flex: 1;
-    overflow: auto;
-    height: 100%;
-    padding-bottom: $paddingBottom;
-  }
-}
 </style>

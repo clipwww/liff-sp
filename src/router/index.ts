@@ -136,6 +136,34 @@ const routes: RouteConfig[] = [
         }
       },
     ]
+  },
+  {
+    path: '/himawari',
+    name: 'Himawari',
+    component: loadComponents('Himawari/Layout'),
+    redirect: { name: 'HimawariList' },
+    meta: {
+      label: '向日葵動畫',
+      image: './images/himawari.png'
+    },
+    children: [
+      {
+        path: 'list',
+        name: 'HimawariList',
+        component: loadComponents('Himawari/List'),
+        meta: {
+          label: '向日葵動畫列表'
+        }
+      },
+      {
+        path: 'details/:id',
+        name: 'HimawariDetails',
+        component: loadComponents('Himawari/Details'),
+        meta: {
+          label: '向日葵動畫'
+        }
+      }
+    ]
   }
 ];
 

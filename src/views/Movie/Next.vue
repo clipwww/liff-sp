@@ -1,8 +1,8 @@
 <template>
   <div class="movie-list">
-    <div class="movie-list__container">
+    <div class="list__container">
       <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋" />
-      <div class="movie-list__list">
+      <div class="list__content padding-b-30">
         <van-cell-group v-for="(group, index) in filterMoviesGroupByDate" :key="index">
           <van-tag slot="title" type="primary" size="large" plain>{{ group.releaseDate }}</van-tag>
           <MovieListCell :items="group.movies" />
@@ -78,18 +78,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.movie-list {
-  &__container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 46px);
-  }
-
-  &__list {
-    flex: 1;
-    overflow: auto;
-    height: 100%;
-    padding-bottom: 80px;
-  }
-}
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div class="movie-list">
-    <div class="movie-list__container">
+    <div class="list__container">
       <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋" />
-      <div v-if="isListMode" class="movie-list__list">
+      <div v-if="isListMode" class="list__content with-safe-area-inset-bottom">
         <MovieListCell :items="filterMovies" />
         <div v-show="!movies.length">
           <van-cell v-for="n in 10" :key="n">
@@ -10,7 +10,7 @@
           </van-cell>
         </div>
       </div>
-      <div v-if="isGroupByDateMode" class="movie-list__list">
+      <div v-if="isGroupByDateMode" class="list__content with-safe-area-inset-bottom">
         <van-cell-group v-for="group in filterMoviesGroupByDate" :key="group.releaseDate">
           <van-tag
             v-if="group.movies.length"
@@ -157,18 +157,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.movie-list {
-  &__container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 46px);
-  }
-
-  &__list {
-    flex: 1;
-    overflow: auto;
-    height: 100%;
-    padding-bottom: $paddingBottom;
-  }
-}
 </style>

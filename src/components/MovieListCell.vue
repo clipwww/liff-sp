@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     goDetails(item) {
-      this.$router.push({ name: 'MovieDetails', params: { id: item.id } });
+      this.$router.push({ name: 'MovieDetails', params: { id: item.id }, query: { title: item.name } });
     },
   },
 };

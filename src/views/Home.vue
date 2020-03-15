@@ -18,13 +18,14 @@
             class="margin-b-5"
             v-if="item.meta.image"
             width="28"
+            height="28"
+            fit="contain"
             :src="item.meta.image"
             alt="komica"
           />
         </template>
         <div>{{ item.meta.label }}</div>
       </van-grid-item>
-      <van-grid-item icon="photo-o" text="施工中" />
       <van-grid-item icon="photo-o" text="How Ger 好帥ㄛ" />
     </van-grid>
   </div>
