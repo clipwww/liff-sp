@@ -15,18 +15,17 @@
           @load="getList"
         >
           <div slot="loading">
-            <van-cell-group>
+            <van-cell v-for="n in 2"
+              :key="n">
               <van-skeleton
-                class="padding-bt-15"
+                class="padding-bt-5 padding-lr-0"
                 :row="4"
                 title
                 avatar
                 avatar-shape="square"
                 avatar-size="80"
-                v-for="n in 2"
-                :key="n"
               ></van-skeleton>
-            </van-cell-group>
+            </van-cell>
           </div>
           <!-- <van-grid :column-num="2">
             <van-grid-item v-for="item in items" width="100" :key="item.id" square :border="false">
@@ -68,9 +67,6 @@ export default {
       isError: false,
     };
   },
-  created() {
-    this.getList();
-  },
   methods: {
     toSafeHtmlString,
 
@@ -80,6 +76,7 @@ export default {
         this.page = 1;
       }
 
+      
       this.isRefreshing = false;
       this.isLoading = true;
       const ret = await himawariSVC.getList({
@@ -98,6 +95,7 @@ export default {
         return;
       }
 
+      this.isError = false;
       this.page++;
       this.items.push(...ret.items);
     },

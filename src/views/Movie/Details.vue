@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div class="padding-b-30">
     <van-panel v-if="!movieInfo.id">
       <div slot="header" class="padding-bt-10">
-        <van-skeleton title avatar avatar-shape :row="4"></van-skeleton>
+        <van-skeleton title avatar avatar-shape avatar-size="80" :row="4"></van-skeleton>
       </div>
     </van-panel>
     <van-panel v-else>
       <div slot="header">
         <van-cell :title="movieInfo.name" size="large">
-          <van-image slot="right-icon" width="40" fit="contain" :src="movieInfo.cerImg" />
+          <van-image slot="right-icon" class="margin-l-5" width="40" fit="contain" :src="movieInfo.cerImg" />
         </van-cell>
       </div>
       <van-row class="padding-lr-15" :gutter="15">
@@ -93,7 +93,7 @@ import { shareTargetPicker } from '@/plugins/liff';
 export default {
   metaInfo() {
     return {
-      title: this.movieInfo.name,
+      title: this.$route.query.title || this.movieInfo.name,
     };
   },
   data() {

@@ -11,18 +11,18 @@
           @load="getList"
         >
           <div slot="loading">
-            <van-cell-group>
+            <van-cell v-for="n in 2"
+              :key="n">
               <van-skeleton
-                class="padding-bt-15"
+                class="padding-bt-5 padding-lr-0"
                 :row="4"
                 title
                 avatar
                 avatar-shape="square"
                 avatar-size="90"
-                v-for="n in 2"
-                :key="n"
+               
               ></van-skeleton>
-            </van-cell-group>
+            </van-cell>
           </div>
           <KomicaPostCell
             v-for="item in items"

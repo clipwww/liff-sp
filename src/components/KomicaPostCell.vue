@@ -197,8 +197,9 @@ export default {
 <style lang="scss" scoped>
 .komica-post-cell {
   transition: background-color 0.3s;
+  border-bottom: 1px solid #424242;
   &.is-active {
-    background-color: #efefef;
+    background-color: #121212;
   }
 }
 </style>

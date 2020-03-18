@@ -14,6 +14,13 @@ module.exports = {
           @import "@/assets/scss/_mixin.scss";
         `
         // ref. https://cli.vuejs.org/guide/css.html#passing-options-to-pre-processor-loaders
+      },
+      less:{
+        // http://lesscss.org/usage/#less-options-strict-units `Global Variables`
+        // `primary` is global variables fields name
+        modifyVars: {
+          'hack': `true; @import "../../../src/assets/less/vant.var.less";`
+        }
       }
     }
   },

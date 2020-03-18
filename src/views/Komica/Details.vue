@@ -70,7 +70,7 @@ export default {
   },
   metaInfo() {
     return {
-      title: this.post?.title || this.komicaType === 'new' ? '新番捏他' : '新番實況',
+      title: this.$route.query.title || this.post?.title,
     };
   },
   data() {

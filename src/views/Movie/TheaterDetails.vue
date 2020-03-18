@@ -64,7 +64,7 @@ import { movieRef } from '@/plugins/firebase';
 export default {
   metaInfo() {
     return {
-      title: this.theaterInfo.name,
+      title: this.$route.query.title || this.theaterInfo.name,
     };
   },
   data() {

@@ -9,7 +9,9 @@
       <van-pull-refresh v-model="isRefreshing" head-height="150" @refresh="getList(true)">
         <van-cell-group>
           <template v-if="isLoading">
-            <van-skeleton v-for="n in 20" :key="n" class="padding-bt-15" :row="2"></van-skeleton>
+            <van-cell v-for="n in 20" :key="n">
+              <van-skeleton class="padding-bt-5 padding-lr-0" :row="2"></van-skeleton>
+            </van-cell>
           </template>
           <van-cell
             v-else

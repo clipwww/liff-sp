@@ -5,8 +5,16 @@
       <div v-if="isListMode" class="list__content with-safe-area-inset-bottom">
         <MovieListCell :items="filterMovies" />
         <div v-show="!movies.length">
-          <van-cell v-for="n in 10" :key="n">
-            <van-skeleton :row="1" />
+          <van-cell v-for="n in 5"
+            :key="n">
+            <van-skeleton
+              class="padding-bt-5 padding-lr-0"
+              :row="2"
+              title
+              avatar
+              avatar-shape="square"
+              avatar-size="80"
+            ></van-skeleton>
           </van-cell>
         </div>
       </div>
@@ -22,8 +30,16 @@
           <MovieListCell :items="group.movies" />
         </van-cell-group>
         <div v-show="!moviesGroupByDate.length">
-          <van-cell v-for="n in 10" :key="n">
-            <van-skeleton :row="1" />
+          <van-cell v-for="n in 5"
+            :key="n">
+            <van-skeleton
+              class="padding-bt-5 padding-lr-0"
+              :row="2"
+              title
+              avatar
+              avatar-shape="square"
+              avatar-size="80"
+            ></van-skeleton>
           </van-cell>
         </div>
       </div>

@@ -23,8 +23,8 @@
             <van-image :src="imgSrc"></van-image>
           </div>
           <span class="little-text">{{ item.author_comment }}</span>
-          <van-divider></van-divider>
-          <span class="little-text">{{ item.user_comment }}</span>
+          <!-- <van-divider></van-divider>
+          <span class="little-text">{{ item.user_comment }}</span> -->
         </div>
 
         <div slot="footer" class="flex-between">
@@ -69,6 +69,11 @@ import moment from 'moment';
 import { himawariSVC } from '@/services';
 
 export default {
+  metaInfo() {
+    return {
+      title: this.$route.query.title || this.post?.title,
+    };
+  },
   data() {
     return {
       item: null,
