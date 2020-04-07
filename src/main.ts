@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import moment from 'moment';
 
 import App from './App.vue';
 import router from './router';
@@ -14,6 +15,7 @@ import { installLIFF } from '@/plugins/liff';
 
 import '@/assets/scss/index.scss';
 
+moment.locale('zh-tw');
 Vue.config.productionTip = false;
 
 (async () => {

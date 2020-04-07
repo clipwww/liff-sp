@@ -164,6 +164,34 @@ const routes: RouteConfig[] = [
         }
       }
     ]
+  },
+  {
+    path: '/turnip',
+    name: 'Turnip',
+    component: loadComponents('Turnip/Layout'),
+    redirect: { name: 'TurnipDashboard' },
+    meta: {
+      label: '大頭菜',
+      image: 'https://wyspstore2.s3.amazonaws.com/posts/823851001v3.png'
+    },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'TurnipDashboard',
+        component: loadComponents('Turnip/Dashboard'),
+        meta: {
+          label: '儀表板'
+        }
+      },
+      {
+        path: 'editor',
+        name: 'TurnipEditor',
+        component: loadComponents('Turnip/Editor'),
+        meta: {
+          label: '紀錄本週菜價'
+        }
+      },
+    ]
   }
 ];
 

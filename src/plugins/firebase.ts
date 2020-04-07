@@ -13,3 +13,6 @@ export const firebaseInstance = firebase.initializeApp({
 
 export const movieRef = firebaseInstance.database().ref('/movie/');
 
+export const turnipRef = firebaseInstance.database().ref('/turnip/');
+
+
