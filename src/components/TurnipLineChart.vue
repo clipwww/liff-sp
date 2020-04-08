@@ -68,10 +68,10 @@ export default {
         tempArr.push(+this.sellPrice[key].am || 0);
         tempArr.push(+this.sellPrice[key].pm || 0);
       });
-      return tempArr;
+      return tempArr.map(num => num || undefined);
     },
     possibilities() {
-      const filter = [+this.buyPrice, ...this.datasetData.map(num => num || undefined)];
+      const filter = [+this.buyPrice, ...this.datasetData];
 
       let patterns = possiblePatterns(filter);
       const patternCount = patterns.reduce((acc, cur) => acc + cur.length, 0);
@@ -153,7 +153,7 @@ export default {
               label: '每日賣價',
               borderColor: '#EF8341',
               // backgroundColor: '#EF8341',
-              data: this.datasetData.filter(num => !!num),
+              data: this.datasetData,
             },
             {
               label: '預測最高賣價',
@@ -188,8 +188,25 @@ export default {
               {
                 display: true,
                 ticks: {
+                  fontColor: '#fff',
                   min: 0,
                   stepSize: 50, // <----- This prop sets the stepSize
+                },
+                gridLines: {
+                  color: '#666',
+                  zeroLineColor: '#666',
+                },
+              },
+            ],
+            xAxes: [
+              {
+                display: true,
+                ticks: {
+                  fontColor: '#fff',
+                },
+                gridLines: {
+                  color: '#666',
+                  zeroLineColor: '#666',
                 },
               },
             ],
