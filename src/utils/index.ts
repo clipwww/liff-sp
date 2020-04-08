@@ -1,5 +1,5 @@
 import { Toast } from 'vant';
-
+import moment from 'moment';
 
 export function toSafeHtmlString(htmlString: string) {
   return htmlString.replace(/(javascript\s*:)/g, 'javascripts：')
@@ -59,3 +59,28 @@ export const lsUtil = {
     window.localStorage.removeItem(key);
   }
 };
+
+export const momentUtil = (() => {
+  function getWeekStart() {
+    return moment().startOf('week').clone();
+  }
+
+  function getWeekdays() {
+    return Array(6)
+      .fill('')
+      .map((v, i) => {
+        const momentInstance = getWeekStart().add(i + 1, 'day');
+        return {
+          id: `w${momentInstance.weekday()}`,
+          label: momentInstance.format('M/D (ddd)'),
+          momentInstance,
+        };
+      });
+  }
+
+
+  return {
+    getWeekStart,
+    getWeekdays
+  }
+})()

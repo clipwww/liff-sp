@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "chart.js": "^2.9.3",
     "core-js": "^3.6.4",
+    "d3": "^5.15.1",
     "firebase": "^7.10.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
+    "uninstall": "0.0.0",
     "vant": "^2.5.2",
     "vue": "^2.6.11",
     "vue-analytics": "^5.22.1",

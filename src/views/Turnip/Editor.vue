@@ -29,21 +29,16 @@
 <script>
 import moment from 'moment';
 import { mapGetters } from 'vuex';
+import { Toast } from 'vant';
 
+import store from '@/store';
 import { turnipRef } from '@/plugins/firebase';
 import { turnipSVC } from '@/services';
+import { momentUtil } from '@/utils';
 
-const weekStart = moment().startOf('week');
-const weekdays = Array(6)
-  .fill()
-  .map((v, i) => {
-    const momentInstance = weekStart.clone().add(i + 1, 'day');
-    return {
-      id: `w${momentInstance.weekday()}`,
-      label: momentInstance.format('M/D (ddd)'),
-      momentInstance,
-    };
-  });
+const weekStart = momentUtil.getWeekStart();
+const weekdays = momentUtil.getWeekdays();
+
 const sellPrice = {};
 weekdays.forEach(item => {
   sellPrice[item.id] = {
@@ -56,10 +51,10 @@ export default {
   data() {
     return {
       buyDay: weekStart.format('M/D (ddd)'),
-      buyPrice: '',
-
       weekdays,
       sellPrice,
+      buyPrice: '',
+      islandName: '',
       isLoading: false,
     };
   },
@@ -74,15 +69,29 @@ export default {
       if (bool) {
         this.$toast.loading({
           overlay: true,
+          duration: 0,
+          forbidClick: true,
+          message: '讀取中...',
         });
       } else {
         this.$toast.clear();
       }
     },
   },
+  beforeRouteEnter(to, from, next) {
+    const isLoggedIn = store.state.isLoggedIn;
+    next();
+    return;
+
+    if (isLoggedIn) {
+      next();
+    } else {
+      Toast.fail('必須要登入才可以使用唷！');
+      next({ name: 'TurnipDashboard' });
+    }
+  },
   created() {
     this.getTurnipPrice();
-    this.updateProfileByUserId();
   },
   methods: {
     async getTurnipPrice() {
@@ -98,10 +107,13 @@ export default {
     },
     async updateTurnipPrice() {
       try {
-        await turnipSVC.updatePriceByUserId(this.profile.userId, weekStart, {
-          buyPrice: this.buyPrice,
-          sellPrice: this.sellPrice,
-        });
+        await Promise.all([
+          turnipSVC.updatePriceByUserId(this.profile.userId, weekStart, {
+            buyPrice: this.buyPrice,
+            sellPrice: this.sellPrice,
+          }),
+          this.updateProfileByUserId(),
+        ]);
 
         this.$notify({
           type: 'success',

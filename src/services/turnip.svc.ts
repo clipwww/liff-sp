@@ -20,8 +20,6 @@ export function getPriceList(date: Moment) {
             ...data[key],
           }
         });
-        console.log(list)
-
         reslove(list);
       });
   })
@@ -37,6 +35,28 @@ export function getPriceByUserId(userId: string, date: Moment) {
         const data = snapshot.val();
 
         reslove(data);
+      });
+  })
+}
+
+export function getUserList() {
+  return new Promise((reslove) => {
+    turnipRef
+      .child('profile')
+      .once('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) {
+          return reslove([]);
+        }
+
+        const list = Object.keys(data).map(key => {
+          return {
+            id: key,
+            ...data[key]
+          }
+        });
+
+        reslove(list);
       });
   })
 }

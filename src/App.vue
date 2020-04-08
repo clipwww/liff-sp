@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <van-nav-bar fixed @click-left="showSidePopup = true">
+    <van-nav-bar v-if="!hideTopbar" fixed @click-left="showSidePopup = true">
       <van-icon slot="left" class="padding-b-5" size="26px" name="wap-nav" />
     </van-nav-bar>
-    <div class="main-container">
+    <div class="main-container" :class="{ 'hide-top-bar': hideTopbar }">
       <router-view />
     </div>
 
@@ -83,6 +83,9 @@ export default {
     routes() {
       return this.$router?.options?.routes ?? [];
     },
+    hideTopbar() {
+      return ['turnip'].some(str => this.$route.path.includes(str));
+    },
   },
   methods: {
     login() {
@@ -105,6 +108,10 @@ export default {
 <style lang="scss">
 .main-container {
   padding-top: 40px;
+
+  &.hide-top-bar {
+    padding-top: 0;
+  }
 }
 
 .sidebar {
