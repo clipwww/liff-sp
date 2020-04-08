@@ -80,8 +80,6 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     const isLoggedIn = store.state.isLoggedIn;
-    next();
-    return;
 
     if (isLoggedIn) {
       next();
@@ -119,6 +117,7 @@ export default {
           type: 'success',
           message: '儲存成功',
         });
+        this.$router.push({ name: 'TurnipDashboard' });
       } catch (err) {
         console.log(err);
       }

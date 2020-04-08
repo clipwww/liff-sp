@@ -3,26 +3,31 @@ import moment, { Moment } from 'moment';
 import { turnipRef } from '@/plugins/firebase';
 import { LineProfile } from '@/view-models/liff.vm';
 
-export function getPriceList(date: Moment) {
-  return new Promise((reslove) => {
-    turnipRef
-      .child('price')
-      .child(moment(date).format('YYYY-MM-DD'))
-      .once('value', snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          return reslove([]);
-        }
+export function listenerPriceList(date: Moment, callback: Function) {
+  turnipRef
+    .child('price')
+    .child(moment(date).format('YYYY-MM-DD'))
+    .on('value', snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        return callback([]);
+      }
 
-        const list = Object.keys(data).map(key => {
-          return {
-            id: key,
-            ...data[key],
-          }
-        });
-        reslove(list);
+      const list = Object.keys(data).map(key => {
+        return {
+          id: key,
+          ...data[key],
+        }
       });
-  })
+
+      callback(list);
+    });
+}
+
+export function removeListenerPriceList(date: Moment) {
+  return turnipRef
+    .child('price')
+    .child(moment(date).format('YYYY-MM-DD')).off();
 }
 
 export function getPriceByUserId(userId: string, date: Moment) {
@@ -30,7 +35,7 @@ export function getPriceByUserId(userId: string, date: Moment) {
     turnipRef
       .child('price')
       .child(moment(date).format('YYYY-MM-DD'))
-      .child(userId || 'abc')
+      .child(userId)
       .once('value', snapshot => {
         const data = snapshot.val();
 
@@ -39,39 +44,43 @@ export function getPriceByUserId(userId: string, date: Moment) {
   })
 }
 
-export function getUserList() {
-  return new Promise((reslove) => {
-    turnipRef
-      .child('profile')
-      .once('value', snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          return reslove([]);
+export function listenerUserList(callback: Function) {
+  turnipRef
+    .child('profile')
+    .once('value', snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        return callback([]);
+      }
+
+      const list = Object.keys(data).map(key => {
+        return {
+          id: key,
+          ...data[key]
         }
-
-        const list = Object.keys(data).map(key => {
-          return {
-            id: key,
-            ...data[key]
-          }
-        });
-
-        reslove(list);
       });
-  })
+
+      callback(list);
+    });
 }
+
+export function removeListenerUserList() {
+  return turnipRef
+    .child('profile').off();
+}
+
 
 export function updatePriceByUserId(userId: string, date: Moment, params: { buyPrice: any, sellPrice: any }) {
   return turnipRef
     .child('price')
     .child(moment(date).format('YYYY-MM-DD'))
-    .child(userId || 'abc')
+    .child(userId)
     .set(params);
 }
 
 export function updateProfileByUserId(userId: string, params: LineProfile) {
   return turnipRef
     .child('profile')
-    .child(userId || 'abc')
+    .child(userId)
     .set(params);
 }

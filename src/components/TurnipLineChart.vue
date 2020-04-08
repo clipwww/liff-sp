@@ -14,7 +14,7 @@ export default {
       default: `${+new Date()}`,
     },
     buyPrice: {
-      type: Number,
+      type: [Number, String],
       default: 0,
     },
     sellPrice: {
@@ -52,6 +52,19 @@ export default {
         tempArr.push(this.sellPrice[key].pm || 0);
       });
       return tempArr;
+    },
+  },
+  watch: {
+    buyPrice() {
+      this.initChart();
+    },
+    sellPrice: {
+      deep: true,
+      handler() {
+        this.$nextTick(() => {
+          this.initChart();
+        });
+      },
     },
   },
   mounted() {
