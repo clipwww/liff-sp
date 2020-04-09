@@ -178,6 +178,9 @@ export default {
           responsive: true,
           legend: {
             display: true,
+            labels: {
+              fontColor: '#fff',
+            },
           },
           tooltips: {
             intersect: false,
