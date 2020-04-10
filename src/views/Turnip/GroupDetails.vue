@@ -56,7 +56,7 @@
 
     <van-popup v-model="showEditor" position="bottom" closeable :style="{ height: '70%' }">
       <div class="padding-t-30">
-        <van-divider>建立群組</van-divider>
+        <van-divider>編輯群組</van-divider>
         <van-form @submit="onSubmit">
           <van-field
             v-model="form.groupName"
@@ -88,6 +88,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import { mapGetters } from 'vuex';
 
 import { turnipSVC } from '@/services';
@@ -97,6 +98,7 @@ import TurnipLineChart from '@/components/TurnipLineChart.vue';
 
 const weekStart = momentUtil.getWeekStart();
 const weekdays = momentUtil.getWeekdays();
+const now = moment();
 
 export default {
   components: {

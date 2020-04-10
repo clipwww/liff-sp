@@ -1,7 +1,7 @@
 <template>
   <div>
-    <van-skeleton class="padding-bt-15" v-if="!item" title avatar avatar-size="50" :row="5"></van-skeleton>
-    <van-panel v-else>
+    <van-skeleton class="padding-bt-15" v-if="isLoading" title avatar avatar-size="50" :row="5"></van-skeleton>
+    <van-panel v-else-if="item">
       <van-cell slot="header">
         <van-image
           v-if="item.profile.pictureUrl"
@@ -71,6 +71,7 @@ export default {
       weekdays,
       item: null,
       groupList: [],
+      isLoading: true,
     };
   },
   computed: {
@@ -92,6 +93,7 @@ export default {
               ...data,
               profile: this.profile,
             };
+            this.isLoading = false;
           });
         }
       },
