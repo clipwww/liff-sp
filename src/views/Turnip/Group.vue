@@ -154,7 +154,7 @@ export default {
     async goDetails(item) {
       if (!item.members.includes(this.profile.userId)) {
         // 不在群組內
-        this.needPassword = !!item.password;
+        this.group = item;
         this.showDialog = true;
         return;
       }
