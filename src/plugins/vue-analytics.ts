@@ -13,7 +13,12 @@ Vue.use(VueAnalytics, {
 
 export function logEvent(eventCategory: string, eventAction: string, eventLabel: string): void {
   try {
-    //@ts-ignore
+
+    if (process.env.NODE_ENV === 'development') {
+      return;
+    }
+
+    // @ts-ignore
     (Vue.$ga as VueAnalytics).event(eventCategory, eventAction, eventLabel);
   } catch (err) {
     console.error(err);

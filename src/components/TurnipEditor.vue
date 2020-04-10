@@ -1,8 +1,14 @@
 <template>
-  <div>
+  <div class="editor">
     <van-cell-group>
       <div slot="title" class="fs-20">{{ buyDay }}</div>
-      <van-field v-model="buyPrice" type="digit" label="買入價格" placeholder="請輸入週日買入價格" />
+      <van-field
+        v-model="buyPrice"
+        type="digit"
+        label="買入價格"
+        placeholder="請輸入週日買入價格"
+        :disabled="isLoading"
+      />
     </van-cell-group>
 
     <van-cell-group v-for="(item) in weekdays" :key="item.id" :title="item.label">
@@ -11,16 +17,18 @@
         v-model="sellPrice[item.id].am"
         label="上午賣價"
         :placeholder="`請輸入 ${item.label} 上午賣價`"
+        :disabled="isLoading"
       />
       <van-field
         type="digit"
         v-model="sellPrice[item.id].pm"
         label="下午賣價"
         :placeholder="`請輸入 ${item.label} 下午賣價`"
+        :disabled="isLoading"
       />
     </van-cell-group>
 
-    <div class="padding-a-10 margin-bt-15">
+    <div class="fixed-btn">
       <van-button type="primary" round block @click="updateTurnipPrice">送出</van-button>
     </div>
   </div>
@@ -64,30 +72,6 @@ export default {
       profile: 'profile',
     }),
   },
-  watch: {
-    isLoading(bool) {
-      if (bool) {
-        this.$toast.loading({
-          overlay: true,
-          duration: 0,
-          forbidClick: true,
-          message: '讀取中...',
-        });
-      } else {
-        this.$toast.clear();
-      }
-    },
-  },
-  beforeRouteEnter(to, from, next) {
-    const isLoggedIn = store.state.isLoggedIn;
-
-    if (isLoggedIn) {
-      next();
-    } else {
-      Toast.fail('必須要登入才可以使用唷！');
-      next({ name: 'TurnipDashboard' });
-    }
-  },
   created() {
     this.getTurnipPrice();
   },
@@ -117,7 +101,7 @@ export default {
           type: 'success',
           message: '儲存成功',
         });
-        this.$router.push({ name: 'TurnipDashboard' });
+        this.$emit('success');
       } catch (err) {
         console.log(err);
       }
@@ -134,4 +118,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.editor {
+  position: relative;
+  padding-bottom: calc(#{$paddingBottom} + 15px);
+}
+.fixed-btn {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 15px);
+  left: 15px;
+  right: 15px;
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
+}
 </style>

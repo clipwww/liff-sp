@@ -1,5 +1,7 @@
 import { Toast } from 'vant';
 import moment from 'moment';
+// @ts-ignore
+import device from 'current-device';
 
 export function toSafeHtmlString(htmlString: string) {
   return htmlString.replace(/(javascript\s*:)/g, 'javascripts：')
@@ -84,3 +86,72 @@ export const momentUtil = (() => {
     getWeekdays
   }
 })()
+
+
+export function copyValue(value: string): boolean {
+  const isIOS = device.ios();
+
+  if (!isIOS) {
+    window.addEventListener('copy', copyHandler(value));
+  }
+
+  const $textArea = document.createElement('textArea') as HTMLTextAreaElement;
+  const className = `copy-value-${+new Date()}`;
+  $textArea.className = className;
+
+  const $style = document.createElement('style');
+  $style.innerHTML = `
+    .${className} {
+      opacity: 0;
+      position: absolute;
+      top: -99999px;
+      z-index: -1;
+      -webkit-touch-callout: unset !important;
+      -webkit-user-select: text !important;
+      user-select: text !important;
+    }
+  `;
+
+  $textArea.value = value;
+  document.body.appendChild($textArea);
+  document.body.appendChild($style);
+
+  const editable = $textArea.contentEditable;
+  const readOnly = $textArea.readOnly;
+
+  // @ts-ignore
+  $textArea.contentEditable = true;
+  $textArea.readOnly = true;
+
+  try {
+    const range = document.createRange();
+    range.selectNodeContents($textArea);
+
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    $textArea.setSelectionRange(0, 999999);
+  } catch (err) {
+    $textArea.select();
+  }
+
+  $textArea.contentEditable = editable;
+  $textArea.readOnly = readOnly;
+
+  const isOK = document.execCommand('copy');
+
+  if (!isIOS) {
+    window.removeEventListener('copy', copyHandler(value));
+  }
+  document.body.removeChild($textArea);
+  document.body.removeChild($style);
+
+  return isOK;
+}
+
+export function copyHandler(value: string): (e: Event) => void {
+  return (e: Event) => {
+    e.preventDefault();
+    (e as ClipboardEvent).clipboardData?.setData('text/plain', value);
+  };
+}

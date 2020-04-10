@@ -184,11 +184,19 @@ const routes: RouteConfig[] = [
         }
       },
       {
-        path: 'editor',
-        name: 'TurnipEditor',
-        component: loadComponents('Turnip/Editor'),
+        path: 'group',
+        name: 'TurnipGroup',
+        component: loadComponents('Turnip/Group'),
         meta: {
-          label: '紀錄本週菜價'
+          label: '大頭菜群組'
+        }
+      },
+      {
+        path: 'group/:id',
+        name: 'TurnipGroupDetails',
+        component: loadComponents('Turnip/GroupDetails'),
+        meta: {
+          label: '大頭菜群組'
         }
       },
     ]
