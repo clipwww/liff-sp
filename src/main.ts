@@ -21,8 +21,6 @@ Vue.config.productionTip = false;
 (async () => {
   await installLIFF();
 
-  Vue.config.productionTip = false;
-
   new Vue({
     router,
     store,

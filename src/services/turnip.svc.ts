@@ -131,6 +131,13 @@ export function updateGroup(groupId: string, params: any) {
     });
 }
 
+export function removeGroup(groupId: string) {
+  return turnipRef
+    .child('group')
+    .child(groupId)
+    .remove();
+}
+
 
 export function listenerGroupById(groupId: string, callback: Function) {
   turnipRef
@@ -150,22 +157,3 @@ export function removeListenerGroupById(groupId: string) {
     .child('group').child(groupId).off();
 }
 
-
-export function listenerMyPrice(userId: string, date: Moment, callback: Function) {
-  turnipRef
-    .child('price')
-    .child(moment(date).format('YYYY-MM-DD'))
-    .child(userId)
-    .on('value', snapshot => {
-      const data = snapshot.val();
-
-      callback(data);
-    });
-
-}
-
-export function removeListenerMyPrice(userId: string, date: Moment) {
-  return turnipRef.child('price')
-    .child(moment(date).format('YYYY-MM-DD'))
-    .child(userId).off();
-}

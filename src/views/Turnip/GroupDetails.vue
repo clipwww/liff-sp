@@ -13,18 +13,17 @@
           size="small"
           @click="showEditor = true"
         >編輯</van-button>
-        <van-button type="primary" size="small" plain @click="copyLink">複製網址</van-button>
+        <van-button
+          v-else
+          class="margin-r-5"
+          type="danger"
+          size="mini"
+          @click="removeMembers(profile.userId)"
+        >退出</van-button>
+        <van-button class="padding-lr-5" type="primary" size="mini" plain @click="copyLink">複製網址</van-button>
       </div>
     </van-cell>
-    <van-skeleton
-      class="padding-bt-15"
-      v-if="!filterDataList.length"
-      title
-      avatar
-      avatar-size="50"
-      :row="5"
-    ></van-skeleton>
-    <van-panel v-else class="margin-b-15" v-for="item in filterDataList" :key="item.id">
+    <van-panel class="margin-b-15" v-for="item in filterPriceList" :key="item.id">
       <van-cell slot="header">
         <van-image
           v-if="item.profile.pictureUrl"
@@ -55,7 +54,10 @@
     </van-panel>
 
     <van-popup v-model="showEditor" position="bottom" closeable :style="{ height: '70%' }">
-      <div class="padding-t-30">
+      <div class="padding-a-10">
+        <van-button type="danger" size="mini" @click="removeGroup">刪除群組</van-button>
+      </div>
+      <div>
         <van-divider>編輯群組</van-divider>
         <van-form @submit="onSubmit">
           <van-field
@@ -104,12 +106,24 @@ export default {
   components: {
     TurnipLineChart,
   },
+  props: {
+    userList: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+    priceList: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+  },
   data() {
     return {
       weekdays,
       group: null,
-      dataList: [],
-      userList: [],
       showEditor: false,
 
       form: {
@@ -127,8 +141,8 @@ export default {
     groupId() {
       return this.$route.params.id;
     },
-    filterDataList() {
-      return this.dataList
+    filterPriceList() {
+      return this.priceList
         .filter(item => this.group?.members?.includes(item.id))
         .map(item => {
           const user = this.userList.find(u => u.id === item.id);
@@ -163,33 +177,27 @@ export default {
     turnipSVC.listenerGroupById(this.groupId, group => {
       this.group = group;
 
-      if (!this.group.members.includes(this.profile.userId)) {
+      if (!this.group?.members?.includes(this.profile.userId)) {
         // 不在群組內
         this.$router.replace({ name: 'TurnipGroup' });
       }
     });
-
-    turnipSVC.listenerPriceList(weekStart, list => {
-      this.dataList = list;
-    });
-
-    turnipSVC.listenerUserList(list => {
-      this.userList = list;
-    });
   },
   beforeDestroy() {
     turnipSVC.removeListenerGroupById(this.groupId);
-    turnipSVC.removeListenerPriceList(weekStart);
-    turnipSVC.removeListenerUserList();
   },
   methods: {
     async removeMembers(userId) {
       try {
-        const members = this.group.members;
+        await this.$dialog.confirm({
+          title: '確定嗎？',
+        });
+
+        const members = this.group.members.filter(id => id !== userId);
 
         await turnipSVC.updateGroup(this.groupId, {
           ...this.group,
-          members: members.filter(item => item.id !== userId),
+          members,
         });
 
         this.$notify({
@@ -213,6 +221,18 @@ export default {
           type: 'success',
           message: '修改成功',
         });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async removeGroup() {
+      try {
+        await this.$dialog.confirm({
+          title: '注意，此動作無法復原',
+          message: '確定要刪除群組？',
+        });
+
+        await turnipSVC.removeGroup(this.groupId);
       } catch (err) {
         console.log(err);
       }

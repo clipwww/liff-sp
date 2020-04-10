@@ -1,7 +1,6 @@
 <template>
   <div>
-    <van-skeleton class="padding-bt-15" v-if="isLoading" title avatar avatar-size="50" :row="5"></van-skeleton>
-    <van-panel v-else-if="item">
+    <van-panel v-if="item">
       <van-cell slot="header">
         <van-image
           v-if="item.profile.pictureUrl"
@@ -48,7 +47,6 @@
 </template>
 
 
-
 <script>
 import moment from 'moment';
 import { mapGetters } from 'vuex';
@@ -58,20 +56,29 @@ import { momentUtil } from '@/utils';
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue';
 
-const weekStart = momentUtil.getWeekStart();
 const weekdays = momentUtil.getWeekdays();
-const now = moment();
 
 export default {
   components: {
     TurnipLineChart,
   },
+  props: {
+    groupList: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+    priceList: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+  },
   data() {
     return {
       weekdays,
-      item: null,
-      groupList: [],
-      isLoading: true,
     };
   },
   computed: {
@@ -82,30 +89,12 @@ export default {
     filterGroupList() {
       return this.groupList.filter(item => item.members.includes(this.profile.userId));
     },
-  },
-  watch: {
-    'profile.userId': {
-      immediate: true,
-      handler(newVal, oldVal) {
-        if (newVal) {
-          turnipSVC.listenerMyPrice(newVal, weekStart, data => {
-            this.item = {
-              ...data,
-              profile: this.profile,
-            };
-            this.isLoading = false;
-          });
-        }
-      },
+    item() {
+      return {
+        profile: this.profile,
+        ...this.priceList.find(item => item.id === this.profile.userId),
+      };
     },
-  },
-  created() {
-    turnipSVC.listenerGroupList(list => {
-      this.groupList = list;
-    });
-  },
-  beforeDestroy() {
-    turnipSVC.removeListenerMyPrice(this.profile.userId, weekStart);
   },
   methods: {
     goDetails(item) {

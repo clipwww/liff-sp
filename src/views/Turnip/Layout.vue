@@ -6,7 +6,7 @@
     </van-notice-bar>
 
     <div v-if="isLoggedIn">
-      <router-view></router-view>
+      <router-view :groupList="groupList" :priceList="priceList" :userList="userList"></router-view>
     </div>
     <div v-else class="padding-a-10">
       <van-button type="primary" size="large" block @click="login">請先登入</van-button>
@@ -30,10 +30,12 @@
 import { mapGetters } from 'vuex';
 
 import { momentUtil } from '@/utils';
+import { turnipSVC } from '@/services';
 
 import TurnipEditor from '@/components/TurnipEditor.vue';
 
 const weekdays = momentUtil.getWeekdays();
+const weekStart = momentUtil.getWeekStart();
 
 export default {
   components: {
@@ -43,6 +45,9 @@ export default {
     return {
       weekdays,
       showEditor: false,
+      groupList: [],
+      priceList: [],
+      userList: [],
     };
   },
   computed: {
@@ -50,6 +55,24 @@ export default {
       isLoggedIn: 'isLoggedIn',
       profile: 'profile',
     }),
+  },
+  created() {
+    turnipSVC.listenerGroupList(list => {
+      this.groupList = list;
+    });
+
+    turnipSVC.listenerPriceList(weekStart, list => {
+      this.priceList = list;
+    });
+
+    turnipSVC.listenerUserList(list => {
+      this.userList = list;
+    });
+  },
+  beforeDestroy() {
+    turnipSVC.removeListenerGroupList();
+    turnipSVC.removeListenerUserList();
+    turnipSVC.removeListenerPriceList(weekStart);
   },
   methods: {
     openEditor() {

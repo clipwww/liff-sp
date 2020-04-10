@@ -8,7 +8,6 @@
       </van-tabs>
     </div>
 
-    <van-skeleton class="padding-bt-15" v-if="isLoading" :title="false" :avatar="false" :row="2"></van-skeleton>
     <van-cell-group>
       <van-cell
         v-for="item in filterGroupList"
@@ -87,6 +86,14 @@ import { mapGetters } from 'vuex';
 import { turnipSVC } from '@/services';
 
 export default {
+  props: {
+    groupList: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+  },
   data() {
     return {
       activeTab: 'all',
@@ -94,12 +101,10 @@ export default {
       groupName: '',
       password: '',
       isPrivate: false,
-      groupList: [],
       showDialog: false,
 
       group: {},
       joinPassword: '',
-      isLoading: true,
     };
   },
   computed: {
@@ -127,15 +132,6 @@ export default {
         this.group = {};
       }
     },
-  },
-  created() {
-    turnipSVC.listenerGroupList(list => {
-      this.groupList = list;
-      this.isLoading = false;
-    });
-  },
-  beforeDestroy() {
-    turnipSVC.removeListenerGroupList();
   },
   methods: {
     async onSubmit() {
