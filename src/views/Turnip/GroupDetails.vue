@@ -170,12 +170,22 @@ export default {
           };
         })
         .sort((a, b) => {
-          const w = now.weekday();
+          try {
+            const w = now.weekday();
+            if (w <= 0) {
+              return a.buyPrice < b.buyPrice ? 1 : -1;
+            }
+            // am 或 pm
+            const key = now.locale('en-us').format('a');
 
-          const aPrice = a?.sellPrice[`w${w}`][now.format('a')] ?? 0;
-          const bPrice = a?.sellPrice[`w${w}`][now.format('b')] ?? 0;
+            const aPrice = a?.sellPrice[`w${w}`][key] ?? 0;
+            const bPrice = a?.sellPrice[`w${w}`][key] ?? 0;
 
-          return aPrice > bPrice ? -1 : 1;
+            return aPrice > bPrice ? -1 : 1;
+          } catch (err) {
+            console.log(err);
+            return 1;
+          }
         });
     },
     isCreator() {
