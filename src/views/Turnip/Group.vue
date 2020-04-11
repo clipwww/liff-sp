@@ -19,6 +19,7 @@
         @click="goDetails(item)"
       >
         <div slot="label">
+          <span class="margin-r-10 little-text">{{ item.password ? '私密' : '公開' }}群組</span>
           <van-icon name="user-o" />
           <span class="margin-l-5">{{ item.members.length }}</span>
         </div>

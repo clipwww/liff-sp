@@ -92,6 +92,7 @@
 <script>
 import moment from 'moment';
 import { mapGetters } from 'vuex';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { turnipSVC } from '@/services';
 import { momentUtil, copyValue } from '@/utils';
@@ -102,7 +103,20 @@ const weekStart = momentUtil.getWeekStart();
 const weekdays = momentUtil.getWeekdays();
 const now = moment();
 
+const sellPrice = {};
+weekdays.forEach(item => {
+  sellPrice[item.id] = {
+    am: '',
+    pm: '',
+  };
+});
+
 export default {
+  metaInfo() {
+    return {
+      title: this.$route.query.title || this.group?.name,
+    };
+  },
   components: {
     TurnipLineChart,
   },
@@ -142,14 +156,17 @@ export default {
       return this.$route.params.id;
     },
     filterPriceList() {
-      return this.priceList
+      return this.userList
         .filter(item => this.group?.members?.includes(item.id))
-        .map(item => {
-          const user = this.userList.find(u => u.id === item.id);
+        .map(user => {
+          const price = this.priceList.find(p => p.id === user.id) || {
+            buyPrice: '',
+            sellPrice: _cloneDeep(sellPrice),
+          };
 
           return {
-            ...item,
-            profile: user || {},
+            ...price,
+            profile: user,
           };
         })
         .sort((a, b) => {

@@ -48,7 +48,7 @@ export function getPriceByUserId(userId: string, date: Moment) {
 export function listenerUserList(callback: Function) {
   turnipRef
     .child('profile')
-    .once('value', snapshot => {
+    .on('value', snapshot => {
       const data = snapshot.val();
       if (!data) {
         return callback([]);

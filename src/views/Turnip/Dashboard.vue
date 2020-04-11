@@ -26,6 +26,14 @@
         <TurnipLineChart :id="item.id" :buyPrice="item.buyPrice" :sellPrice="item.sellPrice" />
       </div>
     </van-panel>
+    <van-panel v-else>
+      <div slot="header">
+        <div class="text-center padding-bt-30">
+          <van-icon class="fs-30" name="info" />
+          <div>本週次還沒提供任何菜價唷</div>
+        </div>
+      </div>
+    </van-panel>
 
     <van-cell-group title="已加入群組">
       <van-cell

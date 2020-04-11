@@ -1,13 +1,16 @@
 <template>
   <div class="chart">
-    <div class="text-center margin-bt-5">
-      <span class="margin-lr-5" v-for="item in patternsPercentage" :key="item.id">
-        <span>{{ item.label }}</span>
-        <span class="little-text">{{ item.percentage }}%</span>
-      </span>
-    </div>
-    <div v-if="isShort" class="text-center little-text margin-b-5">數據不足，預測結果僅供參考</div>
-    <canvas :id="canvasId"></canvas>
+    <template v-if="!noSellPrice">
+      <div class="text-center margin-bt-5">
+        <span class="margin-lr-5" v-for="item in patternsPercentage" :key="item.id">
+          <span>{{ item.label }}</span>
+          <span class="little-text">{{ item.percentage }}%</span>
+        </span>
+      </div>
+      <div v-if="isShort" class="text-center little-text margin-b-5">預測結果僅供參考</div>
+      <canvas :id="canvasId"></canvas>
+    </template>
+    <div v-else class="text-center little-text">尚無提供賣價，無法預測</div>
   </div>
 </template>
 
@@ -71,7 +74,9 @@ export default {
       return tempArr.map(num => num || undefined);
     },
     possibilities() {
-      const filter = [+this.buyPrice, ...this.datasetData];
+      const buyPrice = +this.buyPrice;
+      const filter = [buyPrice || undefined, ...this.datasetData];
+      console.log(filter);
 
       let patterns = possiblePatterns(filter);
       const patternCount = patterns.reduce((acc, cur) => acc + cur.length, 0);
@@ -107,6 +112,9 @@ export default {
     isShort() {
       return this.datasetData.filter(v => v > 0).length < 2;
     },
+    noSellPrice() {
+      return !this.datasetData.filter(v => v > 0).length;
+    },
   },
   watch: {
     buyPrice() {
@@ -126,6 +134,11 @@ export default {
   },
   methods: {
     initChart() {
+      if (this.noSellPrice) {
+        // 無賣價 尚無法預測
+        return;
+      }
+
       const ctx = document.getElementById(this.canvasId).getContext('2d');
       this.chartInstance = new Chart(ctx, {
         type: 'line',
