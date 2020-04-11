@@ -219,7 +219,7 @@ export default {
 
         this.$notify({
           type: 'success',
-          message: '移出成員成功',
+          message: '成功',
         });
       } catch (err) {
         console.log(err);

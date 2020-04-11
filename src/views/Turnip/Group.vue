@@ -135,6 +135,13 @@ export default {
     },
   },
   methods: {
+    async updateProfileByUserId() {
+      try {
+        await turnipSVC.updateProfileByUserId(this.profile.userId, this.profile);
+      } catch (err) {
+        console.log(err);
+      }
+    },
     async onSubmit() {
       try {
         await turnipSVC.createGroup({
@@ -144,6 +151,8 @@ export default {
         });
 
         this.showEditor = false;
+
+        this.updateProfileByUserId();
       } catch (err) {
         console.log(err);
       }
@@ -176,9 +185,10 @@ export default {
       try {
         this.group.members.push(this.profile.userId);
 
-        turnipSVC.updateGroup(this.group.id, {
+        await turnipSVC.updateGroup(this.group.id, {
           ...this.group,
         });
+        this.updateProfileByUserId();
 
         done();
         this.$router.push({ name: 'TurnipGroupDetails', params: { id: this.group.id } });
