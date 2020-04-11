@@ -65,6 +65,13 @@ import { momentUtil } from '@/utils';
 import TurnipLineChart from '@/components/TurnipLineChart.vue';
 
 const weekdays = momentUtil.getWeekdays();
+const sellPrice = {};
+weekdays.forEach(item => {
+  sellPrice[item.id] = {
+    am: '',
+    pm: '',
+  };
+});
 
 export default {
   components: {
@@ -100,7 +107,10 @@ export default {
     item() {
       return {
         profile: this.profile,
-        ...this.priceList.find(item => item.id === this.profile.userId),
+        ...(this.priceList.find(item => item.id === this.profile.userId) || {
+          buyPrice: '',
+          sellPrice,
+        }),
       };
     },
   },
