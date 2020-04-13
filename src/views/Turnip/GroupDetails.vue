@@ -173,13 +173,13 @@ export default {
           try {
             const w = now.weekday();
             if (w <= 0) {
-              return a.buyPrice < b.buyPrice ? 1 : -1;
+              return a.buyPrice > b.buyPrice ? 1 : -1;
             }
             // am 或 pm
             const key = now.locale('en-us').format('a');
 
             const aPrice = a?.sellPrice[`w${w}`][key] ?? 0;
-            const bPrice = a?.sellPrice[`w${w}`][key] ?? 0;
+            const bPrice = b?.sellPrice[`w${w}`][key] ?? 0;
 
             return aPrice > bPrice ? -1 : 1;
           } catch (err) {
