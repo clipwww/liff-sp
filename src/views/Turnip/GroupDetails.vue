@@ -178,8 +178,9 @@ export default {
             // am 或 pm
             const key = now.locale('en-us').format('a');
 
-            const aPrice = a?.sellPrice[`w${w}`][key] ?? 0;
-            const bPrice = b?.sellPrice[`w${w}`][key] ?? 0;
+            const aPrice = +a?.sellPrice[`w${w}`][key] || 0;
+            const bPrice = +b?.sellPrice[`w${w}`][key] || 0;
+            console.log(aPrice, bPrice)
 
             return aPrice > bPrice ? -1 : 1;
           } catch (err) {
@@ -267,7 +268,10 @@ export default {
     copyLink() {
       const isOk = copyValue(`https://liff.line.me/1557984400-gjEoY0y1/liff-sp/${this.$route.fullPath}`);
       if (isOk) {
-        this.$toast.success('已複製群組網址');
+        this.$toast.success({
+          message: '已複製群組網址',
+          duration: 700,
+        });
       }
     },
   },

@@ -5,10 +5,12 @@ import { turnipRef } from '@/plugins/firebase';
 import { LineProfile } from '@/view-models/liff.vm';
 
 export function listenerPriceList(date: Moment, callback: Function) {
-  turnipRef
+  return new Promise((reslove) => {
+    turnipRef
     .child('price')
     .child(moment(date).format('YYYY-MM-DD'))
     .on('value', snapshot => {
+      reslove();
       const data = snapshot.val();
       if (!data) {
         return callback([]);
@@ -23,6 +25,7 @@ export function listenerPriceList(date: Moment, callback: Function) {
 
       callback(list);
     });
+  })
 }
 
 export function removeListenerPriceList(date: Moment) {
@@ -76,19 +79,27 @@ export function updatePriceByUserId(userId: string, date: Moment, params: { buyP
     .child('price')
     .child(moment(date).format('YYYY-MM-DD'))
     .child(userId)
-    .set(params);
+    .set({
+      ...params,
+      dateUpdated: moment().toISOString(),
+    });
 }
 
 export function updateProfileByUserId(userId: string, params: LineProfile) {
   return turnipRef
     .child('profile')
     .child(userId)
-    .set(params);
+    .set({
+      ...params,
+      dateUpdated: moment().toISOString(),
+    });
 }
 
 export function listenerGroupList(callback: Function) {
-  turnipRef
+  return new Promise((reslove) => {
+    turnipRef
     .child('group').on('value', snapshot => {
+      reslove();
       const data = snapshot.val();
       if (!data) {
         return callback([]);
@@ -98,7 +109,7 @@ export function listenerGroupList(callback: Function) {
 
       callback(list);
     });
-
+  })
 }
 
 export function removeListenerGroupList() {
@@ -140,8 +151,10 @@ export function removeGroup(groupId: string) {
 
 
 export function listenerGroupById(groupId: string, callback: Function) {
-  turnipRef
+  return new Promise((reslove) => {
+    turnipRef
     .child('group').child(groupId).on('value', snapshot => {
+      reslove();
       const data = snapshot.val();
       if (!data) {
         return callback(null);
@@ -149,7 +162,7 @@ export function listenerGroupById(groupId: string, callback: Function) {
 
       callback(data);
     });
-
+  })
 }
 
 export function removeListenerGroupById(groupId: string) {

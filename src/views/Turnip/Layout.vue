@@ -5,11 +5,14 @@
       <span>南北菜蟲一起串連</span>
     </van-notice-bar>
 
-    <div v-if="isLoggedIn">
-      <router-view :groupList="groupList" :priceList="priceList" :userList="userList"></router-view>
-    </div>
-    <div v-else class="padding-a-10">
+    <div v-if="!isLoggedIn" class="padding-a-10">
       <van-button type="primary" size="large" block @click="login">請先登入</van-button>
+    </div>
+    <div v-else-if="isLoading">
+      <van-skeleton class="padding-bt-15" title :row="6"></van-skeleton>
+    </div>
+    <div v-else>
+      <router-view :groupList="groupList" :priceList="priceList" :userList="userList"></router-view>
     </div>
 
     <van-popup v-model="showEditor" position="bottom" closeable :style="{ height: '90%' }">
@@ -48,6 +51,7 @@ export default {
       groupList: [],
       priceList: [],
       userList: [],
+      isLoading: false,
     };
   },
   computed: {
@@ -57,17 +61,7 @@ export default {
     }),
   },
   created() {
-    turnipSVC.listenerGroupList(list => {
-      this.groupList = list;
-    });
-
-    turnipSVC.listenerPriceList(weekStart, list => {
-      this.priceList = list;
-    });
-
-    turnipSVC.listenerUserList(list => {
-      this.userList = list;
-    });
+    this.initListener();
   },
   beforeDestroy() {
     turnipSVC.removeListenerGroupList();
@@ -75,6 +69,24 @@ export default {
     turnipSVC.removeListenerPriceList(weekStart);
   },
   methods: {
+    async initListener(){
+      this.isLoading = true;
+
+      const ret = await Promise.all([
+        turnipSVC.listenerGroupList(list => {
+          this.groupList = list;
+        }),
+        turnipSVC.listenerPriceList(weekStart, list => {
+          this.priceList = list;
+        }),
+        turnipSVC.listenerUserList(list => {
+          this.userList = list;
+        })
+      ])
+      // console.log(ret, this.groupList)
+
+      this.isLoading = false;
+    },
     openEditor() {
       if (!this.isLoggedIn) {
         this.$toast.fail({
