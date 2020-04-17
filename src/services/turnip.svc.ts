@@ -7,24 +7,24 @@ import { LineProfile } from '@/view-models/liff.vm';
 export function listenerPriceList(date: Moment, callback: Function) {
   return new Promise((reslove) => {
     turnipRef
-    .child('price')
-    .child(moment(date).format('YYYY-MM-DD'))
-    .on('value', snapshot => {
-      reslove();
-      const data = snapshot.val();
-      if (!data) {
-        return callback([]);
-      }
-
-      const list = Object.keys(data).map(key => {
-        return {
-          id: key,
-          ...data[key],
+      .child('price')
+      .child(moment(date).format('YYYY-MM-DD'))
+      .on('value', snapshot => {
+        reslove();
+        const data = snapshot.val();
+        if (!data) {
+          return callback([]);
         }
-      });
 
-      callback(list);
-    });
+        const list = Object.keys(data).map(key => {
+          return {
+            id: key,
+            ...data[key],
+          }
+        });
+
+        callback(list);
+      });
   })
 }
 
@@ -46,6 +46,35 @@ export function getPriceByUserId(userId: string, date: Moment) {
         reslove(data);
       });
   })
+}
+
+export function listenerHistoriesByUserId(userId: string, callback: Function) {
+  turnipRef
+    .child('price')
+    .on('value', snapshot => {
+      try {
+        const data = snapshot.val();
+        let list: any[] = [];
+        Object.keys(data).forEach(date => {
+          if (data[date][userId]) {
+            list.push({
+              id: date,
+              ...data[date][userId]
+            })
+          }
+        })
+
+        callback(list);
+      } catch (err) {
+        console.log(err)
+        callback([]);
+      }
+    });
+}
+
+export function removeListenerHistoriesByUserId() {
+  return turnipRef
+    .child('price').off();
 }
 
 export function listenerUserList(callback: Function) {
@@ -98,17 +127,17 @@ export function updateProfileByUserId(userId: string, params: LineProfile) {
 export function listenerGroupList(callback: Function) {
   return new Promise((reslove) => {
     turnipRef
-    .child('group').on('value', snapshot => {
-      reslove();
-      const data = snapshot.val();
-      if (!data) {
-        return callback([]);
-      }
+      .child('group').on('value', snapshot => {
+        reslove();
+        const data = snapshot.val();
+        if (!data) {
+          return callback([]);
+        }
 
-      const list = Object.keys(data).map(key => data[key]);
+        const list = Object.keys(data).map(key => data[key]);
 
-      callback(list);
-    });
+        callback(list);
+      });
   })
 }
 
@@ -153,15 +182,15 @@ export function removeGroup(groupId: string) {
 export function listenerGroupById(groupId: string, callback: Function) {
   return new Promise((reslove) => {
     turnipRef
-    .child('group').child(groupId).on('value', snapshot => {
-      reslove();
-      const data = snapshot.val();
-      if (!data) {
-        return callback(null);
-      }
+      .child('group').child(groupId).on('value', snapshot => {
+        reslove();
+        const data = snapshot.val();
+        if (!data) {
+          return callback(null);
+        }
 
-      callback(data);
-    });
+        callback(data);
+      });
   })
 }
 

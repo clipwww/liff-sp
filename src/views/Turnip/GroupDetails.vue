@@ -1,91 +1,96 @@
 <template>
-  <div v-if="group">
-    <van-cell class="margin-b-15" :title="group.name" :border="false" center>
-      <div slot="label">
-        <van-icon name="user-o" />
-        <span class="margin-l-5">{{ group.members.length }}</span>
-      </div>
-      <div slot="right-icon">
-        <van-button
-          v-if="isCreator"
-          class="margin-r-5"
-          type="info"
-          size="small"
-          @click="showEditor = true"
-        >編輯</van-button>
-        <van-button
-          v-else
-          class="margin-r-5"
-          type="danger"
-          size="mini"
-          @click="removeMembers(profile.userId)"
-        >退出</van-button>
-        <van-button class="padding-lr-5" type="primary" size="mini" plain @click="copyLink">複製網址</van-button>
-      </div>
-    </van-cell>
-    <van-panel class="margin-b-15" v-for="item in filterPriceList" :key="item.id">
-      <van-cell slot="header">
-        <van-image
-          v-if="item.profile.pictureUrl"
-          slot="icon"
-          class="margin-r-15"
-          :src="item.profile.pictureUrl"
-          width="50"
-          height="50"
-          round
-          lazy-load
-        ></van-image>
-        <div slot="title">{{ item.profile.displayName }}</div>
-        <div slot="label" class="little-text">買價：{{ item.buyPrice }}</div>
-        <div v-if="isCreator && item.id !== profile.userId" slot="right-icon">
-          <van-button type="danger" size="mini" @click="removeMembers(item.id)">移出</van-button>
+  <div>
+    <van-skeleton
+      class="padding-bt-15"
+      v-if="!group"
+      title
+      avatar
+      avatar-size="50"
+      :row="6"
+      :loading="!group"
+    ></van-skeleton>
+    <div v-else>
+      <van-cell class="margin-b-15" :title="group.name" :border="false" center>
+        <div slot="label">
+          <van-icon name="user-o" />
+          <span class="margin-l-5">{{ group.members.length }}</span>
+        </div>
+        <div slot="right-icon">
+          <van-button
+            v-if="isCreator"
+            class="margin-r-5"
+            type="info"
+            size="small"
+            @click="showEditor = true"
+          >編輯</van-button>
+          <van-button
+            v-else
+            class="margin-r-5"
+            type="danger"
+            size="mini"
+            @click="removeMembers(profile.userId)"
+          >退出</van-button>
+          <van-button class="padding-lr-5" type="primary" size="mini" plain @click="copyLink">複製網址</van-button>
         </div>
       </van-cell>
-      <van-grid :column-num="6">
-        <van-grid-item v-for="(key, index) in Object.keys(item.sellPrice)" :key="key">
-          <div class="little-text">{{ weekdays[index].momentInstance.format('ddd') }}</div>
-          <div class="margin-bt-10">{{ item.sellPrice[key].am || '--' }}</div>
-          <div>{{ item.sellPrice[key].pm || '--' }}</div>
-        </van-grid-item>
-      </van-grid>
-      <div class="padding-bt-10">
-        <TurnipLineChart :id="item.id" :buyPrice="item.buyPrice" :sellPrice="item.sellPrice" />
-      </div>
-    </van-panel>
-
-    <van-popup v-model="showEditor" position="bottom" closeable :style="{ height: '70%' }">
-      <div class="padding-a-10">
-        <van-button type="danger" size="mini" @click="removeGroup">刪除群組</van-button>
-      </div>
-      <div>
-        <van-divider>編輯群組</van-divider>
-        <van-form @submit="onSubmit">
-          <van-field
-            v-model="form.groupName"
-            name="群組名稱"
-            label="群組名稱"
-            placeholder="請填寫群組名稱"
-            :rules="[{ required: true, message: '請填寫群組名稱' }]"
-          />
-          <van-field name="switch" label="私密群組">
-            <template #input>
-              <van-switch v-model="form.isPrivate" size="20" />
-            </template>
-          </van-field>
-          <van-field
-            v-if="form.isPrivate"
-            v-model="form.password"
-            name="群組密碼"
-            label="群組密碼"
-            placeholder="請填寫群組密碼"
-            :rules="[{ required: true, message: '請填寫群組密碼' }]"
-          />
-          <div class="padding-a-15">
-            <van-button type="primary" round block native-type="submit">送出</van-button>
+      <van-panel class="margin-b-15" v-for="item in filterPriceList" :key="item.id">
+        <van-cell slot="header">
+          <van-image
+            v-if="item.profile.pictureUrl"
+            slot="icon"
+            class="margin-r-15"
+            :src="item.profile.pictureUrl"
+            width="50"
+            height="50"
+            round
+            lazy-load
+          ></van-image>
+          <div slot="title">{{ item.profile.displayName }}</div>
+          <div slot="label" class="little-text">買價：{{ item.buyPrice }}</div>
+          <div v-if="isCreator && item.id !== profile.userId" slot="right-icon">
+            <van-button type="danger" size="mini" @click="removeMembers(item.id)">移出</van-button>
           </div>
-        </van-form>
-      </div>
-    </van-popup>
+        </van-cell>
+        <TurnipSellPrice :sellPrice="item.sellPrice" />
+        <div class="padding-bt-10">
+          <TurnipLineChart :id="item.id" :buyPrice="item.buyPrice" :sellPrice="item.sellPrice" />
+        </div>
+      </van-panel>
+
+      <van-popup v-model="showEditor" position="bottom" closeable :style="{ height: '70%' }">
+        <div class="padding-a-10">
+          <van-button type="danger" size="mini" @click="removeGroup">刪除群組</van-button>
+        </div>
+        <div>
+          <van-divider>編輯群組</van-divider>
+          <van-form @submit="onSubmit">
+            <van-field
+              v-model="form.groupName"
+              name="群組名稱"
+              label="群組名稱"
+              placeholder="請填寫群組名稱"
+              :rules="[{ required: true, message: '請填寫群組名稱' }]"
+            />
+            <van-field name="switch" label="私密群組">
+              <template #input>
+                <van-switch v-model="form.isPrivate" size="20" />
+              </template>
+            </van-field>
+            <van-field
+              v-if="form.isPrivate"
+              v-model="form.password"
+              name="群組密碼"
+              label="群組密碼"
+              placeholder="請填寫群組密碼"
+              :rules="[{ required: true, message: '請填寫群組密碼' }]"
+            />
+            <div class="padding-a-15">
+              <van-button type="primary" round block native-type="submit">送出</van-button>
+            </div>
+          </van-form>
+        </div>
+      </van-popup>
+    </div>
   </div>
 </template>
 
@@ -98,6 +103,7 @@ import { turnipSVC } from '@/services';
 import { momentUtil, copyValue } from '@/utils';
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue';
+import TurnipSellPrice from '@/components/TurnipSellPrice.vue';
 
 const weekStart = momentUtil.getWeekStart();
 const weekdays = momentUtil.getWeekdays();
@@ -119,6 +125,7 @@ export default {
   },
   components: {
     TurnipLineChart,
+    TurnipSellPrice,
   },
   props: {
     userList: {
@@ -180,7 +187,7 @@ export default {
 
             const aPrice = +a?.sellPrice[`w${w}`][key] || 0;
             const bPrice = +b?.sellPrice[`w${w}`][key] || 0;
-            console.log(aPrice, bPrice)
+            console.log(aPrice, bPrice);
 
             return aPrice > bPrice ? -1 : 1;
           } catch (err) {
@@ -211,8 +218,9 @@ export default {
       }
     });
   },
-  beforeDestroy() {
+  beforeRouteLeave(to, from, next) {
     turnipSVC.removeListenerGroupById(this.groupId);
+    next();
   },
   methods: {
     async removeMembers(userId) {

@@ -15,13 +15,7 @@
         <div slot="title">{{ item.profile.displayName }}</div>
         <div slot="label" class="little-text">買價：{{ item.buyPrice }}</div>
       </van-cell>
-      <van-grid :column-num="6">
-        <van-grid-item v-for="(key, index) in Object.keys(item.sellPrice)" :key="key">
-          <div class="little-text">{{ weekdays[index].momentInstance.format('ddd') }}</div>
-          <div class="margin-bt-10">{{ item.sellPrice[key].am || '--' }}</div>
-          <div>{{ item.sellPrice[key].pm || '--' }}</div>
-        </van-grid-item>
-      </van-grid>
+      <TurnipSellPrice :sellPrice="item.sellPrice" />
       <div class="padding-bt-10">
         <TurnipLineChart :id="item.id" :buyPrice="item.buyPrice" :sellPrice="item.sellPrice" />
       </div>
@@ -51,6 +45,26 @@
         </div>
       </van-cell>
     </van-cell-group>
+
+    <van-cell-group title="歷史紀錄">
+      <van-cell v-for="item in histories" :key="item.id" center is-link @click="openHistory(item)">
+        <div slot="title">{{ item.id }}</div>
+        <div slot="label">第{{ item.id | formatWeek }}</div>
+      </van-cell>
+    </van-cell-group>
+
+    <van-popup v-model="showHistory" position="bottom" closeable :style="{ height: '70%' }">
+      <div v-if="historyItem">
+        <van-divider>{{ historyItem.id }}</van-divider>
+        <div class="little-text padding-a-10">買價：{{ historyItem.buyPrice }}</div>
+        <TurnipSellPrice :sellPrice="historyItem.sellPrice" />
+        <TurnipLineChart
+          :id="historyItem.id"
+          :buyPrice="historyItem.buyPrice"
+          :sellPrice="historyItem.sellPrice"
+        />
+      </div>
+    </van-popup>
   </div>
 </template>
 
@@ -63,6 +77,7 @@ import { turnipSVC } from '@/services';
 import { momentUtil } from '@/utils';
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue';
+import TurnipSellPrice from '@/components/TurnipSellPrice.vue';
 
 const weekdays = momentUtil.getWeekdays();
 const sellPrice = {};
@@ -76,6 +91,12 @@ weekdays.forEach(item => {
 export default {
   components: {
     TurnipLineChart,
+    TurnipSellPrice,
+  },
+  filters: {
+    formatWeek(val) {
+      return moment(val).format('wo');
+    },
   },
   props: {
     groupList: {
@@ -94,6 +115,10 @@ export default {
   data() {
     return {
       weekdays,
+
+      histories: [],
+      showHistory: false,
+      historyItem: null,
     };
   },
   computed: {
@@ -114,9 +139,24 @@ export default {
       };
     },
   },
+  created() {
+    turnipSVC.listenerHistoriesByUserId(this.profile.userId, list => {
+      this.histories = list
+        .filter(item => !moment().isSame(item.id, 'week'))
+        .sort((a, b) => (moment(a.id).isBefore(b.id) ? 1 : -1));
+    });
+  },
+  beforeDestroy() {
+    turnipSVC.removeListenerHistoriesByUserId();
+  },
   methods: {
     goDetails(item) {
       this.$router.push({ name: 'TurnipGroupDetails', params: { id: item.id } });
+    },
+    openHistory(item) {
+      console.log(item);
+      this.historyItem = item;
+      this.showHistory = true;
     },
   },
 };

@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import { axiosInstace, CustomAxiosRequestConfig } from './base.svc';
 
 import { ResultListGenericVM } from '@/view-models/result.vm';
@@ -43,12 +45,13 @@ export function getTheaterList(cityId: string) {
 }
 
 export function getTheaterById(theaterId: string, cityId: string = '', date?: string) {
+  const isToday = moment().isSame(date, 'day');
   return axiosInstace.request({
     method: 'GET',
     url: `${baseURL}/theater/${theaterId}`,
     params: {
       cityId,
-      date,
+      date: isToday ? null : date,
     }
   })
 }

@@ -118,7 +118,9 @@ export default {
   },
   watch: {
     buyPrice() {
-      this.initChart();
+      this.$nextTick(() => {
+        this.initChart();
+      });
     },
     sellPrice: {
       deep: true,
