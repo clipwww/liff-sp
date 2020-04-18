@@ -15,11 +15,7 @@
       <router-view :groupList="groupList" :priceList="priceList" :userList="userList"></router-view>
     </div>
 
-    <van-popup v-model="showEditor" position="bottom" closeable :style="{ height: '90%' }">
-      <div class="padding-t-30">
-        <TurnipEditor v-if="showEditor" @success="showEditor = false" />
-      </div>
-    </van-popup>
+     <TurnipEditorPopup v-model="showEditor" />
 
     <van-tabbar fixed route safe-area-inset-bottom>
       <van-tabbar-item icon="chart-trending-o" :to="{ name: 'TurnipDashboard' }">儀表板</van-tabbar-item>
@@ -35,14 +31,14 @@ import { mapGetters } from 'vuex';
 import { momentUtil } from '@/utils';
 import { turnipSVC } from '@/services';
 
-import TurnipEditor from '@/components/TurnipEditor.vue';
+import TurnipEditorPopup from '@/components/TurnipEditorPopup.vue';
 
 const weekdays = momentUtil.getWeekdays();
 const weekStart = momentUtil.getWeekStart();
 
 export default {
   components: {
-    TurnipEditor,
+    TurnipEditorPopup,
   },
   data() {
     return {

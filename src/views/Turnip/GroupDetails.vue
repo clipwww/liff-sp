@@ -274,7 +274,7 @@ export default {
       }
     },
     copyLink() {
-      const isOk = copyValue(`https://liff.line.me/1557984400-gjEoY0y1/liff-sp/${this.$route.fullPath}`);
+      const isOk = copyValue(`https://liff.line.me/1557984400-gjEoY0y1/liff-sp${this.$route.fullPath}`);
       if (isOk) {
         this.$toast.success({
           message: '已複製群組網址',
