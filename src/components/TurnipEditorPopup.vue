@@ -1,5 +1,5 @@
 <template>
-  <van-popup v-model="isOpen" 
+  <van-popup ref="popup" v-model="isOpen" 
     position="bottom" 
     closeable 
     lazy-render 
@@ -153,15 +153,23 @@ export default {
       this.$nextTick(() => {
         try {
           if (moment().isSame(weekStart, 'day')) {
-            this.$refs.buyPrice.focus();
             return;
           }
+
+          let offsetCount = 0;
+          
           
           const now =  moment()
           const w = now.weekday();
           const key = now.locale('en-us').format('a'); 
 
-          this.$refs[`w${w}${key}`]?.[0].focus();
+          offsetCount = (w * 2)
+          if (key === 'am') {
+             offsetCount -= 1;
+          }
+          // this.$refs[`w${w}${key}`]?.[0].focus();
+
+          this.$refs.popup?.$el?.scrollTo(0, 50 * offsetCount);
         } catch (err) {
           console.log(err);
         }
