@@ -152,7 +152,7 @@ export default {
     focusField() {
       this.$nextTick(() => {
         try {
-          if (moment().isSame(weekStart)) {
+          if (moment().isSame(weekStart, 'day')) {
             this.$refs.buyPrice.focus();
             return;
           }
