@@ -6,7 +6,7 @@
         <van-panel class="margin-b-15" v-for="item in filterHistories" :key="item.id">
           <van-cell slot="header" center>
             <div slot="title" class="fs-18">{{ item.id }}</div>
-            <div slot="label">第{{ item.id | formatWeek }}</div>
+            <div slot="label">買價：{{ item.buyPrice }}</div>
           </van-cell>
           <TurnipSellPrice :sellPrice="item.sellPrice" />
           <div class="padding-bt-10">
@@ -76,6 +76,6 @@ export default {
 
 <style lang="scss" scoped>
 .list__container {
-  height: calc(100vh - 105px);
+  height: calc(100vh - 110px);
 }
 </style>
