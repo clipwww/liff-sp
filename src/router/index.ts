@@ -199,6 +199,14 @@ const routes: RouteConfig[] = [
           label: '大頭菜群組'
         }
       },
+      {
+        path: 'histories',
+        name: 'TurnipHistories',
+        component: loadComponents('Turnip/Histories'),
+        meta: {
+          label: '大頭菜歷史紀錄'
+        }
+      },
     ]
   }
 ];
@@ -207,7 +215,7 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
-  scrollBehavior (to, from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     // console.log('savedPosition', savedPosition)
     if (savedPosition) {
       return savedPosition

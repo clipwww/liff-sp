@@ -1,7 +1,10 @@
-const TerserPlugin = require('terser-webpack-plugin');
+// const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
+
+const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/liff-sp/' : '/',
+  publicPath: isProd ? '/liff-sp/' : '/',
   devServer: {
     disableHostCheck: true
   },
@@ -15,7 +18,7 @@ module.exports = {
         `
         // ref. https://cli.vuejs.org/guide/css.html#passing-options-to-pre-processor-loaders
       },
-      less:{
+      less: {
         // http://lesscss.org/usage/#less-options-strict-units `Global Variables`
         // `primary` is global variables fields name
         modifyVars: {
@@ -24,19 +27,19 @@ module.exports = {
       }
     }
   },
+  chainWebpack: config => {
+    if (isProd) {
+      config.optimization.minimizer('terser').tap((args) => {
+        args[0].terserOptions.compress.drop_console = true
+        return args
+      })
+    }
+  },
   configureWebpack: config => {
-    if (process.env.NODE_ENV === 'production') {
+    if (isProd) {
       return {
         plugins: [
-          new TerserPlugin({
-            test: /\.js(\?.*)?$/i,
-            terserOptions: {
-              compress: {
-                drop_console: true,
-                pure_funcs: ['console.log']
-              }
-            }
-          })
+          new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         ]
       };
     } else {

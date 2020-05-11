@@ -1,17 +1,20 @@
 <template>
-  <van-popup ref="popup" v-model="isOpen" 
-    position="bottom" 
-    closeable 
-    lazy-render 
-    :style="{ height: '90%' }" 
-    @opened="showBtn = true" 
+  <van-popup
+    ref="popup"
+    v-model="isOpen"
+    position="bottom"
+    closeable
+    lazy-render
+    :style="{ height: '90%' }"
+    @opened="showBtn = true"
     @close="showBtn = false"
   >
     <div class="padding-t-30">
       <div class="editor">
         <van-cell-group>
           <div slot="title" class="fs-20">{{ buyDay }}</div>
-          <van-field ref="buyPrice"
+          <van-field
+            ref="buyPrice"
             v-model="buyPrice"
             type="digit"
             label="買入價格"
@@ -21,14 +24,16 @@
         </van-cell-group>
 
         <van-cell-group v-for="(item) in weekdays" :key="item.id" :title="item.label">
-          <van-field :ref="`${item.id}am`"
+          <van-field
+            :ref="`${item.id}am`"
             type="digit"
             v-model="sellPrice[item.id].am"
             label="上午賣價"
             :placeholder="`請輸入 ${item.label} 上午賣價`"
             :disabled="isLoading"
           />
-          <van-field :ref="`${item.id}pm`"
+          <van-field
+            :ref="`${item.id}pm`"
             type="digit"
             v-model="sellPrice[item.id].pm"
             label="下午賣價"
@@ -38,7 +43,15 @@
         </van-cell-group>
 
         <div class="fixed-btn">
-          <van-button button v-show="showBtn" type="primary" round block :disabled="isLoading" @click="updateTurnipPrice">送出</van-button>
+          <van-button
+            button
+            v-show="showBtn"
+            type="primary"
+            round
+            block
+            :disabled="isLoading"
+            @click="updateTurnipPrice"
+          >送出</van-button>
         </div>
       </div>
     </div>
@@ -71,7 +84,7 @@ export default {
     value: {
       type: Boolean,
       required: true,
-    }
+    },
   },
   data() {
     return {
@@ -95,16 +108,16 @@ export default {
       },
       set(bool) {
         this.$emit('input', bool);
-      }
-    }
+      },
+    },
   },
   watch: {
     isOpen: {
       immediate: true,
       handler(bool) {
         if (bool) this.getTurnipPrice();
-      }
-    }
+      },
+    },
   },
   methods: {
     async getTurnipPrice() {
@@ -157,15 +170,15 @@ export default {
           }
 
           let offsetCount = 0;
-          
-          
-          const now =  moment()
-          const w = now.weekday();
-          const key = now.locale('en-us').format('a'); 
 
-          offsetCount = (w * 2)
+          const now = moment();
+          const w = now.weekday();
+          const key = now.locale('en-us').format('a');
+          console.log('[key]', key);
+
+          offsetCount = w * 2;
           if (key === 'am') {
-             offsetCount -= 1;
+            offsetCount -= 1;
           }
           // this.$refs[`w${w}${key}`]?.[0].focus();
 
@@ -173,8 +186,8 @@ export default {
         } catch (err) {
           console.log(err);
         }
-      })
-    }
+      });
+    },
   },
 };
 </script>

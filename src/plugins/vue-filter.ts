@@ -11,6 +11,10 @@ const MyVueFilter = function (Vue: VueConstructor, options: any) {
     return moment(str).format(hasTime ? 'YYYY/MM/DD HH:mm' : 'YYYY/MM/DD');
   })
 
+  Vue.filter('formatWeek', (val: string) => {
+    return moment(val).format('wo');
+  })
+
   Vue.filter('commafy', (num: string | number, maximumFractionDigits: number = 4) => {
     try {
       return (+num).toLocaleString(undefined, { maximumFractionDigits });
@@ -18,7 +22,6 @@ const MyVueFilter = function (Vue: VueConstructor, options: any) {
       return num;
     }
   })
-
 
 }
 

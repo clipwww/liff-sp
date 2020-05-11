@@ -12,10 +12,15 @@
       <van-skeleton class="padding-bt-15" title :row="6"></van-skeleton>
     </div>
     <div v-else>
-      <router-view :groupList="groupList" :priceList="priceList" :userList="userList"></router-view>
+      <router-view
+        :groupList="groupList"
+        :priceList="priceList"
+        :userList="userList"
+        :histories="histories"
+      ></router-view>
     </div>
 
-     <TurnipEditorPopup v-model="showEditor" />
+    <TurnipEditorPopup v-model="showEditor" />
 
     <van-tabbar fixed route safe-area-inset-bottom>
       <van-tabbar-item icon="chart-trending-o" :to="{ name: 'TurnipDashboard' }">儀表板</van-tabbar-item>
@@ -27,6 +32,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import moment from 'moment';
 
 import { momentUtil } from '@/utils';
 import { turnipSVC } from '@/services';
@@ -47,6 +53,7 @@ export default {
       groupList: [],
       priceList: [],
       userList: [],
+      histories: [],
       isLoading: false,
     };
   },
@@ -56,6 +63,22 @@ export default {
       profile: 'profile',
     }),
   },
+  watch: {
+    profile: {
+      immediate: true,
+      handler(val) {
+        if (!val || !val.userId) {
+          return;
+        }
+        turnipSVC.removeListenerHistoriesByUserId();
+        turnipSVC.listenerHistoriesByUserId(val.userId, list => {
+          this.histories = list
+            .filter(item => !moment().isSame(item.id, 'week'))
+            .sort((a, b) => (moment(a.id).isBefore(b.id) ? 1 : -1));
+        });
+      },
+    },
+  },
   created() {
     this.initListener();
   },
@@ -63,9 +86,10 @@ export default {
     turnipSVC.removeListenerGroupList();
     turnipSVC.removeListenerUserList();
     turnipSVC.removeListenerPriceList(weekStart);
+    turnipSVC.removeListenerHistoriesByUserId();
   },
   methods: {
-    async initListener(){
+    async initListener() {
       this.isLoading = true;
 
       const ret = await Promise.all([
@@ -77,8 +101,8 @@ export default {
         }),
         turnipSVC.listenerUserList(list => {
           this.userList = list;
-        })
-      ])
+        }),
+      ]);
       // console.log(ret, this.groupList)
 
       this.isLoading = false;

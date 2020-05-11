@@ -7,7 +7,8 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "report": "vue-cli-service build --report"
   },
   "dependencies": {
     "axios": "^0.19.2",

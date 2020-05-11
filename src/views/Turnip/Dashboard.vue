@@ -47,10 +47,24 @@
     </van-cell-group>
 
     <van-cell-group title="歷史紀錄">
-      <van-cell v-for="item in histories" :key="item.id" center is-link @click="openHistory(item)">
+      <van-cell
+        v-for="item in filterHistories"
+        :key="item.id"
+        center
+        is-link
+        @click="openHistory(item)"
+      >
         <div slot="title">{{ item.id }}</div>
         <div slot="label">第{{ item.id | formatWeek }}</div>
       </van-cell>
+      <van-cell
+        v-if="histories.length > 3"
+        is-link
+        center
+        title
+        label="查看更多"
+        :to="{ name: 'TurnipHistories' }"
+      ></van-cell>
     </van-cell-group>
 
     <van-popup v-model="showHistory" position="bottom" closeable :style="{ height: '70%' }">
@@ -73,7 +87,6 @@
 import moment from 'moment';
 import { mapGetters } from 'vuex';
 
-import { turnipSVC } from '@/services';
 import { momentUtil } from '@/utils';
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue';
@@ -93,11 +106,7 @@ export default {
     TurnipLineChart,
     TurnipSellPrice,
   },
-  filters: {
-    formatWeek(val) {
-      return moment(val).format('wo');
-    },
-  },
+
   props: {
     groupList: {
       type: Array,
@@ -111,12 +120,17 @@ export default {
         return [];
       },
     },
+    histories: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
   },
   data() {
     return {
       weekdays,
 
-      histories: [],
       showHistory: false,
       historyItem: null,
     };
@@ -129,6 +143,9 @@ export default {
     filterGroupList() {
       return this.groupList.filter(item => item.members.includes(this.profile.userId));
     },
+    filterHistories() {
+      return this.histories.filter((item, index) => index < 3);
+    },
     item() {
       return {
         profile: this.profile,
@@ -138,16 +155,6 @@ export default {
         }),
       };
     },
-  },
-  created() {
-    turnipSVC.listenerHistoriesByUserId(this.profile.userId, list => {
-      this.histories = list
-        .filter(item => !moment().isSame(item.id, 'week'))
-        .sort((a, b) => (moment(a.id).isBefore(b.id) ? 1 : -1));
-    });
-  },
-  beforeDestroy() {
-    turnipSVC.removeListenerHistoriesByUserId();
   },
   methods: {
     goDetails(item) {

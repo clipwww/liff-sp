@@ -1,5 +1,7 @@
 import Vue from 'vue';
 import moment from 'moment';
+import 'moment/locale/zh-tw.js';
+import 'moment/locale/en-gb.js';
 
 import App from './App.vue';
 import router from './router';
