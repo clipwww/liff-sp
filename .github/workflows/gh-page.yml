@@ -10,17 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v2
         with:
           ref: master
 
-      - name: Setup Node
+      - name: set env
+        uses: allenevans/set-env@v1.1.0
+        with:
+          VUE_APP_LIFF_ID: ${{ secrets.VUE_APP_LIFF_ID }}
+          VUE_APP_API_URL: ${{ secrets.VUE_APP_API_URL }}
+
+      - name: setup node
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
 
-      - name: Cache dependencies
+      - name: cache dependencies
         uses: actions/cache@v1
         with:
           path: ~/.npm
@@ -30,7 +36,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Deploy
+      - name: deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
