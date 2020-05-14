@@ -54,8 +54,8 @@
         is-link
         @click="openHistory(item)"
       >
-        <div slot="title">{{ item.id }}</div>
-        <div slot="label">第{{ item.id | formatWeek }}</div>
+        <div slot="title">{{ item.id | formatWeekRange }}</div>
+        <div slot="label">{{ item.id | formatYear }} 第{{ item.id | formatWeek }}</div>
       </van-cell>
       <van-cell
         v-if="histories.length > 3"
@@ -69,7 +69,7 @@
 
     <van-popup v-model="showHistory" position="bottom" closeable :style="{ height: '70%' }">
       <div v-if="historyItem">
-        <van-divider>{{ historyItem.id }}</van-divider>
+        <van-divider>{{ historyItem.id | formatWeekRange }}</van-divider>
         <div class="little-text padding-a-10">買價：{{ historyItem.buyPrice }}</div>
         <TurnipSellPrice :sellPrice="historyItem.sellPrice" />
         <TurnipLineChart

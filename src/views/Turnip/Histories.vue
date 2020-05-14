@@ -2,10 +2,13 @@
   <div class="list__container">
     <van-cell-group title="歷史紀錄"></van-cell-group>
     <div title="歷史紀錄" class="list__content">
-      <van-list :finished="isFinished" finished-text="没有更多了" :offset="50" @load="onLoad">
+      <van-list :finished="isFinished" finished-text="没有更多了" :offset="10" @load="onLoad">
         <van-panel class="margin-b-15" v-for="item in filterHistories" :key="item.id">
           <van-cell slot="header" center>
-            <div slot="title" class="fs-18">{{ item.id }}</div>
+            <div slot="title">
+              <span class="fs-18">{{ item.id | formatWeekRange }}</span>
+              <span class="little-text margin-l-5">{{ item.id | formatYear }}</span>
+            </div>
             <div slot="label">買價：{{ item.buyPrice }}</div>
           </van-cell>
           <TurnipSellPrice :sellPrice="item.sellPrice" />
