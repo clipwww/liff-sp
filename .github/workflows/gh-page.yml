@@ -20,6 +20,7 @@ jobs:
         with:
           VUE_APP_LIFF_ID: ${{ secrets.VUE_APP_LIFF_ID }}
           VUE_APP_API_URL: ${{ secrets.VUE_APP_API_URL }}
+          VUE_APP_ACNH_API_URL: ${{ secrets.VUE_APP_ACNH_API_URL }}
 
       - name: setup node
         uses: actions/setup-node@v1

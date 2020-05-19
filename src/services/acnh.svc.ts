@@ -2,7 +2,7 @@ import { Toast } from 'vant';
 
 import { createAxiosInstance, CustomAxiosResponse } from './base.svc';
 
-const axiosInstance = createAxiosInstance('http://acnhapi.com:1304/v1');
+const axiosInstance = createAxiosInstance(process.env.VUE_APP_ACNH_API_URL);
 
 axiosInstance.interceptors.response.use((response: CustomAxiosResponse) => {
   return response;

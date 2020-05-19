@@ -19,8 +19,8 @@
           <van-cell
             v-for="(item, i) in filterList"
             :key="item.id"
-            :title="item.name['name-TWzh']"
-            :label="item.name['name-JPja']"
+            :title="item.name['name-tw']"
+            :label="item.name['name-jp']"
             is-link
             center
             @click="goDetails(item)"
