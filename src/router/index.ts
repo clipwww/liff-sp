@@ -152,7 +152,7 @@ const routes: RouteConfig[] = [
         name: 'HimawariList',
         component: loadComponents('Himawari/List'),
         meta: {
-          label: '向日葵動畫列表'
+          label: '列表'
         }
       },
       {
@@ -160,7 +160,7 @@ const routes: RouteConfig[] = [
         name: 'HimawariDetails',
         component: loadComponents('Himawari/Details'),
         meta: {
-          label: '向日葵動畫'
+          label: '動畫'
         }
       }
     ]
@@ -188,7 +188,7 @@ const routes: RouteConfig[] = [
         name: 'TurnipGroup',
         component: loadComponents('Turnip/Group'),
         meta: {
-          label: '大頭菜群組'
+          label: '群組'
         }
       },
       {
@@ -196,7 +196,7 @@ const routes: RouteConfig[] = [
         name: 'TurnipGroupDetails',
         component: loadComponents('Turnip/GroupDetails'),
         meta: {
-          label: '大頭菜群組'
+          label: '群組'
         }
       },
       {
@@ -204,7 +204,81 @@ const routes: RouteConfig[] = [
         name: 'TurnipHistories',
         component: loadComponents('Turnip/Histories'),
         meta: {
-          label: '大頭菜歷史紀錄'
+          label: '歷史紀錄'
+        }
+      },
+    ]
+  },
+  {
+    path: '/acnh',
+    name: 'Acnh',
+    component: loadComponents('Acnh/Layout'),
+    redirect: { name: 'AcnhCategory' },
+    meta: {
+      label: '狸端機(?) Lite',
+      image: './images/leaf.png'
+    },
+    children: [
+      {
+        path: 'category',
+        name: 'AcnhCategory',
+        component: loadComponents('Acnh/Category'),
+        meta: {
+          label: '分類'
+        }
+      },
+      {
+        path: 'fish',
+        name: 'AcnhFish',
+        component: loadComponents('Acnh/List'),
+        meta: {
+          label: '魚',
+          image: 'http://acnhapi.com/icons/fish/1'
+        }
+      },
+      {
+        path: 'bugs',
+        name: 'AcnhBugs',
+        component: loadComponents('Acnh/List'),
+        meta: {
+          label: '蟲',
+          image: 'http://acnhapi.com/icons/bugs/1'
+        }
+      },
+      {
+        path: 'fossils',
+        name: 'AcnhFossils',
+        component: loadComponents('Acnh/List'),
+        meta: {
+          label: '化石',
+          image: '../images/fossils.png'
+        }
+      },
+      {
+        path: 'villagers',
+        name: 'AcnhVillagers',
+        component: loadComponents('Acnh/List'),
+        meta: {
+          label: '小動物',
+          image: 'http://acnhapi.com/icons/villagers/355'
+        }
+      },
+      {
+        path: 'art',
+        name: 'AcnhArt',
+        component: loadComponents('Acnh/List'),
+        meta: {
+          label: '藝術品',
+          image: 'http://acnhapi.com/icons/art/1'
+        }
+      },
+      {
+        path: 'songs',
+        name: 'AcnhSongs',
+        component: loadComponents('Acnh/List'),
+        meta: {
+          label: 'K.K.歌曲',
+          image: 'http://acnhapi.com/images/songs/1'
         }
       },
     ]

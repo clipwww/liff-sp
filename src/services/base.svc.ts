@@ -14,10 +14,10 @@ export interface CustomAxiosResponse extends AxiosResponse {
   config: CustomAxiosRequestConfig;
 }
 
-export const createAxiosInstance = () => {
+export const createAxiosInstance = (baseURL: string) => {
   console.log('createAxiosInstance');
   const axiosInstace = axios.create({
-    baseURL: process.env.VUE_APP_API_URL,
+    baseURL,
     timeout: 60000,
     headers: {
       'Content-Type': 'application/json'
@@ -51,25 +51,17 @@ export const createAxiosInstance = () => {
 
   axiosInstace.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
-      const { ignoreErrorMessage = false, ignoreLoader = true, url, method } = config;
-
-      if (!ignoreLoader) {
-        Toast.loading({
-          forbidClick: true
-        });
-      }
+      const { url, method } = config;
 
       removeRequest(url, method);
       config.cancelToken = new axios.CancelToken(c => {
         addRequest(url, method, c);
       });
 
-
       return config;
     },
     err => {
       console.error(err);
-      Toast.clear();
       return Promise.reject(err);
     }
   );
@@ -77,31 +69,16 @@ export const createAxiosInstance = () => {
   axiosInstace.interceptors.response.use(
     (response: CustomAxiosResponse) => {
       const {
-        ignoreErrorMessage = false,
-        ignoreLoader = true,
         url,
         method
       } = response.config;
-      const { success, resultCode, resultMessage } = response.data as ResultVM;
-      
+
       removeRequest(url, method);
-
-      if (!ignoreLoader) {
-        Toast.clear();
-      }
-
-      if (!success && !ignoreErrorMessage) {
-        Toast.fail(resultMessage);
-      }
 
       return response;
     },
     err => {
       console.error(err);
-      Toast.clear();
-      if (err.message !== 'Request Canceled') {
-        Toast.fail(err.message);
-      }
       return Promise.reject(err);
     }
   );
@@ -119,9 +96,98 @@ export const createAxiosInstance = () => {
       });
   }
 
+  async function get<T = ResultVM>(url: string, config?: CustomAxiosRequestConfig): Promise<T> {
+    return request<T>({
+      method: 'GET',
+      url,
+      ...config
+    })
+  }
+
+  async function post<T = ResultVM>(url: string, data?: any, config?: CustomAxiosRequestConfig): Promise<T> {
+    return request<T>({
+      method: 'POST',
+      url,
+      data,
+      ...config
+    })
+  }
+
+  async function put<T = ResultVM>(url: string, data?: any, config?: CustomAxiosRequestConfig): Promise<T> {
+    return request<T>({
+      method: 'PUT',
+      url,
+      data,
+      ...config
+    })
+  }
+
+  async function del<T = ResultVM>(url: string, config?: CustomAxiosRequestConfig): Promise<T> {
+    return request<T>({
+      method: 'DELETE',
+      url,
+      ...config
+    })
+  }
+
   return {
-    request
+    request,
+    get,
+    post,
+    put,
+    delete: del,
+    interceptors: axiosInstace.interceptors
   };
 };
 
-export const axiosInstace = createAxiosInstance();
+export const axiosInstace = createAxiosInstance(process.env.VUE_APP_API_URL);
+
+axiosInstace.interceptors.request.use(
+  (config: CustomAxiosRequestConfig) => {
+    const { ignoreErrorMessage = false, ignoreLoader = true, url, method } = config;
+    console.log(url, method);
+
+    if (!ignoreLoader) {
+      Toast.loading({
+        forbidClick: true
+      });
+    }
+
+    return config;
+  },
+  err => {
+    console.error(err);
+    Toast.clear();
+    return Promise.reject(err);
+  }
+);
+
+axiosInstace.interceptors.response.use(
+  (response: CustomAxiosResponse) => {
+    const {
+      ignoreErrorMessage = false,
+      ignoreLoader = true,
+      url,
+      method
+    } = response.config;
+    const { success, resultCode, resultMessage } = response.data as ResultVM;
+
+    if (!ignoreLoader) {
+      Toast.clear();
+    }
+
+    if (!success && !ignoreErrorMessage) {
+      Toast.fail(resultMessage);
+    }
+
+    return response;
+  },
+  err => {
+    console.error(err);
+    Toast.clear();
+    if (err.message !== 'Request Canceled') {
+      Toast.fail(err.message);
+    }
+    return Promise.reject(err);
+  }
+);

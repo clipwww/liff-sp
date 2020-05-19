@@ -43,11 +43,6 @@
 import { komicaSVC } from '@/services';
 
 export default {
-  metaInfo() {
-    return {
-      title: this.komicaType === 'new' ? '新番捏他' : '新番實況',
-    };
-  },
   data() {
     return {
       keyword: '',

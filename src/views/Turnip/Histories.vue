@@ -1,7 +1,7 @@
 <template>
   <div class="list__container">
     <van-cell-group title="歷史紀錄"></van-cell-group>
-    <div title="歷史紀錄" class="list__content">
+    <div title="歷史紀錄" class="list__content with-safe-area-inset-bottom">
       <van-list :finished="isFinished" finished-text="没有更多了" :offset="10" @load="onLoad">
         <van-panel class="margin-b-15" v-for="item in filterHistories" :key="item.id">
           <van-cell slot="header" center>
@@ -80,6 +80,6 @@ export default {
 
 <style lang="scss" scoped>
 .list__container {
-  height: calc(100vh - calc(env(safe-area-inset-bottom) + 105px));
+  height: calc(100vh - 105px);
 }
 </style>

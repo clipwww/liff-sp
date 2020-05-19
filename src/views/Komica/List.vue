@@ -11,8 +11,7 @@
           @load="getList"
         >
           <div slot="loading">
-            <van-cell v-for="n in 2"
-              :key="n">
+            <van-cell v-for="n in 2" :key="n">
               <van-skeleton
                 class="padding-bt-5 padding-lr-0"
                 :row="4"
@@ -20,7 +19,6 @@
                 avatar
                 avatar-shape="square"
                 avatar-size="90"
-               
               ></van-skeleton>
             </van-cell>
           </div>
@@ -60,11 +58,6 @@ import KomicaPostCell from '@/components/KomicaPostCell.vue';
 export default {
   components: {
     KomicaPostCell,
-  },
-  metaInfo() {
-    return {
-      title: this.komicaType === 'new' ? '新番捏他' : '新番實況',
-    };
   },
   data() {
     return {

@@ -64,7 +64,7 @@ import { mapGetters } from 'vuex';
 export default {
   metaInfo() {
     return {
-      title: this.$route.meta.label,
+      title: this.pageName,
       titleTemplate: '%s | 滅茶苦茶',
     };
   },
@@ -85,6 +85,15 @@ export default {
     },
     hideTopbar() {
       return ['turnip'].some(str => this.$route.path.includes(str));
+    },
+    pageName() {
+      return this.$route.matched.reduce((pre, cur, i) => {
+        const label = cur.meta?.label ?? '';
+        if (i === 0) {
+          return label;
+        }
+        return pre + (label ? ` - ${label}` : '');
+      }, '');
     },
   },
   methods: {

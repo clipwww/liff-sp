@@ -184,5 +184,6 @@
     flex: 1;
     overflow: auto;
     height: 100%;
+    overscroll-behavior-y: contain;
   }
 }
