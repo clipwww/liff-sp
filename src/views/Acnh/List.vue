@@ -1,7 +1,7 @@
 <template>
   <div class="list__container">
     <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋"></van-search>
-    <div ref="list" class="list__content">
+    <div ref="list" class="list__content with-safe-area-inset-bottom">
       <van-list :finished="isFinished" finished-text="没有更多了" :offset="10" @load="onLoad">
         <div v-if="isLoading">
           <van-cell v-for="n in 10" :key="n">
@@ -19,31 +19,37 @@
           <van-cell
             v-for="(item, i) in filterList"
             :key="item.id"
-            :title="item.name['name-tw']"
-            :label="item.name['name-jp']"
+            :title="item.name['name-tw'] || item.name['name-TWzh']"
             is-link
             center
-            @click="goDetails(item)"
+            @click="openDetails(item)"
           >
             <van-image
               v-if="hasIcon || hasImage"
               slot="icon"
               class="margin-r-10"
               width="65"
-              :src="`http://acnhapi.com/${hasIcon ? 'icons' : 'images'}/${type}/${item.id || item['file-name']}`"
+              :src="`http://acnhapi.com/${hasIcon ? 'icons' : 'images'}/${type}/${item.id || item['file-name'].toLowerCase()}`"
               :lazy-load="i > 0"
             />
 
-            <div v-if="item.price" slot="right-icon">
-              <span class="little-text">賣價</span>
-              {{ item.price | commafy }}
+            <div slot="label">
+              <template v-if="item.price">
+                <span class="little-text">賣價</span>
+                {{ item.price | commafy }}
+              </template>
+              <div v-if="item.species">{{ item.species }}</div>
             </div>
-
-            <div v-if="item.species" slot="right-icon">{{ item.species }}</div>
           </van-cell>
         </template>
       </van-list>
     </div>
+
+    <van-popup v-model="showDetails" round position="bottom" closeable :style="{ height: '90%' }">
+      <div>
+        <component :is="detailsComponentName" :item="item" />
+      </div>
+    </van-popup>
   </div>
 </template>
 
@@ -51,12 +57,19 @@
 import { acnhSVC } from '@/services';
 
 export default {
+  components: {
+    AcnhFishDetails: () => import('../../components/AcnhFishDetails.vue'),
+    AcnhBugsDetails: () => import('../../components/AcnhBugsDetails.vue'),
+    AcnhFossilsDetails: () => import('../../components/AcnhFossilsDetails.vue'),
+  },
   data() {
     return {
       keyword: '',
       list: null,
       isLoading: false,
       isFinished: false,
+      showDetails: false,
+      item: null,
       page: 1,
     };
   },
@@ -76,6 +89,9 @@ export default {
         case 'AcnhArt':
           return 'art';
       }
+    },
+    detailsComponentName() {
+      return `${this.$route.name}Details`;
     },
     hasIcon() {
       return ['fish', 'bugs', 'villagers', 'art'].includes(this.type);
@@ -106,6 +122,7 @@ export default {
       handler() {
         this.toTop();
         this.list = null;
+        this.item = null;
         this.isFinished = false;
         this.isLoading = false;
         this.page = 1;
@@ -143,7 +160,10 @@ export default {
         this.$refs.list.scrollTop = 0;
       });
     },
-    goDetails() {},
+    openDetails(item) {
+      this.showDetails = true;
+      this.item = item;
+    },
   },
 };
 </script>
