@@ -1,10 +1,6 @@
 <template>
   <div>
-    <van-notice-bar
-      color="#1989fa"
-      background="#ecf9ff"
-      left-icon="info-o"
-    >施工中......基於一些理由(?)，J格功能隨時都有掛掉的可能XDDDD</van-notice-bar>
+    <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="info-o">施工中</van-notice-bar>
     <van-grid class="margin-t-15" :gutter="10" :column-num="2">
       <van-grid-item
         v-for="item in childRoutes"

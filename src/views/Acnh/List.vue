@@ -1,7 +1,16 @@
 <template>
   <div class="list__container">
-    <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋"></van-search>
-    <div ref="list" class="list__content">
+    <van-search v-model.trim="keyword" :show-action="isVillagers" placeholder="請輸入關鍵字搜尋">
+      <van-button
+        slot="action"
+        icon="arrow-down"
+        size="small"
+        @click="showSelect = true"
+      >{{ species | translateSpecies }}</van-button>
+    </van-search>
+    <van-action-sheet v-model="showSelect" :actions="actions" @select="onSelect" />
+
+    <div ref="list" class="list__content with-safe-area-inset-bottom">
       <van-list :finished="isFinished" finished-text="没有更多了" :offset="10" @load="onLoad">
         <div v-if="isLoading">
           <van-cell v-for="n in 10" :key="n">
@@ -19,44 +28,68 @@
           <van-cell
             v-for="(item, i) in filterList"
             :key="item.id"
-            :title="item.name['name-tw']"
-            :label="item.name['name-jp']"
+            :title="item.name['name-tw'] || item.name['name-TWzh']"
             is-link
             center
-            @click="goDetails(item)"
+            @click="openDetails(item)"
           >
             <van-image
               v-if="hasIcon || hasImage"
               slot="icon"
               class="margin-r-10"
               width="65"
-              :src="`http://acnhapi.com/${hasIcon ? 'icons' : 'images'}/${type}/${item.id || item['file-name']}`"
+              :src="`http://acnhapi.com/${hasIcon ? 'icons' : 'images'}/${type}/${item.id || item['file-name'].toLowerCase()}`"
               :lazy-load="i > 0"
             />
 
-            <div v-if="item.price" slot="right-icon">
-              <span class="little-text">賣價</span>
-              {{ item.price | commafy }}
+            <div slot="label">
+              <template v-if="item.price">
+                <span class="little-text">賣價</span>
+                {{ item.price | commafy }}
+              </template>
+              <div v-if="item.species">{{ item.species | translateSpecies }}</div>
             </div>
-
-            <div v-if="item.species" slot="right-icon">{{ item.species }}</div>
           </van-cell>
         </template>
       </van-list>
     </div>
+
+    <van-popup v-model="showDetails" round position="bottom" closeable :style="{ height: '90%' }">
+      <div v-if="item" class="safe-area-inset-bottom">
+        <component :is="detailsComponentName" :item="item" />
+      </div>
+    </van-popup>
   </div>
 </template>
 
 <script>
+import moment from 'moment';
+
 import { acnhSVC } from '@/services';
+import { translateSpecies } from '@/utils/acnh.util';
 
 export default {
+  filters: {
+    translateSpecies,
+  },
+  components: {
+    AcnhFishDetails: () => import('../../components/AcnhFishDetails.vue'),
+    AcnhBugsDetails: () => import('../../components/AcnhBugsDetails.vue'),
+    AcnhFossilsDetails: () => import('../../components/AcnhFossilsDetails.vue'),
+    AcnhVillagersDetails: () => import('../../components/AcnhVillagersDetails.vue'),
+    AcnhArtDetails: () => import('../../components/AcnhArtDetails.vue'),
+    AcnhSongsDetails: () => import('../../components/AcnhSongsDetails.vue'),
+  },
   data() {
     return {
       keyword: '',
+      species: '全部',
       list: null,
       isLoading: false,
       isFinished: false,
+      showDetails: false,
+      showSelect: false,
+      item: null,
       page: 1,
     };
   },
@@ -77,27 +110,55 @@ export default {
           return 'art';
       }
     },
+    isVillagers() {
+      return this.type === 'villagers';
+    },
+    detailsComponentName() {
+      return `${this.$route.name}Details`;
+    },
     hasIcon() {
       return ['fish', 'bugs', 'villagers', 'art'].includes(this.type);
     },
     hasImage() {
       return ['fossils', 'songs'].includes(this.type);
     },
+    objToList() {
+      return Object.keys(this.list || {}).map(key => {
+        return this.list[key];
+      });
+    },
     filterList() {
       return (
-        Object.keys(this.list || {})
-          ?.map(key => {
-            return this.list[key];
-          })
+        this.objToList
           ?.filter(item => {
             return this.keyword
               ? Object.keys(item.name).some(key => {
-                  return item.name[key].includes(this.keyword);
+                  return (
+                    item.name[key]?.toLowerCase()?.includes(this.keyword?.toLowerCase()) ||
+                    translateSpecies(item.species).includes(this.keyword) ||
+                    item.species.includes(this.keyword)
+                  );
                 })
               : true;
           })
+          ?.filter(item => {
+            return this.species !== '全部' ? item.species === this.species : true;
+          })
           ?.slice(0, this.page * 10) ?? []
       );
+    },
+    actions() {
+      const set = new Set();
+      this.objToList.forEach(item => {
+        set.add(item.species);
+      });
+      return [
+        { name: '全部', value: '' },
+        ...Array.from(set).map(name => ({
+          name: translateSpecies(name),
+          value: name,
+        })),
+      ];
     },
   },
   watch: {
@@ -105,16 +166,28 @@ export default {
       immediate: true,
       handler() {
         this.toTop();
+        this.keyword = '';
+        this.species = '全部';
+        this.item = null;
         this.list = null;
         this.isFinished = false;
         this.isLoading = false;
+        this.showSelect = false;
+        this.showDetails = false;
         this.page = 1;
         this.getList();
       },
     },
+    species() {
+      this.page = 1;
+      this.toTop();
+    },
     keyword() {
       this.page = 1;
       this.toTop();
+    },
+    showDetails(bool) {
+      if (!bool) this.item = null;
     },
   },
   methods: {
@@ -127,6 +200,8 @@ export default {
       }
 
       this.list = ret;
+
+      this.checkBirthday();
     },
     onLoad() {
       if (this.isFinished) {
@@ -138,12 +213,57 @@ export default {
         this.isFinished = true;
       }
     },
+    checkBirthday() {
+      if (!this.isVillagers) {
+        return;
+      }
+      const hpd = this.objToList.filter(item => {
+        return moment().isSame(moment(item.birthday, 'D/M'), 'day');
+      });
+
+      const nowDay = moment().format('M/D');
+      if (hpd.length && !localStorage.getItem(nowDay)) {
+        try {
+          this.$dialog({
+            title: `今日 ${nowDay} 壽星`,
+            message: hpd
+              .map(item => {
+                return `<div class="text-center">
+                    <div>${item.name['name-tw'] || item.name['name-TWzh']}</div>
+                    <img src="http://acnhapi.com/icons/villagers/${item.id}" width="80"/>
+                  </div>`;
+              })
+              .join(', '),
+            showCancelButton: true,
+            confirmButtonText: '今日不再顯示',
+            cancelButtonText: '關閉',
+            beforeClose(action, done) {
+              console.log(action);
+              if (action === 'confirm') {
+                localStorage.setItem(nowDay, 1);
+              }
+
+              done();
+            },
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    },
     toTop() {
       this.$nextTick(() => {
         this.$refs.list.scrollTop = 0;
       });
     },
-    goDetails() {},
+    openDetails(item) {
+      this.showDetails = true;
+      this.item = item;
+    },
+    onSelect(action) {
+      this.species = action.value;
+      this.showSelect = false;
+    },
   },
 };
 </script>

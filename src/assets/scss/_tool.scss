@@ -174,6 +174,10 @@
   padding-bottom: $paddingBottom;
 }
 
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 .list {
   &__container {
     display: flex;
