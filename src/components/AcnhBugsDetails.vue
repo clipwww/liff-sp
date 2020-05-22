@@ -2,7 +2,7 @@
   <div>
     <van-panel>
       <div slot="header" class="text-center padding-bt-10">
-        <b class="fs-20">{{ item.name['name-tw'] }}</b>
+        <b class="fs-20">{{ item.name['name-tw'] || item.name['name-TWzh'] }}</b>
       </div>
 
       <van-cell title="賣價">{{ item.price | commafy }}</van-cell>
@@ -33,8 +33,6 @@
 </template>
 
 <script>
-import { acnhSVC } from '@/services';
-
 export default {
   props: {
     item: {
