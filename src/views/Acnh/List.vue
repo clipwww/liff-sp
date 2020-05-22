@@ -6,7 +6,7 @@
         icon="arrow-down"
         size="small"
         @click="showSelect = true"
-      >{{ species | translateSpecies }}</van-button>
+      >{{ species || '全部' | translateSpecies }}</van-button>
     </van-search>
     <van-action-sheet v-model="showSelect" :actions="actions" @select="onSelect" />
 
@@ -83,7 +83,7 @@ export default {
   data() {
     return {
       keyword: '',
-      species: '全部',
+      species: '',
       list: null,
       isLoading: false,
       isFinished: false,
@@ -142,7 +142,7 @@ export default {
               : true;
           })
           ?.filter(item => {
-            return this.species !== '全部' ? item.species === this.species : true;
+            return this.species ? item.species === this.species : true;
           })
           ?.slice(0, this.page * 10) ?? []
       );
@@ -167,7 +167,7 @@ export default {
       handler() {
         this.toTop();
         this.keyword = '';
-        this.species = '全部';
+        this.species = '';
         this.item = null;
         this.list = null;
         this.isFinished = false;
@@ -193,9 +193,11 @@ export default {
   methods: {
     async getList() {
       this.isLoading = true;
+      const oldType = this.type;
       const ret = await acnhSVC.getList(this.type);
       this.isLoading = false;
-      if (!ret) {
+      // console.log(oldType, this.type);
+      if (!ret || oldType !== this.type) {
         return;
       }
 
@@ -209,7 +211,7 @@ export default {
       }
       console.log('on load');
       this.page += 1;
-      if (this.filterList.length === Object.keys(this.list).length) {
+      if (this.filterList.length === this.objToList.length) {
         this.isFinished = true;
       }
     },
@@ -228,7 +230,7 @@ export default {
             title: `今日 ${nowDay} 壽星`,
             message: hpd
               .map(item => {
-                return `<div class="text-center">
+                return `<div class="text-center" style="white-space: initial">
                     <div>${item.name['name-tw'] || item.name['name-TWzh']}</div>
                     <img src="http://acnhapi.com/icons/villagers/${item.id}" width="80"/>
                   </div>`;
