@@ -2,7 +2,7 @@
   <div>
     <van-panel>
       <div slot="header" class="text-center padding-bt-10">
-        <b class="fs-20">{{ item.name['name-tw'] || item.name['name-TWzh'] }}</b>
+        <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
       </div>
 
       <van-cell title="性別">{{ item.gender === 'Male' ? '男孩 ♂' : '女孩 ♀' }}</van-cell>
@@ -15,10 +15,10 @@
 
       <van-grid :column-num="2">
         <van-grid-item>
-          <van-image :src="`http://acnhapi.com/icons/villagers/${item.id}`" width="60"></van-image>
+          <van-image :src="item.icon_uri" width="60"></van-image>
         </van-grid-item>
         <van-grid-item>
-          <van-image :src="`http://acnhapi.com/images/villagers/${item.id}`" width="120" fit="fill"></van-image>
+          <van-image :src="item.image_uri" width="120" fit="fill"></van-image>
         </van-grid-item>
       </van-grid>
       <van-image :src="villager.houseImage" lazy></van-image>

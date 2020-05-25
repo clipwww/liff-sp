@@ -15,9 +15,9 @@
       <van-cell title="賣價">{{ item['sell-price'] | commafy }}</van-cell>
 
       <div class="text-center margin-bt-15">
-        <van-image :src="`http://acnhapi.com/images/songs/${item.id}`" width="200"></van-image>
+        <van-image :src="item.image_uri" width="200"></van-image>
         <audio ref="audio" controls :key="item.id">
-          <source :src="`http://acnhapi.com/music/${item.id}`" type="audio/mpeg" />
+          <source :src="item.music_uri" type="audio/mpeg" />
         </audio>
       </div>
 

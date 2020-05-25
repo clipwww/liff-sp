@@ -2,7 +2,7 @@
   <div>
     <van-panel>
       <div slot="header" class="text-center padding-bt-10">
-        <b class="fs-20">{{ item.name['name-tw'] || item.name['name-TWzh'] }}</b>
+        <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
       </div>
 
       <van-cell title="賣價">{{ item.price | commafy }}</van-cell>
@@ -18,10 +18,10 @@
 
       <van-grid :column-num="2">
         <van-grid-item>
-          <van-image :src="`http://acnhapi.com/icons/bugs/${item.id}`" width="50"></van-image>
+          <van-image :src="item.icon_uri" width="50"></van-image>
         </van-grid-item>
         <van-grid-item>
-          <van-image :src="`http://acnhapi.com/images/bugs/${item.id}`" fit="fill"></van-image>
+          <van-image :src=" item.image_uri" fit="fill"></van-image>
         </van-grid-item>
       </van-grid>
 
