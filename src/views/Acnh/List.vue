@@ -67,6 +67,7 @@ import moment from 'moment';
 
 import { acnhSVC } from '@/services';
 import { translateSpecies } from '@/utils/acnh.util';
+import { logEvent } from '@/plugins/vue-analytics';
 
 export default {
   filters: {
@@ -254,6 +255,7 @@ export default {
       });
     },
     openDetails(item) {
+      logEvent('狸端機 Lite', '開啟詳細資料', `[${this.type}] ${item?.name?.['name-TWzh']}`);
       this.showDetails = true;
       this.item = item;
     },
