@@ -269,7 +269,7 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: '藝術品',
-          image: 'http://acnhapi.com/icons/art/1'
+          image: 'https://acnhapi.com/v1/images/art/academic_painting'
         }
       },
       {

@@ -2,13 +2,13 @@
   <div>
     <van-panel>
       <div slot="header" class="text-center padding-bt-10">
-        <b class="fs-20">{{ item.name['name-tw'] || item.name['name-TWzh'] }}</b>
+        <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
       </div>
 
       <van-cell title="賣價">{{ item.price | commafy }}</van-cell>
 
       <div class="text-center">
-        <van-image :src="`http://acnhapi.com/images/fossils/${fileName}`"></van-image>
+        <van-image :src="imageUrl"></van-image>
       </div>
 
       <div slot="footer">
@@ -31,8 +31,8 @@ export default {
     return {};
   },
   computed: {
-    fileName() {
-      return this.item?.['file-name']?.toLowerCase();
+    imageUrl() {
+      return this.item?.image_uri?.toLowerCase();
     },
   },
 };

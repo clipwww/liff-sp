@@ -14,9 +14,9 @@ axiosInstance.interceptors.response.use((response: CustomAxiosResponse) => {
 })
 
 export function getList(type: string) {
-  return axiosInstance.get(`/${type}`)
+  return axiosInstance.get(`/v1/${type}`)
 }
 
 export function getById(id: string, type: string) {
-  return axiosInstance.get(`/${type}/${id}`);
+  return axiosInstance.get(`/v1/${type}/${id}`);
 }

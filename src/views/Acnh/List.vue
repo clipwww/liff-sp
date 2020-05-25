@@ -28,17 +28,17 @@
           <van-cell
             v-for="(item, i) in filterList"
             :key="item.id"
-            :title="item.name['name-tw'] || item.name['name-TWzh']"
+            :title="item.name['name-TWzh']"
             is-link
             center
             @click="openDetails(item)"
           >
             <van-image
-              v-if="hasIcon || hasImage"
+              v-if="item.icon_uri || item.image_uri"
               slot="icon"
               class="margin-r-10"
               width="65"
-              :src="`http://acnhapi.com/${hasIcon ? 'icons' : 'images'}/${type}/${item.id || item['file-name'].toLowerCase()}`"
+              :src="item.icon_uri || item.image_uri.toLowerCase()"
               :lazy-load="i > 0"
             />
 
@@ -67,6 +67,7 @@ import moment from 'moment';
 
 import { acnhSVC } from '@/services';
 import { translateSpecies } from '@/utils/acnh.util';
+import { logEvent } from '@/plugins/vue-analytics';
 
 export default {
   filters: {
@@ -116,12 +117,6 @@ export default {
     detailsComponentName() {
       return `${this.$route.name}Details`;
     },
-    hasIcon() {
-      return ['fish', 'bugs', 'villagers', 'art'].includes(this.type);
-    },
-    hasImage() {
-      return ['fossils', 'songs'].includes(this.type);
-    },
     objToList() {
       return Object.keys(this.list || {}).map(key => {
         return this.list[key];
@@ -135,8 +130,9 @@ export default {
               ? Object.keys(item.name).some(key => {
                   return (
                     item.name[key]?.toLowerCase()?.includes(this.keyword?.toLowerCase()) ||
-                    translateSpecies(item.species).includes(this.keyword) ||
-                    item.species.includes(this.keyword)
+                    (item.species
+                      ? translateSpecies(item.species).includes(this.keyword) || item.species.includes(this.keyword)
+                      : false)
                   );
                 })
               : true;
@@ -231,8 +227,8 @@ export default {
             message: hpd
               .map(item => {
                 return `<div class="text-center" style="white-space: initial">
-                    <div>${item.name['name-tw'] || item.name['name-TWzh']}</div>
-                    <img src="http://acnhapi.com/icons/villagers/${item.id}" width="80"/>
+                    <div>${item.name['name-TWzh']}</div>
+                    <img src="${item.icon_uri}" width="80"/>
                   </div>`;
               })
               .join(', '),
@@ -259,6 +255,7 @@ export default {
       });
     },
     openDetails(item) {
+      logEvent('狸端機 Lite', '開啟詳細資料', `[${this.type}] ${item?.name?.['name-TWzh']}`);
       this.showDetails = true;
       this.item = item;
     },
