@@ -115,6 +115,7 @@ export default {
       this.isLoading = false;
       this.isRefreshing = false;
       if (!ret.success) {
+        this.isFinished = true;
         return;
       }
 

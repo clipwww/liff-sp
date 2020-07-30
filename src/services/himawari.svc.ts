@@ -12,16 +12,15 @@ interface QueryParams {
 }
 
 export function getList(params?: QueryParams) {
-  return axiosInstace.request<ResultListGenericVM<any>>({
-    method: 'GET',
-    url: `${baseURL}/list`,
-    params,
+  return axiosInstace.get<ResultListGenericVM<any>>(baseURL, {
+    params
   })
 }
 
 export function getDetails(id: string) {
-  return axiosInstace.request<ResultGenericVM<any>>({
-    method: 'GET',
-    url: `${baseURL}/douga/${id}`,
-  })
+  return axiosInstace.get<ResultGenericVM<any>>(`${baseURL}/${id}`)
+}
+
+export function getDanmaku(id: string) {
+  return axiosInstace.get<ResultGenericVM<any>>(`${baseURL}/${id}/danmaku`)
 }
