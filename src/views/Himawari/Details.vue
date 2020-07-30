@@ -19,12 +19,22 @@
           </van-cell>
         </div>
         <div class="padding-a-10">
-          <div v-if="imgSrc" class="text-center margin-b-10">
-            <van-image :src="imgSrc"></van-image>
+          <div id="js-video-container" class="video-wrapper">
+            <video
+              id="js-video"
+              :src="videoSrc"
+              :poster="imgSrc"
+              controls
+              playsinline
+              webkit-playsinline
+            ></video>
           </div>
+          <!-- <div v-if="imgSrc" class="text-center margin-b-10">
+            <van-image :src="imgSrc"></van-image>
+          </div>-->
           <span class="little-text">{{ item.author_comment }}</span>
           <!-- <van-divider></van-divider>
-          <span class="little-text">{{ item.user_comment }}</span> -->
+          <span class="little-text">{{ item.user_comment }}</span>-->
         </div>
 
         <div slot="footer" class="flex-between">
@@ -65,6 +75,7 @@
 
 <script>
 import moment from 'moment';
+import Danmaku from 'danmaku/dist/esm/danmaku.canvas.js';
 
 import { himawariSVC } from '@/services';
 
@@ -77,6 +88,7 @@ export default {
   data() {
     return {
       item: null,
+      damaku: null,
     };
   },
   computed: {
@@ -96,6 +108,9 @@ export default {
         .add(this.item.movie_time, 'second')
         .format('HH:mm:ss');
     },
+    videoSrc() {
+      return this.item?.movie_url?.slice(0, this.item?.movie_url?.indexOf('&movie_url_id='));
+    },
   },
   created() {
     this.getDetails();
@@ -108,6 +123,42 @@ export default {
       }
 
       this.item = ret.item;
+
+      this.$nextTick(() => {
+        document.getElementById('js-video').onloadedmetadata = () => {
+          this.getDanmaku();
+        };
+      });
+    },
+    async getDanmaku() {
+      const ret = await himawariSVC.getDanmaku(this.dougaId);
+      if (!ret.success) {
+        return;
+      }
+
+      this.danmaku?.destroy();
+      this.$nextTick(() => {
+        this.danmaku = new Danmaku({
+          engine: 'canvas',
+          container: document.getElementById('js-video-container'),
+          media: document.getElementById('js-video'),
+          comments: ret.items.map(item => {
+            return {
+              text: item.msg,
+              time: item.vpos_master / 100,
+              style: {
+                font: '16px sans-serif',
+                textAlign: 'start',
+                textBaseline: 'bottom',
+                direction: 'inherit',
+                fillStyle: '#fff',
+                strokeStyle: '#fff',
+                lineWidth: 1.0,
+              },
+            };
+          }),
+        });
+      });
     },
     openUrl(item) {
       window.liff.openWindow({
@@ -125,5 +176,5 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 </style>
