@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["page-4"],{"6f48":function(e,t,n){"use strict";n.r(t);var r=function(){var e=this,t=e.$createElement,n=e._self._c||t;return n("div",[n("router-view")],1)},u=[],a={data:function(){return{}},methods:{}},c=a,o=n("2877"),i=Object(o["a"])(c,r,u,!1,null,"233c8909",null);t["default"]=i.exports}}]);
-//# sourceMappingURL=page-4.33193593.js.map
