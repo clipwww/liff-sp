@@ -27,22 +27,23 @@
               controls
               playsinline
               webkit-playsinline
+              @error="onError"
             ></video>
           </div>
           <!-- <div v-if="imgSrc" class="text-center margin-b-10">
             <van-image :src="imgSrc"></van-image>
           </div>-->
           <div class="little-text margin-t-10">{{ item.author_comment }}</div>
+          <div class="margin-t-10">
+            <van-tag type="default">類別: {{ item.author_tag }}</van-tag>
+            <van-tag type="default" class="margin-l-10">長度: {{ formatTime }}</van-tag>
+          </div>
           <!-- <van-divider></van-divider>
           <span class="little-text">{{ item.user_comment }}</span>-->
         </div>
 
-        <div slot="footer" class="flex-between">
-          <div>
-            <van-tag type="default">類別: {{ item.author_tag }}</van-tag>
-            <van-tag type="default" class="margin-l-10">長度: {{ formatTime }}</van-tag>
-          </div>
-          <div>
+        <div slot="footer">
+          <div class="text-right">
             <van-button
               class="padding-lr-5 margin-r-5"
               type="primary"
@@ -54,6 +55,11 @@
           </div>
         </div>
       </van-panel>
+
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="playUrl" :options="sourceOptions" />
+      </van-dropdown-menu>
+
       <van-cell is-link center clickable @click="openUrl(item)">
         <div slot="title">{{ item.movie_width }}x{{ item.movie_height }}</div>
         <div slot="label">{{ item.add_date | formatDate }}</div>
@@ -142,6 +148,7 @@ export default {
       item: null,
       damaku: null,
       comments: [],
+      playUrl: '',
       showPopup: false,
     };
   },
@@ -163,7 +170,22 @@ export default {
         .format('HH:mm:ss');
     },
     videoSrc() {
-      return this.item?.movie_url?.slice(0, this.item?.movie_url?.indexOf('&movie_url_id='));
+      return this.playUrl.slice(0, this.playUrl.indexOf('&movie_url_id='));
+    },
+    sourceOptions() {
+      return [
+        {
+          text: `${this.item?.movie_width}x${this.item?.movie_height}`,
+          value: this.item?.movie_url,
+        },
+      ].concat(
+        this.item?.add_source?.map(item => {
+          return {
+            text: `${item.movie_width}x${item.movie_height}`,
+            value: item.movie_url,
+          };
+        }) ?? []
+      );
     },
   },
   created() {
@@ -181,6 +203,7 @@ export default {
       }
 
       this.item = ret.item;
+      this.playUrl = this.item?.movie_url ?? '';
     },
     async getDanmaku() {
       const ret = await himawariSVC.getDanmaku(this.dougaId);
@@ -235,6 +258,10 @@ export default {
         url: `http://himado.in/${this.dougaId}`,
         external: true,
       });
+    },
+    onError(err) {
+      console.log(err);
+      this.$toast.fail(err.message);
     },
   },
 };
