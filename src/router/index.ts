@@ -162,9 +162,18 @@ const routes: RouteConfig[] = [
         meta: {
           label: '動畫'
         }
-      }
+      },
+      {
+        path: 'danmaku',
+        name: 'HimawariDanmaku',
+        component: loadComponents('Himawari/Danmaku'),
+        meta: {
+          label: '彈幕下載',
+        },
+      },
     ]
   },
+
   {
     path: '/turnip',
     name: 'Turnip',

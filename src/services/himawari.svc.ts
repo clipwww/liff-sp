@@ -24,3 +24,16 @@ export function getDetails(id: string) {
 export function getDanmaku(id: string) {
   return axiosInstace.get<ResultGenericVM<any>>(`${baseURL}/${id}/danmaku`)
 }
+
+/**
+ * [GET] 取得彈幕列表
+ */
+export function getDanmakuList(keyword = '', page = 1) {
+  return axiosInstace.get<ResultListGenericVM<{ group_id: string, title: string, count: string, source: string }>>(baseURL, {
+    params: {
+      mode: 'commentgroup',
+      keyword,
+      page
+    }
+  })
+}

@@ -9,6 +9,7 @@
           v-model="isLoading"
           :finished="isFinished"
           :error.sync="isError"
+          :immediate-check="false"
           finished-text="没有更多了"
           error-text="Oops...發生錯誤"
           offset="50"
@@ -36,12 +37,13 @@
             v-for="item in items"
             :key="item.id"
             is-link
-            clickable
             center
-            @click="goDetails(item)"
+            :border="false"
+            :url="`${BASE_URL}/himawari/${item.group_id}/danmaku?mode=download&group=1&filename=${item.title}`"
+            :href="`${BASE_URL}/himawari/${item.group_id}/danmaku?mode=download&group=1&filename=${item.title}`"
           >
-            <van-image slot="icon" class="margin-r-10" :src="item.image" width="80" fit="contain"></van-image>
-            <div slot="title" class="little-text">{{ item.title }}</div>
+            <div slot="title">{{ item.title }}</div>
+            <div slot="label" class="little-text">彈幕量: {{ item.count }}</div>
             <!-- <div slot="label" v-html="toSafeHtmlString(item.description)"></div> -->
           </van-cell>
         </van-list>
@@ -52,11 +54,12 @@
 
 <script>
 import { himawariSVC } from '@/services';
-import { toSafeHtmlString, toPureHtmlString } from '@/utils';
 
 export default {
   data() {
     return {
+      BASE_URL: process.env.VUE_APP_API_URL,
+
       keyword: '',
       page: 1,
       items: [],
@@ -67,9 +70,11 @@ export default {
     };
   },
   methods: {
-    toSafeHtmlString,
-
     async getList(init = false) {
+      if (!this.keyword) {
+        return;
+      }
+
       if (init) {
         this.items = [];
         this.page = 1;
@@ -79,10 +84,7 @@ export default {
 
       this.isRefreshing = false;
       this.isLoading = true;
-      const ret = await himawariSVC.getList({
-        keyword: this.keyword,
-        page: this.page,
-      });
+      const ret = await himawariSVC.getDanmakuList(this.keyword, this.page);
       this.isLoading = false;
 
       if (!ret.success) {
@@ -90,7 +92,7 @@ export default {
         return;
       }
 
-      if (!ret.items.length) {
+      if (this.page >= ret.page.pageAmount || ret.page.dataAmount === 0) {
         this.isFinished = true;
         return;
       }
@@ -99,13 +101,16 @@ export default {
       this.page++;
       this.items.push(...ret.items);
     },
-
-    goDetails(item) {
-      this.$router.push({ name: 'HimawariDetails', params: { id: item.id }, query: { title: item.title } });
-    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.list__content {
+  .van-cell {
+    &:nth-child(odd) {
+      background-color: #333;
+    }
+  }
+}
 </style>
