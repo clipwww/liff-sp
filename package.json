@@ -11,14 +11,14 @@
     "report": "vue-cli-service build --report"
   },
   "dependencies": {
-    "axios": "^0.19.2",
-    "chart.js": "^2.9.3",
+    "axios": "^0.24.0",
+    "chart.js": "^2.9.4",
     "core-js": "^3.6.4",
     "current-device": "^0.10.0",
     "d3": "^5.15.1",
     "danmaku": "^2.0.0",
-    "firebase": "^7.17.1",
-    "lodash": "^4.17.19",
+    "firebase": "^9.6.1",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "register-service-worker": "^1.7.1",
     "uninstall": "0.0.0",
@@ -34,7 +34,7 @@
     "vuex": "^3.1.2"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.19",
+    "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.149",
     "@types/uuid": "^7.0.2",
     "@vue/cli-plugin-babel": "^4.5.3",
