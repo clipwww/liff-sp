@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/liff-sp/precache-manifest.ac40d2ec830f5cc6ced3a151b8f991b6.js"
+  "/liff-sp/precache-manifest.3bfcebd468c2f573eda2c46a4dc522de.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "liff-sp"});
