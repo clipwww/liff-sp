@@ -1,19 +1,19 @@
-import { axiosInstace } from './base.svc';
+import { axiosInstace } from './base.svc'
 
-import { ResultGenericVM, ResultListGenericVM } from '@/view-models/result.vm';
+import type { ResultGenericVM, ResultListGenericVM } from '@/view-models/result.vm'
 
 const baseURL = '/himawari'
 
 interface QueryParams {
-  sort?: string;
-  cat?: string;
-  keyword?: string;
-  page?: number;
+  sort?: string
+  cat?: string
+  keyword?: string
+  page?: number
 }
 
 export function getList(params?: QueryParams) {
   return axiosInstace.get<ResultListGenericVM<any>>(baseURL, {
-    params
+    params,
   })
 }
 
@@ -29,11 +29,11 @@ export function getDanmaku(id: string) {
  * [GET] 取得彈幕列表
  */
 export function getDanmakuList(keyword = '', page = 1) {
-  return axiosInstace.get<ResultListGenericVM<{ group_id: string, title: string, count: string, source: string }>>(baseURL, {
+  return axiosInstace.get<ResultListGenericVM<{ group_id: string; title: string; count: string; source: string }>>(baseURL, {
     params: {
       mode: 'commentgroup',
       keyword,
-      page
-    }
+      page,
+    },
   })
 }

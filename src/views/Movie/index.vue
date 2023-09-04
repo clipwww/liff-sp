@@ -1,3 +1,21 @@
+<script>
+import { mapGetters } from 'vuex'
+
+export default {
+  data() {
+    return {}
+  },
+  computed: {
+    ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
+    }),
+  },
+  methods: {
+
+  },
+}
+</script>
+
 <template>
   <div class="margin-bt-10">
     <van-grid :gutter="10" :column-num="2">
@@ -28,24 +46,6 @@
     </van-grid>
   </div>
 </template>
-
-<script>
-import { mapGetters } from 'vuex';
-
-export default {
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-    }),
-  },
-  methods: {
-
-  },
-};
-</script>
 
 <style lang="scss" scoped>
 </style>

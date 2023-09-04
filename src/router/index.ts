@@ -1,11 +1,12 @@
-import Vue from 'vue';
-import VueRouter, { RouteConfig } from 'vue-router';
+import Vue from 'vue'
+import type { RouteConfig } from 'vue-router'
+import VueRouter from 'vue-router'
 
-import Home from '../views/Home.vue';
+import Home from '../views/Home.vue'
 
-import { loadComponents } from './utils';
+import { loadComponents } from './utils'
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const routes: RouteConfig[] = [
   {
@@ -14,8 +15,8 @@ const routes: RouteConfig[] = [
     component: Home,
     meta: {
       label: '首頁',
-      icon: 'wap-home'
-    }
+      icon: 'wap-home',
+    },
   },
   {
     path: '/movie',
@@ -24,7 +25,7 @@ const routes: RouteConfig[] = [
     redirect: { name: 'MovieSearchTypeChoice' },
     meta: {
       label: '電影時刻查詢',
-      icon: 'video-o'
+      icon: 'video-o',
     },
     children: [
       {
@@ -32,7 +33,7 @@ const routes: RouteConfig[] = [
         name: 'MovieSearchTypeChoice',
         component: loadComponents('Movie', true),
         meta: {
-          label: '電影時刻查詢'
+          label: '電影時刻查詢',
         },
       },
       {
@@ -40,7 +41,7 @@ const routes: RouteConfig[] = [
         name: 'MovieTheaterList',
         component: loadComponents('Movie/Theater'),
         meta: {
-          label: '電影院查詢'
+          label: '電影院查詢',
         },
       },
       {
@@ -48,7 +49,7 @@ const routes: RouteConfig[] = [
         name: 'MovieTheaterDetails',
         component: loadComponents('Movie/TheaterDetails'),
         meta: {
-          label: '電影院查詢'
+          label: '電影院查詢',
         },
       },
       {
@@ -56,7 +57,7 @@ const routes: RouteConfig[] = [
         name: 'MovieList',
         component: loadComponents('Movie/List'),
         meta: {
-          label: '上映中電影查詢'
+          label: '上映中電影查詢',
         },
       },
       {
@@ -64,7 +65,7 @@ const routes: RouteConfig[] = [
         name: 'MovieDetails',
         component: loadComponents('Movie/Details'),
         meta: {
-          label: '上映中電影查詢'
+          label: '上映中電影查詢',
         },
       },
       {
@@ -72,7 +73,7 @@ const routes: RouteConfig[] = [
         name: 'MovieFavoriteList',
         component: loadComponents('Movie/FavoriteList'),
         meta: {
-          label: '收藏的電影'
+          label: '收藏的電影',
         },
       },
       {
@@ -80,10 +81,10 @@ const routes: RouteConfig[] = [
         name: 'MovieNext',
         component: loadComponents('Movie/Next'),
         meta: {
-          label: '近期上映'
+          label: '近期上映',
         },
-      }
-    ]
+      },
+    ],
   },
   {
     path: '/komica',
@@ -92,7 +93,7 @@ const routes: RouteConfig[] = [
     redirect: { name: 'KomicaNew' },
     meta: {
       label: '糟糕島',
-      image: './images/komica.png'
+      image: './images/komica.png',
     },
     children: [
       {
@@ -100,42 +101,42 @@ const routes: RouteConfig[] = [
         name: 'KomicaNew',
         component: loadComponents('Komica/List'),
         meta: {
-          label: '新番捏他'
-        }
+          label: '新番捏他',
+        },
       },
       {
         path: 'new/:id',
         name: 'KomicaNewDetails',
         component: loadComponents('Komica/Details'),
         meta: {
-          label: '新番捏他'
-        }
+          label: '新番捏他',
+        },
       },
       {
         path: 'live',
         name: 'KomicaLive',
         component: loadComponents('Komica/List'),
         meta: {
-          label: '新番實況'
-        }
+          label: '新番實況',
+        },
       },
       {
         path: 'live/:id',
         name: 'KomicaLiveDetails',
         component: loadComponents('Komica/Details'),
         meta: {
-          label: '新番實況'
-        }
+          label: '新番實況',
+        },
       },
       {
         path: 'simple-list',
         name: 'KomicaSimpleList',
         component: loadComponents('Komica/SimpleList'),
         meta: {
-          label: '簡易列表'
-        }
+          label: '簡易列表',
+        },
       },
-    ]
+    ],
   },
   {
     path: '/himawari',
@@ -144,7 +145,7 @@ const routes: RouteConfig[] = [
     redirect: { name: 'HimawariList' },
     meta: {
       label: '向日葵動畫',
-      image: './images/himawari.png'
+      image: './images/himawari.png',
     },
     children: [
       {
@@ -152,16 +153,16 @@ const routes: RouteConfig[] = [
         name: 'HimawariList',
         component: loadComponents('Himawari/List'),
         meta: {
-          label: '列表'
-        }
+          label: '列表',
+        },
       },
       {
         path: 'details/:id',
         name: 'HimawariDetails',
         component: loadComponents('Himawari/Details'),
         meta: {
-          label: '動畫'
-        }
+          label: '動畫',
+        },
       },
       {
         path: 'danmaku',
@@ -171,7 +172,7 @@ const routes: RouteConfig[] = [
           label: '彈幕下載',
         },
       },
-    ]
+    ],
   },
 
   {
@@ -181,7 +182,7 @@ const routes: RouteConfig[] = [
     redirect: { name: 'TurnipDashboard' },
     meta: {
       label: '大頭菜',
-      image: 'https://wyspstore2.s3.amazonaws.com/posts/823851001v3.png'
+      image: 'https://wyspstore2.s3.amazonaws.com/posts/823851001v3.png',
     },
     children: [
       {
@@ -189,34 +190,34 @@ const routes: RouteConfig[] = [
         name: 'TurnipDashboard',
         component: loadComponents('Turnip/Dashboard'),
         meta: {
-          label: '儀表板'
-        }
+          label: '儀表板',
+        },
       },
       {
         path: 'group',
         name: 'TurnipGroup',
         component: loadComponents('Turnip/Group'),
         meta: {
-          label: '群組'
-        }
+          label: '群組',
+        },
       },
       {
         path: 'group/:id',
         name: 'TurnipGroupDetails',
         component: loadComponents('Turnip/GroupDetails'),
         meta: {
-          label: '群組'
-        }
+          label: '群組',
+        },
       },
       {
         path: 'histories',
         name: 'TurnipHistories',
         component: loadComponents('Turnip/Histories'),
         meta: {
-          label: '歷史紀錄'
-        }
+          label: '歷史紀錄',
+        },
       },
-    ]
+    ],
   },
   {
     path: '/acnh',
@@ -225,7 +226,7 @@ const routes: RouteConfig[] = [
     redirect: { name: 'AcnhCategory' },
     meta: {
       label: '狸端機(?) Lite',
-      image: './images/leaf.png'
+      image: './images/leaf.png',
     },
     children: [
       {
@@ -233,8 +234,8 @@ const routes: RouteConfig[] = [
         name: 'AcnhCategory',
         component: loadComponents('Acnh/Category'),
         meta: {
-          label: '分類'
-        }
+          label: '分類',
+        },
       },
       {
         path: 'fish',
@@ -242,8 +243,8 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: '魚',
-          image: 'http://acnhapi.com/icons/fish/1'
-        }
+          image: 'http://acnhapi.com/icons/fish/1',
+        },
       },
       {
         path: 'bugs',
@@ -251,8 +252,8 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: '蟲',
-          image: 'http://acnhapi.com/icons/bugs/1'
-        }
+          image: 'http://acnhapi.com/icons/bugs/1',
+        },
       },
       {
         path: 'fossils',
@@ -260,8 +261,8 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: '化石',
-          image: '../images/fossils.png'
-        }
+          image: '../images/fossils.png',
+        },
       },
       {
         path: 'villagers',
@@ -269,8 +270,8 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: '小動物',
-          image: 'http://acnhapi.com/icons/villagers/355'
-        }
+          image: 'http://acnhapi.com/icons/villagers/355',
+        },
       },
       {
         path: 'art',
@@ -278,8 +279,8 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: '藝術品',
-          image: 'https://acnhapi.com/v1/images/art/academic_painting'
-        }
+          image: 'https://acnhapi.com/v1/images/art/academic_painting',
+        },
       },
       {
         path: 'songs',
@@ -287,16 +288,16 @@ const routes: RouteConfig[] = [
         component: loadComponents('Acnh/List'),
         meta: {
           label: 'K.K.歌曲',
-          image: 'http://acnhapi.com/images/songs/1'
-        }
+          image: 'http://acnhapi.com/images/songs/1',
+        },
       },
-    ]
-  }
-];
+    ],
+  },
+]
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
+  base: import.meta.env.BASE_URL,
   routes,
   scrollBehavior(to, from, savedPosition) {
     // console.log('savedPosition', savedPosition)
@@ -305,7 +306,7 @@ const router = new VueRouter({
     } else {
       return { x: 0, y: 0 }
     }
-  }
-});
+  },
+})
 
-export default router;
+export default router

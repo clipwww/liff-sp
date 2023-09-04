@@ -1,60 +1,51 @@
 {
   "name": "liff-sp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
+  "engines": {
+    "node": "18.17.1"
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
-    "test:e2e": "vue-cli-service test:e2e",
-    "heroku-postbuild": "npm run build",
-    "report": "vue-cli-service build --report"
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "axios": "^0.24.0",
+    "axios": "^1.5.0",
     "chart.js": "^2.9.4",
-    "core-js": "^3.6.4",
     "current-device": "^0.10.0",
     "d3": "^5.15.1",
     "danmaku": "^2.0.0",
     "firebase": "^7.24.0",
     "lodash": "^4.17.21",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "register-service-worker": "^1.7.1",
-    "uninstall": "0.0.0",
     "uuid": "^7.0.3",
-    "vant": "^2.5.9",
-    "vue": "^2.6.11",
+    "vant": "^2.12.54",
+    "vite": "^4.4.9",
+    "vue": "^2.7.14",
     "vue-analytics": "^5.22.1",
-    "vue-class-component": "^7.2.2",
     "vue-meta": "^2.3.2",
-    "vue-property-decorator": "^8.3.0",
     "vue-router": "^3.1.5",
     "vue-virtual-scroller": "^1.0.10",
     "vuex": "^3.1.2"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^0.41.0",
+    "@tsconfig/node18": "^18.2.1",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.149",
     "@types/uuid": "^7.0.2",
-    "@vue/cli-plugin-babel": "^4.5.3",
-    "@vue/cli-plugin-e2e-cypress": "^4.5.3",
-    "@vue/cli-plugin-router": "^4.5.3",
-    "@vue/cli-plugin-typescript": "^4.5.3",
-    "@vue/cli-plugin-unit-jest": "^4.5.3",
-    "@vue/cli-plugin-vuex": "^4.5.3",
-    "@vue/cli-service": "^4.5.3",
-    "@vue/test-utils": "1.0.0-beta.31",
+    "@vitejs/plugin-vue2": "^2.2.0",
+    "@vue/tsconfig": "^0.4.0",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "prettier": "^1.19.1",
+    "rollup-plugin-visualizer": "^5.9.2",
     "sass": "^1.25.0",
     "sass-loader": "^8.0.2",
-    "typescript": "~3.9.3",
-    "vue-cli-plugin-pwa": "^4.6.0",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "engines": {
-    "node": "12.13.1"
+    "typescript": "^5.2.2",
+    "vue-template-compiler": "^2.7.14"
   }
 }

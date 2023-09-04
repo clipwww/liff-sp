@@ -1,16 +1,11 @@
-/* eslint-disable no-console */
-
 import { register } from 'register-service-worker'
 import { axiosInstace } from './services/base.svc'
 
-// if (process.env.NODE_ENV === 'production') {
-  
-// }
-register(`./sw.js`, {
+register('./sw.js', {
   ready() {
     console.log(
-      'App is being served from cache by a service worker.\n' +
-      'For more details, visit https://goo.gl/AFskqB'
+      'App is being served from cache by a service worker.\n'
+      + 'For more details, visit https://goo.gl/AFskqB',
     )
   },
   async registered(swReg) {
@@ -18,16 +13,19 @@ register(`./sw.js`, {
 
     const sub = await swReg.pushManager.getSubscription()
     console.log('sub', sub)
-    if (sub) return
+    if (sub) {
+      return
+    }
     const newSub: PushSubscription = await swReg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: process.env.VUE_APP_WEB_PUSH_PUBLIC_KEY
-    });
+      applicationServerKey: import.meta.env.VUE_APP_WEB_PUSH_PUBLIC_KEY,
+    })
     console.log('newSub', newSub)
-    if (!newSub) return;
+    if (!newSub) {
+      return
+    }
 
-    axiosInstace.post('/web-push', newSub);
-
+    axiosInstace.post('/web-push', newSub)
   },
   cached() {
     console.log('Content has been cached for offline use.')
@@ -43,5 +41,5 @@ register(`./sw.js`, {
   },
   error(error) {
     console.error('Error during service worker registration:', error)
-  }
+  },
 })

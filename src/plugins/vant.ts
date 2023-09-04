@@ -1,14 +1,14 @@
-import Vue from 'vue';
-import Vant, { Toast, Lazyload, Locale } from 'vant';
-// @ts-ignore
-import zhTW from 'vant/lib/locale/lang/zh-TW';
+import Vue from 'vue'
+import Vant, { Lazyload, Locale, Toast } from 'vant'
 
-import 'vant/lib/index.less';
+// @ts-expect-error
+import zhTW from 'vant/lib/locale/lang/zh-TW'
 
-Toast.setDefaultOptions({ duration: 3000 });
-Locale.use('zh-TW', zhTW);
+import 'vant/lib/index.less'
 
-Vue.use(Vant);
+Toast.setDefaultOptions({ duration: 3000 })
+Locale.use('zh-TW', zhTW)
 
-Vue.use(Lazyload);
+Vue.use(Vant)
 
+Vue.use(Lazyload)

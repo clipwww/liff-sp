@@ -1,5 +1,3 @@
-["Anteater", "Bear", "Bird", "Bull", "Cat", "Cub", "Chicken", "Cow", "Alligator", "Deer", "Dog", "Duck", "Elephant", "Frog", "Goat", "Gorilla", "Hamster", "Hippo", "Horse", "Koala", "Kangaroo", "Lion", "Monkey", "Mouse", "Octopus", "Ostrich", "Eagle", "Penguin", "Pig", "Rabbit", "Rhino", "Sheep", "Squirrel", "Tiger", "Wolf"]
-
 export function translateSpecies(key: string) {
   switch (key) {
     case 'Anteater':
@@ -37,44 +35,42 @@ export function translateSpecies(key: string) {
     case 'Hamster':
       return '倉鼠'
     case 'Hippo':
-      return '河馬';
+      return '河馬'
     case 'Horse':
-      return '馬';
+      return '馬'
     case 'Koala':
-      return '無尾熊';
+      return '無尾熊'
     case 'Kangaroo':
-      return '袋鼠';
+      return '袋鼠'
     case 'Lion':
-      return '獅';
+      return '獅'
     case 'Monkey':
-      return '猴';
+      return '猴'
     case 'Mouse':
-      return '鼠';
-    case 'Monkey':
-      return '猴';
+      return '鼠'
     case 'Octopus':
-      return '章魚';
+      return '章魚'
     case 'Eagle':
-      return '鷹';
+      return '鷹'
     case 'Penguin':
-      return '企鵝';
+      return '企鵝'
     case 'Pig':
-      return '豬';
+      return '豬'
     case 'Rabbit':
-      return '兔';
+      return '兔'
     case 'Rhino':
-      return '犀牛';
+      return '犀牛'
     case 'Sheep':
-      return '綿羊';
+      return '綿羊'
     case 'Squirrel':
-      return '松鼠';
+      return '松鼠'
     case 'Tiger':
-      return '虎';
+      return '虎'
     case 'Wolf':
-      return '狼';
+      return '狼'
     case 'Ostrich':
       return '鴕鳥'
     default:
-      return key;
+      return key
   }
 }

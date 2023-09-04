@@ -1,106 +1,105 @@
-import axios, { AxiosRequestConfig, AxiosResponse, Canceler } from 'axios';
-import { Toast } from 'vant';
+import type { AxiosRequestConfig, AxiosResponse, Canceler } from 'axios'
+import axios from 'axios'
+import { Toast } from 'vant'
 
-import { ResultVM, ResultCode } from '@/view-models/result.vm';
-
-import store from '@/store';
+import type { ResultVM } from '@/view-models/result.vm'
+import { ResultCode } from '@/view-models/result.vm'
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
-  ignoreErrorMessage?: boolean;
-  ignoreLoader?: boolean;
+  ignoreErrorMessage?: boolean
+  ignoreLoader?: boolean
 }
 
 export interface CustomAxiosResponse extends AxiosResponse {
-  config: CustomAxiosRequestConfig;
+  config: CustomAxiosRequestConfig
 }
 
-export const createAxiosInstance = (baseURL: string) => {
-  console.log('createAxiosInstance');
+export function createAxiosInstance(baseURL: string) {
+  console.log('createAxiosInstance')
   const axiosInstace = axios.create({
     baseURL,
     timeout: 60000,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-  });
+  })
 
   let requestList: Array<{
-    url: string;
-    method: string;
-    cancelFn: Canceler;
-  }> = [];
+    url: string
+    method: string
+    cancelFn: Canceler
+  }> = []
 
   function addRequest(url: string = '', method: string = '', cancelFn: Canceler): void {
     requestList.push({
       url,
       method,
       cancelFn,
-    });
+    })
   }
 
   function removeRequest(url: string = '', method: string = ''): void {
-    requestList = requestList.filter(item => {
+    requestList = requestList.filter((item) => {
       if (item.url === url && item.method === method) {
-        item.cancelFn('Request Canceled');
-        return false;
+        item.cancelFn('Request Canceled')
+        return false
       }
-      return true;
-    });
+      return true
+    })
   }
-
 
   axiosInstace.interceptors.request.use(
     (config: CustomAxiosRequestConfig) => {
-      const { url, method } = config;
+      const { url, method } = config
 
-      removeRequest(url, method);
-      config.cancelToken = new axios.CancelToken(c => {
-        addRequest(url, method, c);
-      });
+      removeRequest(url, method)
+      config.cancelToken = new axios.CancelToken((c) => {
+        addRequest(url, method, c)
+      })
 
-      return config;
+      return config
     },
-    err => {
-      console.error(err);
-      return Promise.reject(err);
-    }
-  );
+    (err) => {
+      console.error(err)
+      return Promise.reject(err)
+    },
+  )
 
   axiosInstace.interceptors.response.use(
     (response: CustomAxiosResponse) => {
       const {
         url,
-        method
-      } = response.config;
+        method,
+      } = response.config
 
-      removeRequest(url, method);
+      removeRequest(url, method)
 
-      return response;
+      return response
     },
-    err => {
-      console.error(err);
-      return Promise.reject(err);
-    }
-  );
+    (err) => {
+      console.error(err)
+      return Promise.reject(err)
+    },
+  )
 
   async function request<T>(config: CustomAxiosRequestConfig): Promise<T> {
     return axiosInstace
       .request(config)
       .then(res => res.data)
-      .catch(err => {
-        console.error(err);
+      .catch((err) => {
+        console.error(err)
         return {
           code: ResultCode.clientError,
-          message: err.message
-        };
-      });
+          message: err.message,
+        }
+      })
   }
 
   async function get<T = ResultVM>(url: string, config?: CustomAxiosRequestConfig): Promise<T> {
     return request<T>({
       method: 'GET',
       url,
-      ...config
+      ...config,
     })
   }
 
@@ -109,7 +108,7 @@ export const createAxiosInstance = (baseURL: string) => {
       method: 'POST',
       url,
       data,
-      ...config
+      ...config,
     })
   }
 
@@ -118,7 +117,7 @@ export const createAxiosInstance = (baseURL: string) => {
       method: 'PUT',
       url,
       data,
-      ...config
+      ...config,
     })
   }
 
@@ -126,7 +125,7 @@ export const createAxiosInstance = (baseURL: string) => {
     return request<T>({
       method: 'DELETE',
       url,
-      ...config
+      ...config,
     })
   }
 
@@ -136,31 +135,31 @@ export const createAxiosInstance = (baseURL: string) => {
     post,
     put,
     delete: del,
-    interceptors: axiosInstace.interceptors
-  };
-};
+    interceptors: axiosInstace.interceptors,
+  }
+}
 
-export const axiosInstace = createAxiosInstance(process.env.VUE_APP_API_URL);
+export const axiosInstace = createAxiosInstance(import.meta.env.VUE_APP_API_URL)
 
 axiosInstace.interceptors.request.use(
   (config: CustomAxiosRequestConfig) => {
-    const { ignoreErrorMessage = false, ignoreLoader = true, url, method } = config;
-    console.log(url, method);
+    const { ignoreErrorMessage = false, ignoreLoader = true, url, method } = config
+    console.log(url, method)
 
     if (!ignoreLoader) {
       Toast.loading({
-        forbidClick: true
-      });
+        forbidClick: true,
+      })
     }
 
-    return config;
+    return config
   },
-  err => {
-    console.error(err);
-    Toast.clear();
-    return Promise.reject(err);
-  }
-);
+  (err) => {
+    console.error(err)
+    Toast.clear()
+    return Promise.reject(err)
+  },
+)
 
 axiosInstace.interceptors.response.use(
   (response: CustomAxiosResponse) => {
@@ -168,26 +167,26 @@ axiosInstace.interceptors.response.use(
       ignoreErrorMessage = false,
       ignoreLoader = true,
       url,
-      method
-    } = response.config;
-    const { success, resultCode, resultMessage } = response.data as ResultVM;
+      method,
+    } = response.config
+    const { success, resultCode, resultMessage } = response.data as ResultVM
 
     if (!ignoreLoader) {
-      Toast.clear();
+      Toast.clear()
     }
 
     if (!success && !ignoreErrorMessage) {
-      Toast.fail(resultMessage);
+      Toast.fail(resultMessage)
     }
 
-    return response;
+    return response
   },
-  err => {
-    console.error(err);
-    Toast.clear();
+  (err) => {
+    console.error(err)
+    Toast.clear()
     if (err.message !== 'Request Canceled') {
-      Toast.fail(err.message);
+      Toast.fail(err.message)
     }
-    return Promise.reject(err);
-  }
-);
+    return Promise.reject(err)
+  },
+)

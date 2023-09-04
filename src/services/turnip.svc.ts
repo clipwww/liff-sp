@@ -1,109 +1,109 @@
-import moment, { Moment } from 'moment';
-import * as uuid from 'uuid';
+import type { Moment } from 'moment'
+import moment from 'moment'
+import * as uuid from 'uuid'
 
-import { turnipRef } from '@/plugins/firebase';
-import { LineProfile } from '@/view-models/liff.vm';
+import { turnipRef } from '@/plugins/firebase'
+import type { LineProfile } from '@/view-models/liff.vm'
 
-export function listenerPriceList(date: Moment, callback: Function) {
-  return new Promise((reslove) => {
+export function listenerPriceList(date: Moment, callback: any): Promise<void> {
+  return new Promise((resolve) => {
     turnipRef
       .child('price')
       .child(moment(date).format('YYYY-MM-DD'))
-      .on('value', snapshot => {
-        reslove();
-        const data = snapshot.val();
+      .on('value', (snapshot) => {
+        resolve()
+        const data = snapshot.val()
         if (!data) {
-          return callback([]);
+          return callback([])
         }
 
-        const list = Object.keys(data).map(key => {
+        const list = Object.keys(data).map((key) => {
           return {
             id: key,
             ...data[key],
           }
-        });
+        })
 
-        callback(list);
-      });
+        callback(list)
+      })
   })
 }
 
 export function removeListenerPriceList(date: Moment) {
   return turnipRef
     .child('price')
-    .child(moment(date).format('YYYY-MM-DD')).off();
+    .child(moment(date).format('YYYY-MM-DD')).off()
 }
 
-export function getPriceByUserId(userId: string, date: Moment) {
-  return new Promise((reslove) => {
+export function getPriceByUserId(userId: string, date: Moment): Promise<any> {
+  return new Promise((resolve) => {
     turnipRef
       .child('price')
       .child(moment(date).format('YYYY-MM-DD'))
       .child(userId)
-      .once('value', snapshot => {
-        const data = snapshot.val();
+      .once('value', (snapshot) => {
+        const data = snapshot.val()
 
-        reslove(data);
-      });
+        resolve(data)
+      })
   })
 }
 
-export function listenerHistoriesByUserId(userId: string, callback: Function) {
+export function listenerHistoriesByUserId(userId: string, callback: any) {
   turnipRef
     .child('price')
-    .on('value', snapshot => {
+    .on('value', (snapshot) => {
       try {
-        const data = snapshot.val();
-        let list: any[] = [];
-        Object.keys(data).forEach(date => {
+        const data = snapshot.val()
+        const list: any[] = []
+        Object.keys(data).forEach((date) => {
           if (data[date][userId]) {
             list.push({
               id: date,
-              ...data[date][userId]
+              ...data[date][userId],
             })
           }
         })
 
-        callback(list);
+        callback(list)
       } catch (err) {
         console.log(err)
-        callback([]);
+        callback([])
       }
-    });
+    })
 }
 
 export function removeListenerHistoriesByUserId() {
   return turnipRef
-    .child('price').off();
+    .child('price').off()
 }
 
-export function listenerUserList(callback: Function) {
+export function listenerUserList(callback: any) {
   turnipRef
     .child('profile')
-    .on('value', snapshot => {
-      const data = snapshot.val();
+    .on('value', (snapshot) => {
+      const data = snapshot.val()
       if (!data) {
-        return callback([]);
+        return callback([])
       }
 
-      const list = Object.keys(data).map(key => {
+      const list = Object.keys(data).map((key) => {
         return {
           id: key,
-          ...data[key]
+          ...data[key],
         }
-      });
+      })
 
-      callback(list);
-    });
+      callback(list)
+    })
 }
 
 export function removeListenerUserList() {
   return turnipRef
-    .child('profile').off();
+    .child('profile').off()
 }
 
-
-export function updatePriceByUserId(userId: string, date: Moment, params: { buyPrice: any, sellPrice: any }) {
+export function updatePriceByUserId(userId: string, date: Moment, params: { buyPrice: any; sellPrice: any }) {
   return turnipRef
     .child('price')
     .child(moment(date).format('YYYY-MM-DD'))
@@ -111,7 +111,7 @@ export function updatePriceByUserId(userId: string, date: Moment, params: { buyP
     .set({
       ...params,
       dateUpdated: moment().toISOString(),
-    });
+    })
 }
 
 export function updateProfileByUserId(userId: string, params: LineProfile) {
@@ -121,35 +121,33 @@ export function updateProfileByUserId(userId: string, params: LineProfile) {
     .set({
       ...params,
       dateUpdated: moment().toISOString(),
-    });
+    })
 }
 
-export function listenerGroupList(callback: Function) {
-  return new Promise((reslove) => {
+export function listenerGroupList(callback: any): Promise<void> {
+  return new Promise((resolve) => {
     turnipRef
-      .child('group').on('value', snapshot => {
-        reslove();
-        const data = snapshot.val();
+      .child('group').on('value', (snapshot) => {
+        resolve()
+        const data = snapshot.val()
         if (!data) {
-          return callback([]);
+          return callback([])
         }
 
-        const list = Object.keys(data).map(key => data[key]);
+        const list = Object.keys(data).map(key => data[key])
 
-        callback(list);
-      });
+        callback(list)
+      })
   })
 }
 
 export function removeListenerGroupList() {
   return turnipRef
-    .child('group').off();
+    .child('group').off()
 }
 
-
-
-export function createGroup(params: { name: string, password: string, creatorId: string }) {
-  const newId = uuid.v4();
+export function createGroup(params: { name: string; password: string; creatorId: string }) {
+  const newId = uuid.v4()
   return turnipRef
     .child('group')
     .child(newId)
@@ -157,8 +155,8 @@ export function createGroup(params: { name: string, password: string, creatorId:
       ...params,
       id: newId,
       dateCreated: moment().toISOString(),
-      members: [params.creatorId]
-    });
+      members: [params.creatorId],
+    })
 }
 
 export function updateGroup(groupId: string, params: any) {
@@ -168,34 +166,32 @@ export function updateGroup(groupId: string, params: any) {
     .set({
       ...params,
       dateUpdated: moment().toISOString(),
-    });
+    })
 }
 
 export function removeGroup(groupId: string) {
   return turnipRef
     .child('group')
     .child(groupId)
-    .remove();
+    .remove()
 }
 
-
-export function listenerGroupById(groupId: string, callback: Function) {
-  return new Promise((reslove) => {
+export function listenerGroupById(groupId: string, callback: any): Promise<void> {
+  return new Promise((resolve) => {
     turnipRef
-      .child('group').child(groupId).on('value', snapshot => {
-        reslove();
-        const data = snapshot.val();
+      .child('group').child(groupId).on('value', (snapshot) => {
+        resolve()
+        const data = snapshot.val()
         if (!data) {
-          return callback(null);
+          return callback(null)
         }
 
-        callback(data);
-      });
+        callback(data)
+      })
   })
 }
 
 export function removeListenerGroupById(groupId: string) {
   return turnipRef
-    .child('group').child(groupId).off();
+    .child('group').child(groupId).off()
 }
-

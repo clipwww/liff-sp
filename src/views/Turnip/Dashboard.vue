@@ -1,3 +1,88 @@
+<script>
+import { mapGetters } from 'vuex'
+
+import { momentUtil } from '@/utils'
+
+import TurnipLineChart from '@/components/TurnipLineChart.vue'
+import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
+
+const weekdays = momentUtil.getWeekdays()
+const sellPrice = {}
+weekdays.forEach((item) => {
+  sellPrice[item.id] = {
+    am: '',
+    pm: '',
+  }
+})
+
+export default {
+  components: {
+    TurnipLineChart,
+    TurnipSellPrice,
+  },
+
+  props: {
+    groupList: {
+      type: Array,
+      default() {
+        return []
+      },
+    },
+    priceList: {
+      type: Array,
+      default() {
+        return []
+      },
+    },
+    histories: {
+      type: Array,
+      default() {
+        return []
+      },
+    },
+  },
+  data() {
+    return {
+      weekdays,
+
+      showHistory: false,
+      historyItem: null,
+    }
+  },
+  computed: {
+    ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
+      profile: 'profile',
+    }),
+    filterGroupList() {
+      return this.groupList.filter(item => item.members.includes(this.profile.userId))
+    },
+    filterHistories() {
+      return this.histories.filter((item, index) => index < 3)
+    },
+    item() {
+      return {
+        profile: this.profile,
+        ...(this.priceList.find(item => item.id === this.profile.userId) || {
+          buyPrice: '',
+          sellPrice,
+        }),
+      }
+    },
+  },
+  methods: {
+    goDetails(item) {
+      this.$router.push({ name: 'TurnipGroupDetails', params: { id: item.id } })
+    },
+    openHistory(item) {
+      console.log(item)
+      this.historyItem = item
+      this.showHistory = true
+    },
+  },
+}
+</script>
+
 <template>
   <div>
     <van-panel v-if="item">
@@ -11,13 +96,17 @@
           height="50"
           round
           lazy-load
-        ></van-image>
-        <div slot="title">{{ item.profile.displayName }}</div>
-        <div slot="label" class="little-text">買價：{{ item.buyPrice }}</div>
+        />
+        <div slot="title">
+          {{ item.profile.displayName }}
+        </div>
+        <div slot="label" class="little-text">
+          買價：{{ item.buyPrice }}
+        </div>
       </van-cell>
-      <TurnipSellPrice :sellPrice="item.sellPrice" />
+      <TurnipSellPrice :sell-price="item.sellPrice" />
       <div class="padding-bt-10">
-        <TurnipLineChart :id="item.id" :buyPrice="item.buyPrice" :sellPrice="item.sellPrice" />
+        <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
       </div>
     </van-panel>
     <van-panel v-else>
@@ -54,8 +143,12 @@
         is-link
         @click="openHistory(item)"
       >
-        <div slot="title">{{ item.id | formatWeekRange }}</div>
-        <div slot="label">{{ item.id | formatYear }} 第{{ item.id | formatWeek }}</div>
+        <div slot="title">
+          {{ item.id | formatWeekRange }}
+        </div>
+        <div slot="label">
+          {{ item.id | formatYear }} 第{{ item.id | formatWeek }}
+        </div>
       </van-cell>
       <van-cell
         v-if="histories.length > 3"
@@ -64,110 +157,30 @@
         title
         label="查看更多"
         :to="{ name: 'TurnipHistories' }"
-      ></van-cell>
+      />
     </van-cell-group>
 
-    <van-popup v-model="showHistory" position="bottom" closeable :style="{ height: '70%' }">
+    <van-popup
+      v-model="showHistory"
+      position="bottom"
+      closeable
+      :style="{ height: '70%' }"
+    >
       <div v-if="historyItem">
         <van-divider>{{ historyItem.id | formatWeekRange }}</van-divider>
-        <div class="little-text padding-a-10">買價：{{ historyItem.buyPrice }}</div>
-        <TurnipSellPrice :sellPrice="historyItem.sellPrice" />
+        <div class="little-text padding-a-10">
+          買價：{{ historyItem.buyPrice }}
+        </div>
+        <TurnipSellPrice :sell-price="historyItem.sellPrice" />
         <TurnipLineChart
           :id="historyItem.id"
-          :buyPrice="historyItem.buyPrice"
-          :sellPrice="historyItem.sellPrice"
+          :buy-price="historyItem.buyPrice"
+          :sell-price="historyItem.sellPrice"
         />
       </div>
     </van-popup>
   </div>
 </template>
-
-
-<script>
-import moment from 'moment';
-import { mapGetters } from 'vuex';
-
-import { momentUtil } from '@/utils';
-
-import TurnipLineChart from '@/components/TurnipLineChart.vue';
-import TurnipSellPrice from '@/components/TurnipSellPrice.vue';
-
-const weekdays = momentUtil.getWeekdays();
-const sellPrice = {};
-weekdays.forEach(item => {
-  sellPrice[item.id] = {
-    am: '',
-    pm: '',
-  };
-});
-
-export default {
-  components: {
-    TurnipLineChart,
-    TurnipSellPrice,
-  },
-
-  props: {
-    groupList: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
-    priceList: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
-    histories: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
-  },
-  data() {
-    return {
-      weekdays,
-
-      showHistory: false,
-      historyItem: null,
-    };
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
-    filterGroupList() {
-      return this.groupList.filter(item => item.members.includes(this.profile.userId));
-    },
-    filterHistories() {
-      return this.histories.filter((item, index) => index < 3);
-    },
-    item() {
-      return {
-        profile: this.profile,
-        ...(this.priceList.find(item => item.id === this.profile.userId) || {
-          buyPrice: '',
-          sellPrice,
-        }),
-      };
-    },
-  },
-  methods: {
-    goDetails(item) {
-      this.$router.push({ name: 'TurnipGroupDetails', params: { id: item.id } });
-    },
-    openHistory(item) {
-      console.log(item);
-      this.historyItem = item;
-      this.showHistory = true;
-    },
-  },
-};
-</script>
 
 <style lang="scss" scoped>
 </style>

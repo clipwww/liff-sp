@@ -1,6 +1,6 @@
-import { axiosInstace, CustomAxiosRequestConfig } from './base.svc';
+import { axiosInstace } from './base.svc'
 
-import { ResultGenericVM, ResultListGenericVM } from '@/view-models/result.vm';
+import type { ResultGenericVM, ResultListGenericVM } from '@/view-models/result.vm'
 
 const baseURL = '/komica'
 
@@ -10,7 +10,7 @@ export function getList(type: string, p = 1) {
     url: `${baseURL}/${type}`,
     params: {
       p,
-    }
+    },
   })
 }
 
@@ -24,6 +24,6 @@ export function getAllList(type: string) {
 export function getDetails(type: string, id: string) {
   return axiosInstace.request<ResultGenericVM<any>>({
     method: 'GET',
-    url: `${baseURL}/${type}/${id}`
+    url: `${baseURL}/${type}/${id}`,
   })
 }
