@@ -1,0 +1,1 @@
+import{f as t,T as a}from"./index-465f6a88.js";const s=t("https://acnhapi.com/");s.interceptors.response.use(e=>e,e=>(e.message!=="Request Canceled"&&a.fail(e.message),Promise.reject(e)));function o(e){return s.get(`/v1/${e}`)}export{o as g};
