@@ -37,6 +37,12 @@ export default {
           <div>近期上映</div>
         </div>
       </van-grid-item>
+      <van-grid-item clickable :to="{ name: 'MovieVieshow' }">
+        <div class="text-center">
+          <van-icon class="fs-30" name="video" />
+          <div>威秀時刻表</div>
+        </div>
+      </van-grid-item>
       <van-grid-item clickable :to="{ name: 'MovieFavoriteList' }">
         <div class="text-center">
           <van-icon class="fs-30" name="like" />

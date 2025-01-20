@@ -63,3 +63,14 @@ export function getMovieTimesById(movieId: string, cityId: string = '') {
     },
   })
 }
+
+export function getMovieVieshowShowTimes(cinemaCode: string) {
+  return axiosInstace.request({
+    method: 'POST',
+    url: 'https://www.vscinemas.com.tw/ShowTimes/ShowTimes/GetShowTimes',
+    params: {
+      CinemaCode: cinemaCode,
+    },
+    ignoreErrorMessage: true,
+  })
+}

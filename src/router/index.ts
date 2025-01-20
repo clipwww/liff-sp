@@ -84,6 +84,14 @@ const routes: RouteConfig[] = [
           label: '近期上映',
         },
       },
+      {
+        path: 'vieshow',
+        name: 'MovieVieshow',
+        component: loadComponents('Movie/Vieshow'),
+        meta: {
+          label: '威秀時刻表',
+        },
+      },
     ],
   },
   {
@@ -219,80 +227,80 @@ const routes: RouteConfig[] = [
       },
     ],
   },
-  {
-    path: '/acnh',
-    name: 'Acnh',
-    component: loadComponents('Acnh/Layout'),
-    redirect: { name: 'AcnhCategory' },
-    meta: {
-      label: '狸端機(?) Lite',
-      image: './images/leaf.png',
-    },
-    children: [
-      {
-        path: 'category',
-        name: 'AcnhCategory',
-        component: loadComponents('Acnh/Category'),
-        meta: {
-          label: '分類',
-        },
-      },
-      {
-        path: 'fish',
-        name: 'AcnhFish',
-        component: loadComponents('Acnh/List'),
-        meta: {
-          label: '魚',
-          image: 'http://acnhapi.com/icons/fish/1',
-        },
-      },
-      {
-        path: 'bugs',
-        name: 'AcnhBugs',
-        component: loadComponents('Acnh/List'),
-        meta: {
-          label: '蟲',
-          image: 'http://acnhapi.com/icons/bugs/1',
-        },
-      },
-      {
-        path: 'fossils',
-        name: 'AcnhFossils',
-        component: loadComponents('Acnh/List'),
-        meta: {
-          label: '化石',
-          image: '../images/fossils.png',
-        },
-      },
-      {
-        path: 'villagers',
-        name: 'AcnhVillagers',
-        component: loadComponents('Acnh/List'),
-        meta: {
-          label: '小動物',
-          image: 'http://acnhapi.com/icons/villagers/355',
-        },
-      },
-      {
-        path: 'art',
-        name: 'AcnhArt',
-        component: loadComponents('Acnh/List'),
-        meta: {
-          label: '藝術品',
-          image: 'https://acnhapi.com/v1/images/art/academic_painting',
-        },
-      },
-      {
-        path: 'songs',
-        name: 'AcnhSongs',
-        component: loadComponents('Acnh/List'),
-        meta: {
-          label: 'K.K.歌曲',
-          image: 'http://acnhapi.com/images/songs/1',
-        },
-      },
-    ],
-  },
+  // {
+  //   path: '/acnh',
+  //   name: 'Acnh',
+  //   component: loadComponents('Acnh/Layout'),
+  //   redirect: { name: 'AcnhCategory' },
+  //   meta: {
+  //     label: '狸端機(?) Lite',
+  //     image: './images/leaf.png',
+  //   },
+  //   children: [
+  //     {
+  //       path: 'category',
+  //       name: 'AcnhCategory',
+  //       component: loadComponents('Acnh/Category'),
+  //       meta: {
+  //         label: '分類',
+  //       },
+  //     },
+  //     {
+  //       path: 'fish',
+  //       name: 'AcnhFish',
+  //       component: loadComponents('Acnh/List'),
+  //       meta: {
+  //         label: '魚',
+  //         image: 'http://acnhapi.com/icons/fish/1',
+  //       },
+  //     },
+  //     {
+  //       path: 'bugs',
+  //       name: 'AcnhBugs',
+  //       component: loadComponents('Acnh/List'),
+  //       meta: {
+  //         label: '蟲',
+  //         image: 'http://acnhapi.com/icons/bugs/1',
+  //       },
+  //     },
+  //     {
+  //       path: 'fossils',
+  //       name: 'AcnhFossils',
+  //       component: loadComponents('Acnh/List'),
+  //       meta: {
+  //         label: '化石',
+  //         image: '../images/fossils.png',
+  //       },
+  //     },
+  //     {
+  //       path: 'villagers',
+  //       name: 'AcnhVillagers',
+  //       component: loadComponents('Acnh/List'),
+  //       meta: {
+  //         label: '小動物',
+  //         image: 'http://acnhapi.com/icons/villagers/355',
+  //       },
+  //     },
+  //     {
+  //       path: 'art',
+  //       name: 'AcnhArt',
+  //       component: loadComponents('Acnh/List'),
+  //       meta: {
+  //         label: '藝術品',
+  //         image: 'https://acnhapi.com/v1/images/art/academic_painting',
+  //       },
+  //     },
+  //     {
+  //       path: 'songs',
+  //       name: 'AcnhSongs',
+  //       component: loadComponents('Acnh/List'),
+  //       meta: {
+  //         label: 'K.K.歌曲',
+  //         image: 'http://acnhapi.com/images/songs/1',
+  //       },
+  //     },
+  //   ],
+  // },
 ]
 
 const router = new VueRouter({
