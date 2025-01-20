@@ -1,1 +1,0 @@
-import{j as t,T as n}from"./index-71d8585f.js";const s=t({}.VUE_APP_ACNH_API_URL);s.interceptors.response.use(e=>e,e=>(e.message!=="Request Canceled"&&n.fail(e.message),Promise.reject(e)));function o(e){return s.get(`/v1/${e}`)}export{o as g};

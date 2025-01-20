@@ -1,0 +1,1 @@
+import{n as t}from"./index-7cae2806.js";const _={data(){return{}},methods:{}};var r=function(){var n=this,e=n._self._c;return e("div",[e("div",{staticClass:"movie-container"},[e("router-view")],1)])},o=[],s=t(_,r,o,!1,null,"d53c8e8f",null,null);const i=s.exports;export{i as default};
