@@ -1,0 +1,1 @@
+import{a as r}from"./index-9ce14ff3.js";const s="/komica";function o(t,e=1){return r.request({method:"GET",url:`${s}/${t}`,params:{p:e}})}function u(t){return r.request({method:"GET",url:`${s}/${t}?mode=all`})}function n(t,e){return r.request({method:"GET",url:`${s}/${t}/${e}`})}export{o as a,u as b,n as g};
