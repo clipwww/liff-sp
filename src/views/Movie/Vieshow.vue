@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, watch } from 'vue'
-import moment from 'moment'
 import { movieSVC } from '@/services'
 
 const CinemaCodeMapping = {

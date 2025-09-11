@@ -69,7 +69,7 @@ export default {
       }
 
       this.page++
-      if (this.page > ret.pages.length) {
+      if (this.page > ret.pages?.length) {
         this.isFinished = true
       }
       this.items = this.items.concat(ret.items)
@@ -98,7 +98,7 @@ export default {
           offset="50"
           @load="getList"
         >
-          <div slot="loading">
+          <template slot="loading">
             <van-cell v-for="n in 2" :key="n">
               <van-skeleton
                 class="padding-bt-5 padding-lr-0"
@@ -109,7 +109,7 @@ export default {
                 avatar-size="90"
               />
             </van-cell>
-          </div>
+          </template>
           <KomicaPostCell
             v-for="item in items"
             :key="item.id"

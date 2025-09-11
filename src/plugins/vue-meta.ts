@@ -1,7 +1,3 @@
-import Vue from 'vue'
-import VueMeta from 'vue-meta'
+import { createHead } from '@vueuse/head'
 
-Vue.use(VueMeta, {
-  // optional pluginOptions
-  refreshOnceOnNavigation: true,
-})
+export const head = createHead()

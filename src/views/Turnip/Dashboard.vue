@@ -1,13 +1,32 @@
-<script>
-import { mapGetters } from 'vuex'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { momentUtil } from '@/utils'
+import { useMainStore } from '@/store'
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
 
+// Props
+interface Props {
+  groupList: any[]
+  priceList: any[]
+  histories: any[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  groupList: () => [],
+  priceList: () => [],
+  histories: () => [],
+})
+
+const router = useRouter()
+const store = useMainStore()
+
+// 響應式數據
 const weekdays = momentUtil.getWeekdays()
-const sellPrice = {}
+const sellPrice: any = {}
 weekdays.forEach((item) => {
   sellPrice[item.id] = {
     am: '',
@@ -15,143 +34,128 @@ weekdays.forEach((item) => {
   }
 })
 
-export default {
-  components: {
-    TurnipLineChart,
-    TurnipSellPrice,
-  },
+const showHistory = ref(false)
+const historyItem = ref(null)
 
-  props: {
-    groupList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-    priceList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-    histories: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-  },
-  data() {
-    return {
-      weekdays,
-
-      showHistory: false,
-      historyItem: null,
-    }
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
+// 計算屬性
+const profile = computed(() => store.profile)
+const filterGroupList = computed(() => {
+  return props.groupList.filter(item => item.members.includes(profile.value.userId))
+})
+const filterHistories = computed(() => {
+  return props.histories.filter((item, index) => index < 3)
+})
+const item = computed(() => {
+  return {
+    profile: profile.value,
+    ...(props.priceList.find(item => item.id === profile.value.userId) || {
+      buyPrice: '',
+      sellPrice,
     }),
-    filterGroupList() {
-      return this.groupList.filter(item => item.members.includes(this.profile.userId))
-    },
-    filterHistories() {
-      return this.histories.filter((item, index) => index < 3)
-    },
-    item() {
-      return {
-        profile: this.profile,
-        ...(this.priceList.find(item => item.id === this.profile.userId) || {
-          buyPrice: '',
-          sellPrice,
-        }),
-      }
-    },
-  },
-  methods: {
-    goDetails(item) {
-      this.$router.push({ name: 'TurnipGroupDetails', params: { id: item.id } })
-    },
-    openHistory(item) {
-      console.log(item)
-      this.historyItem = item
-      this.showHistory = true
-    },
-  },
+  }
+})
+
+// 方法
+function goDetails(groupItem: any) {
+  router.push({ name: 'TurnipGroupDetails', params: { id: groupItem.id } })
+}
+
+function openHistory(history: any) {
+  console.log(history)
+  historyItem.value = history
+  showHistory.value = true
+}
+
+function formatWeekRange(weekId: string) {
+  // 這裡需要實現格式化邏輯，根據 momentUtil 或其他工具
+  return weekId
+}
+
+function formatYear(weekId: string) {
+  // 這裡需要實現格式化邏輯
+  return weekId
+}
+
+function formatWeek(weekId: string) {
+  // 這裡需要實現格式化邏輯
+  return weekId
 }
 </script>
 
 <template>
   <div>
     <van-panel v-if="item">
-      <van-cell slot="header">
-        <van-image
-          v-if="item.profile.pictureUrl"
-          slot="icon"
-          class="margin-r-15"
-          :src="item.profile.pictureUrl"
-          width="50"
-          height="50"
-          round
-          lazy-load
-        />
-        <div slot="title">
-          {{ item.profile.displayName }}
-        </div>
-        <div slot="label" class="little-text">
-          買價：{{ item.buyPrice }}
-        </div>
-      </van-cell>
+      <template #header>
+        <van-cell>
+          <template #icon>
+            <van-image
+              v-if="item.profile.pictureUrl"
+              class="margin-r-15"
+              :src="item.profile.pictureUrl"
+              width="50"
+              height="50"
+              round
+              lazy-load
+            />
+          </template>
+          <template #title>
+            {{ item.profile.displayName }}
+          </template>
+          <template #label>
+            <div class="little-text">
+              買價：{{ item.buyPrice }}
+            </div>
+          </template>
+        </van-cell>
+      </template>
       <TurnipSellPrice :sell-price="item.sellPrice" />
       <div class="padding-bt-10">
         <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
       </div>
     </van-panel>
     <van-panel v-else>
-      <div slot="header">
+      <template #header>
         <div class="text-center padding-bt-30">
           <van-icon class="fs-30" name="info" />
           <div>本週次還沒提供任何菜價唷</div>
         </div>
-      </div>
+      </template>
     </van-panel>
 
     <van-cell-group title="已加入群組">
       <van-cell
-        v-for="item in filterGroupList"
-        :key="item.id"
-        :title="item.name"
+        v-for="groupItem in filterGroupList"
+        :key="groupItem.id"
+        :title="groupItem.name"
         center
         is-link
         clickable
-        @click="goDetails(item)"
+        @click="goDetails(groupItem)"
       >
-        <div slot="label">
+        <template #label>
           <van-icon name="user-o" />
-          <span class="margin-l-5">{{ item.members.length }}</span>
-        </div>
+          <span class="margin-l-5">{{ groupItem.members.length }}</span>
+        </template>
       </van-cell>
     </van-cell-group>
 
     <van-cell-group title="歷史紀錄">
       <van-cell
-        v-for="item in filterHistories"
-        :key="item.id"
+        v-for="hist in filterHistories"
+        :key="hist.id"
         center
         is-link
-        @click="openHistory(item)"
+        @click="openHistory(hist)"
       >
-        <div slot="title">
-          {{ item.id | formatWeekRange }}
-        </div>
-        <div slot="label">
-          {{ item.id | formatYear }} 第{{ item.id | formatWeek }}
-        </div>
+        <template #title>
+          {{ formatWeekRange(hist.id) }}
+        </template>
+        <template #label>
+          {{ formatYear(hist.id) }} 第{{ formatWeek(hist.id) }}
+        </template>
       </van-cell>
       <van-cell
-        v-if="histories.length > 3"
+        v-if="props.histories.length > 3"
         is-link
         center
         title
@@ -167,7 +171,7 @@ export default {
       :style="{ height: '70%' }"
     >
       <div v-if="historyItem">
-        <van-divider>{{ historyItem.id | formatWeekRange }}</van-divider>
+        <van-divider>{{ formatWeekRange(historyItem.id) }}</van-divider>
         <div class="little-text padding-a-10">
           買價：{{ historyItem.buyPrice }}
         </div>

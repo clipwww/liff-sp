@@ -1,82 +1,101 @@
-<script>
-import { Toast } from 'vant'
-import { mapGetters } from 'vuex'
-
-import store from '@/store'
+<script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { showDialog, showToast } from 'vant'
+import moment from 'moment'
+import { useMainStore } from '@/store'
 import { movieRef } from '@/plugins/firebase'
 
-export default {
-  data() {
-    return {
-      favoriteList: [],
-      isLoading: false,
-    }
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
-  },
-  beforeRouteEnter(to, from, next) {
-    const isLoggedIn = store.state.isLoggedIn
+const router = useRouter()
+const store = useMainStore()
 
-    if (isLoggedIn) {
-      next()
-    } else {
-      Toast.fail('必須要登入才可以使用唷！')
-      next({ name: 'MovieSearchTypeChoice' })
-    }
-  },
-  created() {
-    this.isLoading = true
-    movieRef.child(`favorite-movie-${this.profile.userId}`).on('value', (snapshot) => {
-      const data = snapshot.val()
+// 響應式數據
+const favoriteList = ref<any[]>([])
+const isLoading = ref(false)
 
-      if (data && data?.length) {
-        this.favoriteList = data || []
-      }
-      this.isLoading = false
+// 計算屬性
+const isLoggedIn = () => store.isLoggedIn
+const profile = () => store.profile
+
+// 路由守衛邏輯
+function checkAuth() {
+  if (!isLoggedIn()) {
+    showToast({
+      message: '必須要登入才可以使用唷！',
+      type: 'fail',
     })
-  },
-  beforeUnmount() {
-    movieRef.child(`favorite-movie-${this.profile.userId}`).off()
-  },
-  methods: {
-    async removeFavorite(item) {
-      try {
-        await this.$dialog.confirm({
-          title: '確定要刪除收藏嗎？',
-        })
+    router.push({ name: 'MovieSearchTypeChoice' })
+    return false
+  }
+  return true
+}
 
-        this.favoriteList = this.favoriteList.filter(f => f.id !== item.id)
+// 生命週期
+onMounted(() => {
+  if (!checkAuth()) {
+    return
+  }
 
-        movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList)
-      } catch (err) {
-        console.log(err)
-      }
-    },
-    getSrc(src = '') {
-      return !src || src.includes('l10l010l3322l1') ? 'https://via.placeholder.com/250x370?text=404' : src
-    },
-    goMovie({ id }) {
-      this.$router.push({ name: 'MovieDetails', params: { id } })
-    },
-  },
+  isLoading.value = true
+  movieRef.child(`favorite-movie-${profile().userId}`).on('value', (snapshot: any) => {
+    const data = snapshot.val()
+
+    if (data && data?.length) {
+      favoriteList.value = data || []
+    }
+    isLoading.value = false
+  })
+})
+
+onBeforeUnmount(() => {
+  if (profile()?.userId) {
+    movieRef.child(`favorite-movie-${profile().userId}`).off()
+  }
+})
+
+// 方法
+async function removeFavorite(item: any) {
+  try {
+    await showDialog({
+      title: '確定要刪除收藏嗎？',
+      showCancelButton: true,
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+    })
+
+    favoriteList.value = favoriteList.value.filter((f: any) => f.id !== item.id)
+
+    movieRef.child(`favorite-movie-${profile().userId}`).set(favoriteList.value)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+function getSrc(src = '') {
+  return !src || src.includes('l10l010l3322l1') ? 'https://via.placeholder.com/250x370?text=404' : src
+}
+
+function goMovie({ id }: any) {
+  router.push({ name: 'MovieDetails', params: { id } })
+}
+
+function formatDate(date: string) {
+  return moment(date).format('YYYY/MM/DD')
 }
 </script>
 
 <template>
   <div class="favorite-list">
     <van-panel v-show="isLoading">
-      <div slot="header" class="padding-bt-10">
-        <van-skeleton
-          title
-          avatar
-          avatar-shape
-          :row="4"
-        />
-      </div>
+      <template #header>
+        <div class="padding-bt-10">
+          <van-skeleton
+            title
+            avatar
+            :row="4"
+          />
+        </div>
+      </template>
     </van-panel>
     <van-panel
       v-for="item in favoriteList"
@@ -84,17 +103,18 @@ export default {
       :key="item.id"
       class="margin-bt-10"
     >
-      <div slot="header">
+      <template #header>
         <van-cell :title="item.name" size="large">
-          <van-image
-            slot="right-icon"
-            width="40"
-            fit="contain"
-            :src="item.cerImg"
-            lazy-load
-          />
+          <template #right-icon>
+            <van-image
+              width="40"
+              fit="contain"
+              :src="item.cerImg"
+              lazy-load
+            />
+          </template>
         </van-cell>
-      </div>
+      </template>
       <van-row class="padding-lr-15" :gutter="15">
         <van-col span="7">
           <van-image
@@ -116,10 +136,10 @@ export default {
           </van-tag>
         </van-col>
       </van-row>
-      <div slot="footer">
+      <template #footer>
         <div class="flex-between">
           <div class="little-text">
-            加入收藏日期 {{ item.dateCreated | formatDate }}
+            加入收藏日期 {{ formatDate(item.dateCreated) }}
           </div>
           <van-button
             icon="delete"
@@ -130,21 +150,21 @@ export default {
             刪除收藏
           </van-button>
         </div>
-      </div>
+      </template>
     </van-panel>
     <van-panel v-show="!favoriteList.length && !isLoading">
-      <div slot="header">
+      <template #header>
         <div class="text-center padding-bt-30">
           <van-icon class="fs-30" name="info" />
           <div>這裡還什麼都沒有</div>
         </div>
-      </div>
+      </template>
     </van-panel>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .favorite-list {
-  padding-bottom: $paddingBottom;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 65px);
 }
 </style>

@@ -1,11 +1,12 @@
 import router from '../index'
-import store from '@/store'
+import { useMainStore } from '@/store'
 
-router.beforeEach(async (to, from, next) => {
-  store.dispatch('updateLoggedIn')
-  const isLoggedIn = store.state.isLoggedIn
+router.beforeEach(async (_to, _from, next) => {
+  const mainStore = useMainStore()
+  mainStore.updateLoggedIn()
+  const isLoggedIn = mainStore.isLoggedIn
   if (isLoggedIn) {
-    store.dispatch('updateProfile')
+    mainStore.updateProfile()
   }
 
   next()

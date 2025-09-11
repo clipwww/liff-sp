@@ -27,6 +27,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useMainStore()
 
+const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
 const now = moment()
 

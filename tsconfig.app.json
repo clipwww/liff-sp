@@ -10,13 +10,15 @@
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": [
         "./src/*"
       ]
     },
     "types": [
-      "@types/lodash"
+      "@types/lodash",
+      "vite/client"
     ]
   }
 }

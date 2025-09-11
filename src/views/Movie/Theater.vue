@@ -1,162 +1,166 @@
-<script>
-import { mapGetters } from 'vuex'
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { showToast } from 'vant'
 import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
 
 import { movieSVC } from '@/services'
 import { movieRef } from '@/plugins/firebase'
+import { useMainStore } from '@/store'
 
-export default {
-  data() {
+const router = useRouter()
+const store = useMainStore()
+
+// 響應式數據
+const cityId = ref<string>(window.localStorage.getItem('cityId') || '')
+const citys = ref<any[]>([])
+const theaters = ref<any[]>([])
+const favoriteList = ref<any[]>([])
+const activeTab = ref<string>(window.localStorage.getItem('theaters-activeTab') || 'search')
+const keyword = ref<string>('')
+const isEmpty = ref<boolean>(false)
+
+// 計算屬性
+const isLoggedIn = computed(() => store.isLoggedIn)
+const profile = computed(() => store.profile)
+const isFavorteMode = computed(() => activeTab.value === 'favorite')
+const filterList = computed(() => {
+  return (isFavorteMode.value ? favoriteList.value : theaters.value).filter(item =>
+    keyword.value ? item.name.includes(keyword.value) : true,
+  )
+})
+const cityOptions = computed(() => {
+  return citys.value.map((item: any) => {
     return {
-      cityId: window.localStorage.getItem('cityId') || '',
-      citys: [],
-      theaters: [],
-      favoriteList: [],
-      activeTab: window.localStorage.getItem('theaters-activeTab') || 'search',
-      keyword: '',
-      isEmpty: false,
+      text: item.name,
+      value: item.id,
     }
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
-    filterList() {
-      return (this.isFavorteMode ? this.favoriteList : this.theaters).filter(item =>
-        this.keyword ? item.name.includes(this.keyword) : true,
-      )
-    },
-    cityOptions() {
-      return this.citys.map((item) => {
-        return {
-          text: item.name,
-          value: item.id,
-        }
-      })
-    },
-    isFavorteMode() {
-      return this.activeTab === 'favorite'
-    },
-  },
-  watch: {
-    cityId: {
-      immediate: true,
-      handler(val) {
-        this.getTheaterList()
-        window.localStorage.setItem('cityId', val)
-      },
-    },
-    activeTab(val) {
-      window.localStorage.setItem('theaters-activeTab', val)
-    },
-    isLoggedIn: {
-      immediate: true,
-      handler(bool) {
-        if (bool) {
-          this.getFavoriteTheaters()
-        }
-      },
-    },
-  },
-  created() {
-    movieRef.child('citys').on('value', (snapshot) => {
-      const data = snapshot.val()
-      if (data && data.items?.length) {
-        this.citys = data.items
-        if (!this.cityId) {
-          this.cityId = this.citys[0].id
-        }
+  })
+})
+
+// 監聽器
+watch(cityId, (val) => {
+  getTheaterList()
+  window.localStorage.setItem('cityId', val)
+}, { immediate: true })
+
+watch(activeTab, (val) => {
+  window.localStorage.setItem('theaters-activeTab', val)
+})
+
+watch(isLoggedIn, (bool) => {
+  if (bool) {
+    getFavoriteTheaters()
+  }
+}, { immediate: true })
+
+// 生命週期
+onMounted(() => {
+  movieRef.child('citys').on('value', (snapshot) => {
+    const data = snapshot.val()
+    if (data && data.items?.length) {
+      citys.value = data.items
+      if (!cityId.value) {
+        cityId.value = citys.value[0].id
       }
+    }
+  })
+  getCityList()
+})
+
+onBeforeUnmount(() => {
+  movieRef.child('citys').off()
+})
+
+// 方法
+async function getCityList() {
+  const ret = await movieSVC.getCityList()
+  if (!ret.success) {
+    return
+  }
+
+  if (!_isEqual(citys.value, ret.items)) {
+    movieRef.child('citys').set({
+      items: ret.items,
+      dateCreated: +moment(),
     })
-    this.getCityList()
-  },
-  beforeUnmount() {
-    movieRef.child('citys').off()
-  },
-  methods: {
-    async getCityList() {
-      const ret = await movieSVC.getCityList()
-      if (!ret.success) {
-        return
-      }
+  }
+}
 
-      if (!_isEqual(this.citys, ret.items)) {
-        movieRef.child('citys').set({
-          items: ret.items,
-          dateCreated: +moment(),
-        })
-      }
-    },
-    async getTheaterList() {
-      if (!this.cityId) {
-        return
-      }
+async function getTheaterList() {
+  if (!cityId.value) {
+    return
+  }
 
-      await movieRef.child(`theaters-${this.cityId}`).once('value', (snapshot) => {
-        const data = snapshot.val()
-        if (data) {
-          this.theaters = data.items
-        }
-      })
+  await movieRef.child(`theaters-${cityId.value}`).once('value', (snapshot) => {
+    const data = snapshot.val()
+    if (data) {
+      theaters.value = data.items
+    }
+  })
 
-      const ret = await movieSVC.getTheaterList(this.cityId)
-      if (!ret.success) {
-        return
-      }
+  const ret = await movieSVC.getTheaterList(cityId.value)
+  if (!ret.success) {
+    return
+  }
 
-      if (!_isEqual(this.theaters, ret.items)) {
-        movieRef.child(`theaters-${this.cityId}`).set({
-          items: ret.items,
-          dateCreated: +moment(),
-        })
-      }
-      this.theaters = ret.items
-    },
-    getFavoriteTheaters() {
-      if (!this.isLoggedIn) {
-        return
-      }
+  if (!_isEqual(theaters.value, ret.items)) {
+    movieRef.child(`theaters-${cityId.value}`).set({
+      items: ret.items,
+      dateCreated: +moment(),
+    })
+  }
+  theaters.value = ret.items
+}
 
-      this.isEmpty = false
-      movieRef.child(`favorite-theaters-${this.profile.userId}`).once('value', (snapshot) => {
-        const data = snapshot.val()
-        if (data && data?.length) {
-          this.favoriteList = data || []
-        }
+function getFavoriteTheaters() {
+  if (!isLoggedIn.value) {
+    return
+  }
 
-        if (!this.filterList.length) {
-          this.isEmpty = true
-        }
-      })
-    },
-    async toggleFavorite(item) {
-      if (!this.isLoggedIn) {
-        this.$toast.fail('必須要登入才可以使用唷！')
-        return
-      }
+  isEmpty.value = false
+  movieRef.child(`favorite-theaters-${profile.value.userId}`).once('value', (snapshot) => {
+    const data = snapshot.val()
+    if (data && data?.length) {
+      favoriteList.value = data || []
+    }
 
-      if (!this.favoriteList.find(f => f.id === item.id)) {
-        this.favoriteList.push(item)
-      } else {
-        this.favoriteList = this.favoriteList.filter(f => f.id !== item.id)
-      }
+    if (!filterList.value.length) {
+      isEmpty.value = true
+    }
+  })
+}
 
-      await movieRef.child(`favorite-theaters-${this.profile.userId}`).set(this.favoriteList)
-      this.getFavoriteTheaters()
-    },
-    isFavorite(item) {
-      return !!this.favoriteList.find(f => f.id === item.id)
-    },
-    goDetails(item) {
-      this.$router.push({
-        name: 'MovieTheaterDetails',
-        params: { id: item.id },
-        query: { cityId: this.cityId, title: item.name },
-      })
-    },
-  },
+async function toggleFavorite(item) {
+  if (!isLoggedIn.value) {
+    showToast({
+      message: '必須要登入才可以使用唷！',
+      type: 'fail',
+    })
+    return
+  }
+
+  if (!favoriteList.value.find(f => f.id === item.id)) {
+    favoriteList.value.push(item)
+  } else {
+    favoriteList.value = favoriteList.value.filter(f => f.id !== item.id)
+  }
+
+  await movieRef.child(`favorite-theaters-${profile.value.userId}`).set(favoriteList.value)
+  getFavoriteTheaters()
+}
+
+function isFavorite(item) {
+  return !!favoriteList.value.find(f => f.id === item.id)
+}
+
+function goDetails(item) {
+  router.push({
+    name: 'MovieTheaterDetails',
+    params: { id: item.id },
+    query: { cityId: cityId.value, title: item.name },
+  })
 }
 </script>
 
@@ -173,13 +177,14 @@ export default {
         is-link
         @click="goDetails(item)"
       >
-        <van-icon
-          slot="icon"
-          class="lh-inherit margin-r-10"
-          :name="isFavorite(item) ? 'like' : 'like-o'"
-          color="#f48fb1"
-          @click.stop="toggleFavorite(item)"
-        />
+        <template #icon>
+          <van-icon
+            class="lh-inherit margin-r-10"
+            :name="isFavorite(item) ? 'like' : 'like-o'"
+            color="#f48fb1"
+            @click.stop="toggleFavorite(item)"
+          />
+        </template>
         {{ item.name }}
       </van-cell>
       <div v-show="!theaters.length && cityId">

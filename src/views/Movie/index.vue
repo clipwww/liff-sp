@@ -1,19 +1,5 @@
-<script>
-import { mapGetters } from 'vuex'
-
-export default {
-  data() {
-    return {}
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-    }),
-  },
-  methods: {
-
-  },
-}
+<script setup lang="ts">
+// No script needed for this component
 </script>
 
 <template>

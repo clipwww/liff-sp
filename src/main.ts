@@ -1,32 +1,38 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import moment from 'moment'
 import 'moment/locale/zh-tw.js'
 import 'moment/locale/en-gb.js'
 
 import App from './App.vue'
 import router from './router'
-import store from './store'
 
 import './registerServiceWorker'
 import '@/plugins/vue-analytics'
-import '@/plugins/vant'
+import vantPlugin from '@/plugins/vant'
 import '@/plugins/register-components'
-import '@/plugins/vue-filter'
-import '@/plugins/vue-meta'
+import vueFilterPlugin from '@/plugins/vue-filter'
+import { head } from '@/plugins/vue-meta'
 import '@/router/guards'
 import { installLIFF } from '@/plugins/liff'
 
-import '@/assets/scss/index.scss'
-
 moment.locale('zh-tw')
-Vue.config.productionTip = false;
 
-(async () => {
+async function initApp() {
   await installLIFF()
 
-  new Vue({
-    router,
-    store,
-    render: h => h(App),
-  }).$mount('#app')
-})()
+  const app = createApp(App)
+  const pinia = createPinia()
+
+  app.use(pinia)
+  app.use(router)
+  app.use(head)
+
+  // 使用插件
+  vantPlugin(app)
+  vueFilterPlugin(app)
+
+  app.mount('#app')
+}
+
+initApp()

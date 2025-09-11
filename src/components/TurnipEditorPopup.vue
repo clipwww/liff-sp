@@ -1,133 +1,136 @@
-<script>
+<script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue'
 import moment from 'moment'
-import { mapGetters } from 'vuex'
+import { showNotify } from 'vant'
+import { useMainStore } from '@/store'
 
 import { turnipSVC } from '@/services'
 import { momentUtil } from '@/utils'
 
+const props = defineProps<Props>()
+
+// Emits
+const emit = defineEmits<{
+  'update:modelValue': [value: boolean]
+  success: []
+}>()
+
+const store = useMainStore()
+
+// Props
+interface Props {
+  value: boolean
+}
+
+// 計算屬性
+const isLoggedIn = computed(() => store.isLoggedIn)
+const profile = computed(() => store.profile)
+
+const isOpen = computed({
+  get: () => props.value,
+  set: (value: boolean) => emit('update:modelValue', value),
+})
+
+// 響應式數據
 const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
 
-const sellPrice = {}
+const sellPrice = ref<Record<string, { am: string; pm: string }>>({})
+const buyPrice = ref('')
+const islandName = ref('')
+const isLoading = ref(false)
+const showBtn = ref(false)
+const buyDay = ref(weekStart.format('M/D (ddd)'))
+
+// 初始化 sellPrice
 weekdays.forEach((item) => {
-  sellPrice[item.id] = {
+  sellPrice.value[item.id] = {
     am: '',
     pm: '',
   }
 })
 
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      buyDay: weekStart.format('M/D (ddd)'),
-      weekdays,
-      sellPrice,
-      buyPrice: '',
-      islandName: '',
-      isLoading: false,
-      showBtn: false,
+// Watch
+watch(isOpen, (bool) => {
+  if (bool) {
+    getTurnipPrice()
+  }
+}, { immediate: true })
+
+// Methods
+async function getTurnipPrice() {
+  isLoading.value = true
+  const data = await turnipSVC.getPriceByUserId(profile.value.userId, weekStart)
+
+  if (data) {
+    const { buyPrice: buyPriceData, sellPrice: sellPriceData } = data
+    buyPrice.value = buyPriceData
+    Object.assign(sellPrice.value, sellPriceData)
+  }
+  isLoading.value = false
+  focusField()
+}
+
+async function updateTurnipPrice() {
+  try {
+    isLoading.value = true
+    await Promise.all([
+      turnipSVC.updatePriceByUserId(profile.value.userId, weekStart, {
+        buyPrice: buyPrice.value,
+        sellPrice: sellPrice.value,
+      }),
+      updateProfileByUserId(),
+    ])
+
+    showNotify({
+      type: 'success',
+      message: '儲存成功',
+    })
+    emit('success')
+    isOpen.value = false
+  } catch (err) {
+    console.log(err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function updateProfileByUserId() {
+  try {
+    await turnipSVC.updateProfileByUserId(profile.value.userId, profile.value)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+function focusField() {
+  nextTick(() => {
+    try {
+      if (moment().isSame(weekStart, 'day')) {
+        return
+      }
+
+      let offsetCount = 0
+
+      const now = moment()
+      const w = now.weekday()
+      const key = now.locale('en-us').format('a')
+      console.log('[key]', key)
+
+      offsetCount = w * 2
+      if (key === 'am') {
+        offsetCount -= 1
+      }
+
+      // TODO: 需要實現 focus 邏輯
+      // const popupElement = document.querySelector('.van-popup')
+      // if (popupElement) {
+      //   popupElement.scrollTo(0, 50 * offsetCount)
+      // }
+    } catch (err) {
+      console.log(err)
     }
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
-    isOpen: {
-      get() {
-        return this.value
-      },
-      set(bool) {
-        this.$emit('input', bool)
-      },
-    },
-  },
-  watch: {
-    isOpen: {
-      immediate: true,
-      handler(bool) {
-        if (bool) {
-          this.getTurnipPrice()
-        }
-      },
-    },
-  },
-  methods: {
-    async getTurnipPrice() {
-      this.isLoading = true
-      const data = await turnipSVC.getPriceByUserId(this.profile.userId, weekStart)
-
-      if (data) {
-        const { buyPrice, sellPrice } = data
-        this.buyPrice = buyPrice
-        this.sellPrice = sellPrice
-      }
-      this.isLoading = false
-      this.focusField()
-    },
-    async updateTurnipPrice() {
-      try {
-        this.isLoading = true
-        await Promise.all([
-          turnipSVC.updatePriceByUserId(this.profile.userId, weekStart, {
-            buyPrice: this.buyPrice,
-            sellPrice: this.sellPrice,
-          }),
-          this.updateProfileByUserId(),
-        ])
-
-        this.$notify({
-          type: 'success',
-          message: '儲存成功',
-        })
-        this.$emit('success')
-        this.isOpen = false
-      } catch (err) {
-        console.log(err)
-      } finally {
-        this.isLoading = false
-      }
-    },
-    async updateProfileByUserId() {
-      try {
-        await turnipSVC.updateProfileByUserId(this.profile.userId, this.profile)
-      } catch (err) {
-        console.log(err)
-      }
-    },
-    focusField() {
-      this.$nextTick(() => {
-        try {
-          if (moment().isSame(weekStart, 'day')) {
-            return
-          }
-
-          let offsetCount = 0
-
-          const now = moment()
-          const w = now.weekday()
-          const key = now.locale('en-us').format('a')
-          console.log('[key]', key)
-
-          offsetCount = w * 2
-          if (key === 'am') {
-            offsetCount -= 1
-          }
-          // this.$refs[`w${w}${key}`]?.[0].focus();
-
-          this.$refs.popup?.$el?.scrollTo(0, 50 * offsetCount)
-        } catch (err) {
-          console.log(err)
-        }
-      })
-    },
-  },
+  })
 }
 </script>
 
@@ -197,7 +200,7 @@ export default {
 <style lang="scss" scoped>
 .editor {
   position: relative;
-  padding-bottom: calc(#{$paddingBottom} + 30px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 95px);
 }
 .fixed-btn {
   position: fixed;

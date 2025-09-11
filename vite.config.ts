@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
-import vue from '@vitejs/plugin-vue2'
+import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 
-function pathResolve(dir) {
+function pathResolve(dir: string) {
   return resolve(__dirname, '.', dir)
 }
 
@@ -21,23 +21,7 @@ export default defineConfig(({ mode }) => {
         open: false,
       }),
     ],
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `
-          @import "@/assets/scss/_variables.scss";
-          @import "@/assets/scss/_mixin.scss";
-        `,
-        },
-        less: {
-          // http://lesscss.org/usage/#less-options-strict-units `Global Variables`
-          // `primary` is global variables fields name
-          modifyVars: {
-            hack: 'true; @import "../../../src/assets/less/vant.var.less";',
-          },
-        },
-      },
-    },
+    css: {},
     define: {},
     resolve: {
       alias: [

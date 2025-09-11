@@ -1,14 +1,13 @@
-import Vue from 'vue'
-import Vant, { Lazyload, Locale, Toast } from 'vant'
+import type { createApp } from 'vue'
+import Vant, { Locale } from 'vant'
 
-// @ts-expect-error
+// 全域引入所有組件樣式
+import 'vant/lib/index.css'
+
 import zhTW from 'vant/lib/locale/lang/zh-TW'
 
-import 'vant/lib/index.less'
-
-Toast.setDefaultOptions({ duration: 3000 })
 Locale.use('zh-TW', zhTW)
 
-Vue.use(Vant)
-
-Vue.use(Lazyload)
+export default (app: ReturnType<typeof createApp>) => {
+  app.use(Vant)
+}

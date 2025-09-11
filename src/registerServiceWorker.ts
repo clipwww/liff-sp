@@ -11,21 +11,33 @@ register('./sw.js', {
   async registered(swReg) {
     console.log('Service worker has been registered.', swReg)
 
-    const sub = await swReg.pushManager.getSubscription()
-    console.log('sub', sub)
-    if (sub) {
-      return
-    }
-    const newSub: PushSubscription = await swReg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: import.meta.env.VUE_APP_WEB_PUSH_PUBLIC_KEY,
-    })
-    console.log('newSub', newSub)
-    if (!newSub) {
+    // Check if web push is configured
+    const vapidKey = import.meta.env.VUE_APP_WEB_PUSH_PUBLIC_KEY
+    if (!vapidKey || vapidKey === 'your_vapid_public_key_here') {
+      console.warn('Web Push not configured. Skipping push notification subscription.')
       return
     }
 
-    axiosInstace.post('/web-push', newSub)
+    try {
+      const sub = await swReg.pushManager.getSubscription()
+      console.log('Existing subscription:', sub)
+      if (sub) {
+        return
+      }
+
+      const newSub: PushSubscription = await swReg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey,
+      })
+      console.log('New subscription:', newSub)
+      if (!newSub) {
+        return
+      }
+
+      axiosInstace.post('/web-push', newSub)
+    } catch (error) {
+      console.error('Failed to subscribe to push notifications:', error)
+    }
   },
   cached() {
     console.log('Content has been cached for offline use.')

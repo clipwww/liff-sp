@@ -251,4 +251,3 @@ async function beforeClose(action: string, done: (confirm?: boolean) => void): P
   opacity: 0.7;
 }
 </style>
-

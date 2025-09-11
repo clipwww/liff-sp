@@ -1,56 +1,52 @@
-<script>
-import { mapGetters } from 'vuex'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useHead } from '@vueuse/head'
+import { showToast } from 'vant'
+import { useMainStore } from '@/store'
 
-export default {
-  metaInfo() {
-    return {
-      title: this.pageName,
-      titleTemplate: '%s | 滅茶苦茶',
-    }
-  },
-  data() {
-    return {
-      showSidePopup: false,
-      activeName: [],
-    }
-  },
-  computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-      pictureUrl: 'pictureUrl',
-    }),
-    routes() {
-      return this.$router?.options?.routes ?? []
-    },
-    hideTopbar() {
-      return ['turnip'].some(str => this.$route.path.includes(str))
-    },
-    pageName() {
-      return this.$route.matched.reduce((pre, cur, i) => {
-        const label = cur.meta?.label ?? ''
-        if (i === 0) {
-          return label
-        }
-        return pre + (label ? ` - ${label}` : '')
-      }, '')
-    },
-  },
-  methods: {
-    login() {
-      if (this.isLoggedIn) {
-        this.$toast({
-          message: `Hi, ${this.profile.displayName}`,
-          icon: 'smile',
-        })
-        return
-      }
+const route = useRoute()
+const store = useMainStore()
 
-      window.liff.login({
-        redirectUri: window.location.href,
-      })
-    },
-  },
+const showSidePopup = ref(false)
+const activeName = ref([])
+
+const isLoggedIn = computed(() => store.isLoggedIn)
+const profile = computed(() => store.profile)
+const pictureUrl = computed(() => store.pictureUrl)
+
+const routes = ref<any[]>([])
+
+const hideTopbar = computed(() => ['turnip'].some(str => route.path.includes(str)))
+
+const pageName = computed(() => {
+  return route.matched.reduce((pre: string, cur, i) => {
+    const label = cur.meta?.label as string ?? ''
+    if (i === 0) {
+      return label
+    }
+    return pre + (label ? ` - ${label}` : '')
+  }, '' as string)
+})
+
+// 使用 vueuse/head 設定 meta 資訊
+useHead({
+  title: computed(() => pageName.value),
+  titleTemplate: '%s | 滅茶苦茶',
+})
+
+function login() {
+  if (isLoggedIn.value) {
+    showToast({
+      message: `Hi, ${profile.value.displayName}`,
+      icon: 'smile',
+    })
+    return
+  }
+
+  window.liff.login({
+    redirectUri: window.location.href,
+  })
 }
 </script>
 
