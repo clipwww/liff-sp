@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import { ref as dbRef, get, getDatabase, off, onValue, set } from 'firebase/database'
 
 import { movieSVC } from '@/services'
-import { movieRef } from '@/plugins/firebase'
 import { useMainStore } from '@/store'
 
 const router = useRouter()
@@ -57,7 +57,7 @@ watch(isLoggedIn, (bool) => {
 
 // 生命週期
 onMounted(() => {
-  movieRef.child('citys').on('value', (snapshot) => {
+  onValue(dbRef(getDatabase(), 'citys'), (snapshot: any) => {
     const data = snapshot.val()
     if (data && data.items?.length) {
       citys.value = data.items
@@ -70,7 +70,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  movieRef.child('citys').off()
+  off(dbRef(getDatabase(), 'citys'))
 })
 
 // 方法
@@ -81,7 +81,7 @@ async function getCityList() {
   }
 
   if (!_isEqual(citys.value, ret.items)) {
-    movieRef.child('citys').set({
+    set(dbRef(getDatabase(), 'citys'), {
       items: ret.items,
       dateCreated: +moment(),
     })
@@ -93,12 +93,11 @@ async function getTheaterList() {
     return
   }
 
-  await movieRef.child(`theaters-${cityId.value}`).once('value', (snapshot) => {
-    const data = snapshot.val()
-    if (data) {
-      theaters.value = data.items
-    }
-  })
+  const snapshot = await get(dbRef(getDatabase(), `theaters-${cityId.value}`))
+  const data = snapshot.val()
+  if (data) {
+    theaters.value = data.items
+  }
 
   const ret = await movieSVC.getTheaterList(cityId.value)
   if (!ret.success) {
@@ -106,7 +105,7 @@ async function getTheaterList() {
   }
 
   if (!_isEqual(theaters.value, ret.items)) {
-    movieRef.child(`theaters-${cityId.value}`).set({
+    set(dbRef(getDatabase(), `theaters-${cityId.value}`), {
       items: ret.items,
       dateCreated: +moment(),
     })
@@ -120,7 +119,7 @@ function getFavoriteTheaters() {
   }
 
   isEmpty.value = false
-  movieRef.child(`favorite-theaters-${profile.value.userId}`).once('value', (snapshot) => {
+  get(dbRef(getDatabase(), `favorite-theaters-${profile.value.userId}`)).then((snapshot: any) => {
     const data = snapshot.val()
     if (data && data?.length) {
       favoriteList.value = data || []
@@ -132,7 +131,7 @@ function getFavoriteTheaters() {
   })
 }
 
-async function toggleFavorite(item) {
+async function toggleFavorite(item: any) {
   if (!isLoggedIn.value) {
     showToast({
       message: '必須要登入才可以使用唷！',
@@ -147,15 +146,15 @@ async function toggleFavorite(item) {
     favoriteList.value = favoriteList.value.filter(f => f.id !== item.id)
   }
 
-  await movieRef.child(`favorite-theaters-${profile.value.userId}`).set(favoriteList.value)
+  await set(dbRef(getDatabase(), `favorite-theaters-${profile.value.userId}`), favoriteList.value)
   getFavoriteTheaters()
 }
 
-function isFavorite(item) {
+function isFavorite(item: any) {
   return !!favoriteList.value.find(f => f.id === item.id)
 }
 
-function goDetails(item) {
+function goDetails(item: any) {
   router.push({
     name: 'MovieTheaterDetails',
     params: { id: item.id },

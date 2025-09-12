@@ -23,56 +23,58 @@ const villager = computed(() => {
 
 <template>
   <div>
-    <van-panel>
-      <template #header>
+    <van-card>
+      <template #title>
         <div class="text-center padding-bt-10">
           <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
         </div>
       </template>
 
-      <van-cell title="性別">
-        {{ item.gender === 'Male' ? '男孩 ♂' : '女孩 ♀' }}
-      </van-cell>
-      <van-cell title="種族">
-        {{ translateSpecies(item.species) }}
-      </van-cell>
-      <van-cell title="個性">
-        {{ item.personality }}
-      </van-cell>
-      <van-cell title="生日">
-        {{ formatBirthday(item.birthday) }}
-      </van-cell>
-      <van-cell title="喜歡的歌曲">
-        {{ villager?.favoriteSong }}
-      </van-cell>
-      <van-cell title="興趣">
-        {{ villager?.hobby }}
-      </van-cell>
-      <van-cell title="口頭禪">
-        {{ item['catch-phrase'] }}
-      </van-cell>
+      <template #desc>
+        <van-cell title="性別">
+          {{ item.gender === 'Male' ? '男孩 ♂' : '女孩 ♀' }}
+        </van-cell>
+        <van-cell title="種族">
+          {{ translateSpecies(item.species) }}
+        </van-cell>
+        <van-cell title="個性">
+          {{ item.personality }}
+        </van-cell>
+        <van-cell title="生日">
+          {{ formatBirthday(item.birthday) }}
+        </van-cell>
+        <van-cell title="喜歡的歌曲">
+          {{ villager?.favoriteSong }}
+        </van-cell>
+        <van-cell title="興趣">
+          {{ villager?.hobby }}
+        </van-cell>
+        <van-cell title="口頭禪">
+          {{ item['catch-phrase'] }}
+        </van-cell>
 
-      <van-grid :column-num="2">
-        <van-grid-item>
-          <van-image :src="item.icon_uri" width="60" />
-        </van-grid-item>
-        <van-grid-item>
-          <van-image :src="item.image_uri" width="120" fit="fill" />
-        </van-grid-item>
-      </van-grid>
-      <van-image :src="villager?.houseImage" lazy />
+        <van-grid :column-num="2">
+          <van-grid-item>
+            <van-image :src="item.icon_uri" width="60" />
+          </van-grid-item>
+          <van-grid-item>
+            <van-image :src="item.image_uri" width="120" fit="fill" />
+          </van-grid-item>
+        </van-grid>
+        <van-image :src="villager?.houseImage" lazy />
 
-      <template #footer>
-        <van-tag
-          v-for="name in item.name"
-          :key="name"
-          class="margin-a-5"
-          plain
-        >
-          {{ name }}
-        </van-tag>
+        <div class="padding-t-10">
+          <van-tag
+            v-for="name in item.name"
+            :key="name"
+            class="margin-a-5"
+            plain
+          >
+            {{ name }}
+          </van-tag>
+        </div>
       </template>
-    </van-panel>
+    </van-card>
   </div>
 </template>
 

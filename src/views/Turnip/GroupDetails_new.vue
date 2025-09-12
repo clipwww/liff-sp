@@ -27,7 +27,6 @@ const route = useRoute()
 const router = useRouter()
 const store = useMainStore()
 
-const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
 const now = moment()
 
@@ -40,7 +39,7 @@ weekdays.forEach((item) => {
 })
 
 // 響應式數據
-const group = ref(null)
+const group = ref<any>(null)
 const showEditor = ref(false)
 const form = ref({
   groupName: '',
@@ -50,7 +49,10 @@ const form = ref({
 
 // 計算屬性
 const profile = computed(() => store.profile)
-const groupId = computed(() => route.params.id)
+const groupId = computed(() => {
+  const id = route.params.id
+  return Array.isArray(id) ? id[0] : id
+})
 const filterPriceList = computed(() => {
   return props.userList
     .filter(item => group.value?.members?.includes(item.id))
@@ -117,6 +119,10 @@ onBeforeUnmount(() => {
 
 // 方法
 async function removeMembers(userId: string) {
+  if (!group.value) {
+    return
+  }
+
   try {
     await showDialog({
       title: '確定嗎？',
@@ -139,6 +145,10 @@ async function removeMembers(userId: string) {
 }
 
 async function onSubmit() {
+  if (!group.value) {
+    return
+  }
+
   try {
     await turnipSVC.updateGroup(groupId.value, {
       ...group.value,
@@ -194,13 +204,13 @@ function copyLink() {
     <div v-else>
       <van-cell
         class="margin-b-15"
-        :title="group.name"
+        :title="group?.name"
         :border="false"
         center
       >
         <div slot="label">
           <van-icon name="user-o" />
-          <span class="margin-l-5">{{ group.members.length }}</span>
+          <span class="margin-l-5">{{ group?.members?.length }}</span>
         </div>
         <div slot="right-icon">
           <van-button
@@ -232,35 +242,44 @@ function copyLink() {
           </van-button>
         </div>
       </van-cell>
-      <van-panel v-for="item in filterPriceList" :key="item.id" class="margin-b-15">
-        <van-cell slot="header">
-          <van-image
-            v-if="item.profile.pictureUrl"
-            slot="icon"
-            class="margin-r-15"
-            :src="item.profile.pictureUrl"
-            width="50"
-            height="50"
-            round
-            lazy-load
-          />
-          <div slot="title">
-            {{ item.profile.displayName }}
+      <van-card v-for="item in filterPriceList" :key="item.id" class="margin-b-15">
+        <template #title>
+          <van-cell>
+            <template #icon>
+              <van-image
+                v-if="item.profile.pictureUrl"
+                class="margin-r-15"
+                :src="item.profile.pictureUrl"
+                width="50"
+                height="50"
+                round
+                lazy-load
+              />
+            </template>
+            <template #title>
+              {{ item.profile.displayName }}
+            </template>
+            <template #label>
+              <div class="little-text">
+                買價：{{ item.buyPrice }}
+              </div>
+            </template>
+            <template #right-icon>
+              <div v-if="isCreator && item.id !== profile.userId">
+                <van-button type="danger" size="mini" @click="removeMembers(item.id)">
+                  移出
+                </van-button>
+              </div>
+            </template>
+          </van-cell>
+        </template>
+        <template #desc>
+          <TurnipSellPrice :sell-price="item.sellPrice" />
+          <div class="padding-bt-10">
+            <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
           </div>
-          <div slot="label" class="little-text">
-            買價：{{ item.buyPrice }}
-          </div>
-          <div v-if="isCreator && item.id !== profile.userId" slot="right-icon">
-            <van-button type="danger" size="mini" @click="removeMembers(item.id)">
-              移出
-            </van-button>
-          </div>
-        </van-cell>
-        <TurnipSellPrice :sell-price="item.sellPrice" />
-        <div class="padding-bt-10">
-          <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
-        </div>
-      </van-panel>
+        </template>
+      </van-card>
 
       <van-popup
         v-model="showEditor"

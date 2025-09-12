@@ -4,7 +4,6 @@ import _zip from 'lodash/zip'
 
 import { momentUtil } from '@/utils'
 import {
-  averageReducer,
   minWeekReducer,
   patternMapping,
   patternReducer,
@@ -70,8 +69,6 @@ export default {
 
       const minMaxPattern = patternReducer(patterns)
       const minMaxData = _zip(...minMaxPattern)
-      const avgPattern = patternReducer(patterns, averageReducer)
-      const avgData = _zip(...avgPattern)
       const [minWeekValue] = patternReducer(patterns, minWeekReducer)
 
       return {

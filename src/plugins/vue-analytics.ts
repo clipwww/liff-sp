@@ -4,7 +4,7 @@ import router from '@/router'
 
 export function logEvent(eventCategory: string, eventAction: string, eventLabel: string): void {
   try {
-    // @ts-expect-error
+    // @ts-expect-error gtag is not defined in window type
     window.gtag?.('event', eventAction, {
       event_category: eventCategory,
       event_label: eventLabel,

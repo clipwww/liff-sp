@@ -23,7 +23,6 @@ interface Props {
 }
 
 // 計算屬性
-const isLoggedIn = computed(() => store.isLoggedIn)
 const profile = computed(() => store.profile)
 
 const isOpen = computed({
@@ -37,7 +36,6 @@ const weekdays = momentUtil.getWeekdays()
 
 const sellPrice = ref<Record<string, { am: string; pm: string }>>({})
 const buyPrice = ref('')
-const islandName = ref('')
 const isLoading = ref(false)
 const showBtn = ref(false)
 const buyDay = ref(weekStart.format('M/D (ddd)'))
@@ -110,16 +108,16 @@ function focusField() {
         return
       }
 
-      let offsetCount = 0
+      let _offsetCount = 0
 
       const now = moment()
       const w = now.weekday()
       const key = now.locale('en-us').format('a')
       console.log('[key]', key)
 
-      offsetCount = w * 2
+      _offsetCount = w * 2
       if (key === 'am') {
-        offsetCount -= 1
+        _offsetCount -= 1
       }
 
       // TODO: 需要實現 focus 邏輯
@@ -136,7 +134,6 @@ function focusField() {
 
 <template>
   <van-popup
-    ref="popup"
     v-model="isOpen"
     position="bottom"
     closeable

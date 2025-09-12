@@ -48,7 +48,7 @@ export const lsUtil = {
         return JSON.parse(value)
       }
     } catch (err) {
-      Toast.fail(err.message)
+      Toast.fail((err as Error).message || '讀取本地存儲失敗')
     }
     return ''
   },
@@ -113,7 +113,7 @@ export function copyValue(value: string): boolean {
   const editable = $textArea.contentEditable
   const readOnly = $textArea.readOnly
 
-  // @ts-expect-error
+  // @ts-expect-error contentEditable is a string property
   $textArea.contentEditable = true
   $textArea.readOnly = true
 

@@ -84,8 +84,8 @@ function formatWeek(weekId: string) {
 
 <template>
   <div>
-    <van-panel v-if="item">
-      <template #header>
+    <van-card v-if="item">
+      <template #title>
         <van-cell>
           <template #icon>
             <van-image
@@ -108,19 +108,21 @@ function formatWeek(weekId: string) {
           </template>
         </van-cell>
       </template>
-      <TurnipSellPrice :sell-price="item.sellPrice" />
-      <div class="padding-bt-10">
-        <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
-      </div>
-    </van-panel>
-    <van-panel v-else>
-      <template #header>
+      <template #desc>
+        <TurnipSellPrice :sell-price="item.sellPrice" />
+        <div class="padding-bt-10">
+          <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
+        </div>
+      </template>
+    </van-card>
+    <van-card v-else>
+      <template #desc>
         <div class="text-center padding-bt-30">
           <van-icon class="fs-30" name="info" />
           <div>本週次還沒提供任何菜價唷</div>
         </div>
       </template>
-    </van-panel>
+    </van-card>
 
     <van-cell-group title="已加入群組">
       <van-cell

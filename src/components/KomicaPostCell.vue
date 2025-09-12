@@ -19,13 +19,14 @@ export default {
       required: true,
     },
     isDetails: {
-      ype: Boolean,
+      type: Boolean,
       default: false,
     },
     oItem: {
       type: Object,
     },
   },
+  emits: ['click', 'click-preview', 'click-image'],
   data() {
     return {
       showPopup: false,

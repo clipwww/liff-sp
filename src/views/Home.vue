@@ -58,7 +58,7 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.my-swipe ::v-deep .van-swipe-item {
+.my-swipe :deep(.van-swipe-item) {
   // color: #fff;
   // font-size: 20px;
   // line-height: 150px;

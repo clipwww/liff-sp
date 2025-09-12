@@ -9,7 +9,6 @@ const route = useRoute()
 const store = useMainStore()
 
 const showSidePopup = ref(false)
-const activeName = ref([])
 
 const isLoggedIn = computed(() => store.isLoggedIn)
 const profile = computed(() => store.profile)
@@ -52,13 +51,16 @@ function login() {
 
 <template>
   <div id="app">
-    <van-nav-bar v-if="!hideTopbar" fixed @click-left="showSidePopup = true">
-      <van-icon
-        slot="left"
-        class="padding-b-5"
-        size="26px"
-        name="wap-nav"
-      />
+    <van-nav-bar v-if="!hideTopbar" fixed>
+      <template #left>
+        <van-icon
+          slot="left"
+          class="padding-b-5"
+          size="26px"
+          name="wap-nav"
+          @click="showSidePopup = true"
+        />
+      </template>
     </van-nav-bar>
     <div class="main-container" :class="{ 'hide-top-bar': hideTopbar }">
       <router-view />

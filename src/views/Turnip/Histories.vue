@@ -62,21 +62,25 @@ export default {
         :offset="10"
         @load="onLoad"
       >
-        <van-panel v-for="item in filterHistories" :key="item.id" class="margin-b-15">
-          <van-cell slot="header" center>
-            <div slot="title">
-              <span class="fs-18">{{ item.id | formatWeekRange }}</span>
-              <span class="little-text margin-l-5">{{ item.id | formatYear }}</span>
+        <van-card v-for="item in filterHistories" :key="item.id" class="margin-b-15">
+          <template #title>
+            <van-cell center>
+              <template #title>
+                <span class="fs-18">{{ item.id | formatWeekRange }}</span>
+                <span class="little-text margin-l-5">{{ item.id | formatYear }}</span>
+              </template>
+              <template #label>
+                買價：{{ item.buyPrice }}
+              </template>
+            </van-cell>
+          </template>
+          <template #desc>
+            <TurnipSellPrice :sell-price="item.sellPrice" />
+            <div class="padding-bt-10">
+              <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
             </div>
-            <div slot="label">
-              買價：{{ item.buyPrice }}
-            </div>
-          </van-cell>
-          <TurnipSellPrice :sell-price="item.sellPrice" />
-          <div class="padding-bt-10">
-            <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
-          </div>
-        </van-panel>
+          </template>
+        </van-card>
       </van-list>
     </div>
   </div>

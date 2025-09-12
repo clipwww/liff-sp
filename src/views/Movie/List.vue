@@ -1,9 +1,9 @@
 <script>
 import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import { ref as dbRef, getDatabase, off, onValue, set } from 'firebase/database'
 
 import { movieSVC } from '@/services'
-import { movieRef } from '@/plugins/firebase'
 
 import MovieListCell from '@/components/MovieListCell.vue'
 
@@ -68,13 +68,13 @@ export default {
     },
   },
   created() {
-    movieRef.child('movies').on('value', (snapshot) => {
+    onValue(dbRef(getDatabase(), 'movies'), (snapshot) => {
       const data = snapshot.val()
       if (data) {
         this.movies = data.items
       }
     })
-    movieRef.child('movies-group-by-date').on('value', (snapshot) => {
+    onValue(dbRef(getDatabase(), 'movies-group-by-date'), (snapshot) => {
       const data = snapshot.val()
       if (data) {
         this.moviesGroupByDate = data.items
@@ -84,8 +84,8 @@ export default {
     this.getMoviesGroupBtDate()
   },
   beforeUnmount() {
-    movieRef.child('movies').off()
-    movieRef.child('movies-group-by-date').off()
+    off(dbRef(getDatabase(), 'movies'))
+    off(dbRef(getDatabase(), 'movies-group-by-date'))
   },
   methods: {
     async getMovies() {
@@ -95,7 +95,7 @@ export default {
       }
 
       if (!_isEqual(this.movies, ret.items)) {
-        movieRef.child('movies').set({
+        set(dbRef(getDatabase(), 'movies'), {
           items: ret.items,
           dateCreated: +moment(),
         })
@@ -108,7 +108,7 @@ export default {
       }
 
       if (!_isEqual(this.moviesGroupByDate, ret.items)) {
-        movieRef.child('movies-group-by-date').set({
+        set(dbRef(getDatabase(), 'movies-group-by-date'), {
           items: ret.items,
           dateCreated: +moment(),
         })

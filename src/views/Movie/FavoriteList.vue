@@ -3,8 +3,8 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { showDialog, showToast } from 'vant'
 import moment from 'moment'
+import { ref as dbRef, getDatabase, off, onValue, set } from 'firebase/database'
 import { useMainStore } from '@/store'
-import { movieRef } from '@/plugins/firebase'
 
 const router = useRouter()
 const store = useMainStore()
@@ -37,7 +37,7 @@ onMounted(() => {
   }
 
   isLoading.value = true
-  movieRef.child(`favorite-movie-${profile().userId}`).on('value', (snapshot: any) => {
+  onValue(dbRef(getDatabase(), `favorite-movie-${profile().userId}`), (snapshot: any) => {
     const data = snapshot.val()
 
     if (data && data?.length) {
@@ -49,7 +49,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (profile()?.userId) {
-    movieRef.child(`favorite-movie-${profile().userId}`).off()
+    off(dbRef(getDatabase(), `favorite-movie-${profile().userId}`))
   }
 })
 
@@ -65,7 +65,7 @@ async function removeFavorite(item: any) {
 
     favoriteList.value = favoriteList.value.filter((f: any) => f.id !== item.id)
 
-    movieRef.child(`favorite-movie-${profile().userId}`).set(favoriteList.value)
+    set(dbRef(getDatabase(), `favorite-movie-${profile().userId}`), favoriteList.value)
   } catch (err) {
     console.log(err)
   }
@@ -86,8 +86,8 @@ function formatDate(date: string) {
 
 <template>
   <div class="favorite-list">
-    <van-panel v-show="isLoading">
-      <template #header>
+    <van-card v-show="isLoading">
+      <template #desc>
         <div class="padding-bt-10">
           <van-skeleton
             title
@@ -96,14 +96,14 @@ function formatDate(date: string) {
           />
         </div>
       </template>
-    </van-panel>
-    <van-panel
+    </van-card>
+    <van-card
       v-for="item in favoriteList"
       v-show="!isLoading"
       :key="item.id"
       class="margin-bt-10"
     >
-      <template #header>
+      <template #title>
         <van-cell :title="item.name" size="large">
           <template #right-icon>
             <van-image
@@ -115,27 +115,29 @@ function formatDate(date: string) {
           </template>
         </van-cell>
       </template>
-      <van-row class="padding-lr-15" :gutter="15">
-        <van-col span="7">
-          <van-image
-            :src="getSrc(item.poster)"
-            width="100%"
-            lazy-load
-            @click="goMovie(item)"
-          />
-        </van-col>
-        <van-col span="17">
-          <p class="fs-14">
-            {{ item.description }}
-          </p>
-          <van-tag plain class="margin-r-5 margin-bt-5">
-            片長: {{ item.runtime }} 分
-          </van-tag>
-          <van-tag plain class="margin-bt-5">
-            上映日期: {{ item.releaseDate }}
-          </van-tag>
-        </van-col>
-      </van-row>
+      <template #desc>
+        <van-row class="padding-lr-15" :gutter="15">
+          <van-col span="7">
+            <van-image
+              :src="getSrc(item.poster)"
+              width="100%"
+              lazy-load
+              @click="goMovie(item)"
+            />
+          </van-col>
+          <van-col span="17">
+            <p class="fs-14">
+              {{ item.description }}
+            </p>
+            <van-tag plain class="margin-r-5 margin-bt-5">
+              片長: {{ item.runtime }} 分
+            </van-tag>
+            <van-tag plain class="margin-bt-5">
+              上映日期: {{ item.releaseDate }}
+            </van-tag>
+          </van-col>
+        </van-row>
+      </template>
       <template #footer>
         <div class="flex-between">
           <div class="little-text">
@@ -151,15 +153,15 @@ function formatDate(date: string) {
           </van-button>
         </div>
       </template>
-    </van-panel>
-    <van-panel v-show="!favoriteList.length && !isLoading">
-      <template #header>
+    </van-card>
+    <van-card v-show="!favoriteList.length && !isLoading">
+      <template #desc>
         <div class="text-center padding-bt-30">
           <van-icon class="fs-30" name="info" />
           <div>這裡還什麼都沒有</div>
         </div>
       </template>
-    </van-panel>
+    </van-card>
   </div>
 </template>
 

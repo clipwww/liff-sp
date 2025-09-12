@@ -42,7 +42,7 @@ export async function scanCode() {
     const ret = await liff.scanCode()
     return ret
   } catch (err) {
-    Toast.fail(err.message)
+    Toast.fail((err as Error).message || '掃描失敗')
   }
 }
 
@@ -53,7 +53,7 @@ export async function shareTargetPicker(message: any[]) {
     return true
   } catch (err) {
     console.error(err)
-    alert(err.message)
+    Toast.fail((err as Error).message || '分享失敗')
     return false
   }
 }

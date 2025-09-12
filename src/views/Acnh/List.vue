@@ -216,14 +216,15 @@ watch(showDetails, (bool) => {
 <template>
   <div class="list__container">
     <van-search v-model.trim="keyword" :show-action="isVillagers" placeholder="請輸入關鍵字搜尋">
-      <van-button
-        #action
-        icon="arrow-down"
-        size="small"
-        @click="showSelect = true"
-      >
-        {{ species || translateSpecies('全部') }}
-      </van-button>
+      <template #action>
+        <van-button
+          icon="arrow-down"
+          size="small"
+          @click="showSelect = true"
+        >
+          {{ species || translateSpecies('全部') }}
+        </van-button>
+      </template>
     </van-search>
     <van-action-sheet v-model="showSelect" :actions="actions" @select="onSelect" />
 
@@ -248,30 +249,30 @@ watch(showDetails, (bool) => {
         </div>
         <template v-if="list">
           <van-cell
-            v-for="(item, i) in filterList"
-            :key="item.id"
-            :title="item.name['name-TWzh']"
+            v-for="(listItem, i) in filterList"
+            :key="listItem.id"
+            :title="listItem.name['name-TWzh']"
             is-link
             center
-            @click="openDetails(item)"
+            @click="openDetails(listItem)"
           >
-            <template v-if="item.icon_uri || item.image_uri" #icon>
+            <template v-if="listItem.icon_uri || listItem.image_uri" #icon>
               <van-image
                 class="margin-r-10"
                 width="65"
-                :src="item.icon_uri || item.image_uri.toLowerCase()"
+                :src="listItem.icon_uri || listItem.image_uri.toLowerCase()"
                 :lazy-load="i > 0"
               />
             </template>
 
             <template #label>
               <div>
-                <template v-if="item.price">
+                <template v-if="listItem.price">
                   <span class="little-text">賣價</span>
-                  {{ commafy(item.price) }}
+                  {{ commafy(listItem.price) }}
                 </template>
-                <div v-if="item.species">
-                  {{ translateSpecies(item.species) }}
+                <div v-if="listItem.species">
+                  {{ translateSpecies(listItem.species) }}
                 </div>
               </div>
             </template>

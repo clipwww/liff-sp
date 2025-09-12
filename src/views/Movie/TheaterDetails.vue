@@ -1,9 +1,9 @@
 <script>
 import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import { ref as dbRef, getDatabase, off, onValue, remove, set } from 'firebase/database'
 
 import { movieSVC } from '@/services'
-import { movieRef } from '@/plugins/firebase'
 
 export default {
   metaInfo() {
@@ -43,9 +43,9 @@ export default {
       handler(newVal, oldVal) {
         this.movies = []
 
-        movieRef.child(`theater-${this.theaterId}-${oldVal}`).off()
-        movieRef.child(`theater-${this.theaterId}-${newVal}`).off()
-        movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).on('value', (snapshot) => {
+        off(dbRef(getDatabase(), `theater-${this.theaterId}-${oldVal}`))
+        off(dbRef(getDatabase(), `theater-${this.theaterId}-${newVal}`))
+        onValue(dbRef(getDatabase(), `theater-${this.theaterId}-${this.formatDate}`), (snapshot) => {
           const data = snapshot.val()
           if (data) {
             this.theaterInfo = data.item
@@ -64,24 +64,27 @@ export default {
     },
   },
   created() {
-    movieRef.on('value', (snapshot) => {
-      const keys = Object.keys(snapshot.val())
-      keys
-        .filter(key => key.includes('theater-'))
-        .forEach((key) => {
-          const data = snapshot.child(key).val()
-          if (moment().isAfter(data.dateCreated, 'day')) {
-            console.log('key', key)
-            movieRef.child(key).remove()
-          }
-        })
+    onValue(dbRef(getDatabase(), '/movie/'), (snapshot) => {
+      const data = snapshot.val()
+      if (data) {
+        const keys = Object.keys(data)
+        keys
+          .filter(key => key.includes('theater-'))
+          .forEach((key) => {
+            const itemData = data[key]
+            if (moment().isAfter(itemData.dateCreated, 'day')) {
+              console.log('key', key)
+              remove(dbRef(getDatabase(), `movie/${key}`))
+            }
+          })
+      }
     })
 
     this.getTheaterById()
   },
   beforeUnmount() {
-    movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).off()
-    movieRef.off()
+    off(dbRef(getDatabase(), `theater-${this.theaterId}-${this.formatDate}`))
+    off(dbRef(getDatabase(), '/movie/'))
   },
   methods: {
     async getTheaterById() {
@@ -96,7 +99,7 @@ export default {
       }
 
       if (!_isEqual(this.movies, ret.items)) {
-        movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).set({
+        set(dbRef(getDatabase(), `theater-${this.theaterId}-${this.formatDate}`), {
           item: ret.item,
           items: ret.items,
           dateCreated: +moment(),
@@ -120,19 +123,25 @@ export default {
 
 <template>
   <div>
-    <van-panel :title="theaterInfo.name" :desc="theaterInfo.address">
-      <div slot="footer">
-        <van-tag plain class="margin-r-5 margin-bt-5">
-          營業時間 {{ theaterInfo.openingHours }}
-        </van-tag>
-        <van-tag plain class="margin-r-5 margin-bt-5">
-          電話 {{ theaterInfo.telephone }}
-        </van-tag>
-        <a :href="theaterInfo.url" class="margin-bt-5" target="_blank">
-          <van-tag plain>網站</van-tag>
-        </a>
-      </div>
-    </van-panel>
+    <van-card>
+      <template #title>
+        <div>{{ theaterInfo.name }}</div>
+      </template>
+      <template #desc>
+        <div>{{ theaterInfo.address }}</div>
+        <div class="margin-t-10">
+          <van-tag plain class="margin-r-5 margin-bt-5">
+            營業時間 {{ theaterInfo.openingHours }}
+          </van-tag>
+          <van-tag plain class="margin-r-5 margin-bt-5">
+            電話 {{ theaterInfo.telephone }}
+          </van-tag>
+          <a :href="theaterInfo.url" class="margin-bt-5" target="_blank">
+            <van-tag plain>網站</van-tag>
+          </a>
+        </div>
+      </template>
+    </van-card>
 
     <van-cell
       class="margin-t-5"
@@ -207,10 +216,8 @@ export default {
 
 <style lang="scss" scoped>
 .square {
-  &::v-deep {
-    img {
-      border-radius: 0;
-    }
+  :deep(img) {
+    border-radius: 0;
   }
 }
 </style>

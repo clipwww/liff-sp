@@ -4,9 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import { ref as dbRef, get, getDatabase, off, onValue, set } from 'firebase/database'
 
 import { movieSVC } from '@/services'
-import { movieRef } from '@/plugins/firebase'
 import { shareTargetPicker } from '@/plugins/liff'
 import { useMainStore } from '@/store'
 
@@ -47,10 +47,10 @@ watch(citys, (arr) => {
 watch(cityId, (newVal, oldVal) => {
   theaterList.value = []
 
-  movieRef.child(`movie-${movieId.value}`).off()
-  movieRef.child(`movie-${movieId.value}-${oldVal}`).off()
-  movieRef.child(`movie-${movieId.value}-${newVal}`).off()
-  movieRef.child(`movie-${movieId.value}${newVal ? `-${newVal}` : ''}`).on('value', (snapshot) => {
+  off(dbRef(getDatabase(), `movie-${movieId.value}`))
+  off(dbRef(getDatabase(), `movie-${movieId.value}-${oldVal}`))
+  off(dbRef(getDatabase(), `movie-${movieId.value}-${newVal}`))
+  onValue(dbRef(getDatabase(), `movie-${movieId.value}${newVal ? `-${newVal}` : ''}`), (snapshot) => {
     const data = snapshot.val()
     if (data) {
       movieInfo.value = data.item
@@ -80,8 +80,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  movieRef.child(`movie-${movieId.value}`).off()
-  movieRef.child(`movie-${movieId.value}-${cityId.value}`).off()
+  off(dbRef(getDatabase(), `movie-${movieId.value}`))
+  off(dbRef(getDatabase(), `movie-${movieId.value}-${cityId.value}`))
 })
 
 // 方法
@@ -98,7 +98,7 @@ async function getMovieTimesById() {
   }
 
   if (!_isEqual(cacheTheaterList.value, ret.items) || !_isEqual(movieInfo.value, ret.item)) {
-    movieRef.child(`movie-${movieId.value}${cityId.value ? `-${cityId.value}` : ''}`).set({
+    set(dbRef(getDatabase(), `movie-${movieId.value}${cityId.value ? `-${cityId.value}` : ''}`), {
       item: ret.item,
       items: ret.items,
       dateCreated: +moment(),
@@ -113,7 +113,7 @@ function getFavoriteMovies() {
   if (!isLoggedIn.value) {
     return
   }
-  movieRef.child(`favorite-movie-${profile.value.userId}`).once('value', (snapshot) => {
+  get(dbRef(getDatabase(), `favorite-movie-${profile.value.userId}`)).then((snapshot) => {
     const data = snapshot.val()
     if (data && data?.length) {
       favoriteList.value = data || []
@@ -139,7 +139,7 @@ function toggleFavorite() {
     })
   }
 
-  movieRef.child(`favorite-movie-${profile.value.userId}`).set(favoriteList.value)
+  set(dbRef(getDatabase(), `favorite-movie-${profile.value.userId}`), favoriteList.value)
 }
 
 function isExpired(time) {
@@ -265,8 +265,8 @@ async function share(item) {
 
 <template>
   <div class="padding-b-30">
-    <van-panel v-if="!movieInfo.id">
-      <template #header>
+    <van-card v-if="!movieInfo.id">
+      <template #desc>
         <div class="padding-bt-10">
           <van-skeleton
             title
@@ -277,9 +277,9 @@ async function share(item) {
           />
         </div>
       </template>
-    </van-panel>
-    <van-panel v-else>
-      <template #header>
+    </van-card>
+    <van-card v-else>
+      <template #title>
         <van-cell :title="movieInfo.name" size="large">
           <template #right-icon>
             <van-image
@@ -291,30 +291,32 @@ async function share(item) {
           </template>
         </van-cell>
       </template>
-      <van-row class="padding-lr-15" :gutter="15">
-        <van-col span="7">
-          <van-image :src="posterSrc" />
-        </van-col>
-        <van-col span="17">
-          <p class="fs-14">
-            {{ movieInfo.description }}
-          </p>
-          <van-tag
-            v-if="movieInfo.runtime"
-            plain
-            class="margin-r-5 margin-bt-5"
-          >
-            片長: {{ movieInfo.runtime }} 分
-          </van-tag>
-          <van-tag
-            v-if="movieInfo.releaseDate"
-            plain
-            class="margin-bt-5"
-          >
-            上映日期: {{ movieInfo.releaseDate }}
-          </van-tag>
-        </van-col>
-      </van-row>
+      <template #desc>
+        <van-row class="padding-lr-15" :gutter="15">
+          <van-col span="7">
+            <van-image :src="posterSrc" />
+          </van-col>
+          <van-col span="17">
+            <p class="fs-14">
+              {{ movieInfo.description }}
+            </p>
+            <van-tag
+              v-if="movieInfo.runtime"
+              plain
+              class="margin-r-5 margin-bt-5"
+            >
+              片長: {{ movieInfo.runtime }} 分
+            </van-tag>
+            <van-tag
+              v-if="movieInfo.releaseDate"
+              plain
+              class="margin-bt-5"
+            >
+              上映日期: {{ movieInfo.releaseDate }}
+            </van-tag>
+          </van-col>
+        </van-row>
+      </template>
       <template #footer>
         <div class="text-left">
           <van-button
@@ -340,7 +342,7 @@ async function share(item) {
           </van-button>
         </div>
       </template>
-    </van-panel>
+    </van-card>
 
     <van-tabs v-model="cityId" class="margin-t-10">
       <van-tab

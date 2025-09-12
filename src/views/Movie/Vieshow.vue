@@ -88,9 +88,9 @@ async function fetchData() {
   })
 }
 
-function isExpired(time: string) {
+function isExpired(_time: string) {
   return false
-  // return moment().isAfter(moment(time, 'MM月DD日 DDD HH：mm'))
+  // return moment().isAfter(moment(_time, 'MM月DD日 DDD HH：mm'))
 }
 </script>
 
@@ -109,12 +109,12 @@ function isExpired(time: string) {
         :name="item.id"
       >
         {{ item.nameEN }}
-        <van-cell v-for="(time, i) in item.showTimes" :key="i" :title="time.date">
+        <van-cell v-for="(_time, i) in item.showTimes" :key="i" :title="_time.date">
           <template #label>
             <van-tag
-              v-for="str in time.times"
+              v-for="str in _time.times"
               :key="str"
-              :type="isExpired(`${time.date} ${str}`) ? 'default' : 'success'"
+              :type="isExpired(`${_time.date} ${str}`) ? 'default' : 'success'"
               plain
               class="margin-a-5"
               size="medium"

@@ -143,7 +143,7 @@ export const axiosInstace = createAxiosInstance(import.meta.env.VUE_APP_API_URL)
 
 axiosInstace.interceptors.request.use(
   (config: CustomAxiosRequestConfig) => {
-    const { ignoreErrorMessage = false, ignoreLoader = true, url, method } = config
+    const { ignoreLoader = true, url, method } = config
     console.log(url, method)
 
     if (!ignoreLoader) {
@@ -164,18 +164,15 @@ axiosInstace.interceptors.request.use(
 axiosInstace.interceptors.response.use(
   (response: CustomAxiosResponse) => {
     const {
-      ignoreErrorMessage = false,
       ignoreLoader = true,
-      url,
-      method,
     } = response.config
-    const { success, resultCode, resultMessage } = response.data as ResultVM
+    const { success, resultMessage } = response.data as ResultVM
 
     if (!ignoreLoader) {
       Toast.clear()
     }
 
-    if (!success && !ignoreErrorMessage) {
+    if (!success) {
       Toast.fail(resultMessage)
     }
 
