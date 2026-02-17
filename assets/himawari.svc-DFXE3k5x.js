@@ -1,0 +1,1 @@
+import{H as a}from"./index-D_e8FN_z.js";const e="/himawari";function s(t){return a.get(e,{params:t})}function o(t){return a.get(`${e}/${t}`)}function u(t){return a.get(`${e}/${t}/danmaku`)}function i(t="",n=1){return a.get(e,{params:{mode:"commentgroup",keyword:t,page:n}})}export{u as a,o as b,s as c,i as g};
