@@ -1,10 +1,10 @@
 <script>
-import moment from 'moment'
 import Danmaku from 'danmaku'
+import moment from 'moment'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-
 import { himawariSVC } from '@/services'
+
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 export default {
   components: {
@@ -116,7 +116,8 @@ export default {
             comments: newComments,
           })
         })
-      } else {
+      }
+      else {
         this.danmaku.comments = newComments
       }
     },

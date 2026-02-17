@@ -1,8 +1,8 @@
 <script>
-import { momentUtil } from '@/utils'
-
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
+
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
+import { momentUtil } from '@/utils'
 
 const weekdays = momentUtil.getWeekdays()
 const sellPrice = {}
@@ -64,20 +64,20 @@ export default {
       >
         <van-panel v-for="item in filterHistories" :key="item.id" class="margin-b-15">
           <template #header>
-<van-cell center>
-            <template #title>
-<div>
-              <span class="fs-18">{{ $filters.formatWeekRange(item.id) }}</span>
-              <span class="little-text margin-l-5">{{ $filters.formatYear(item.id) }}</span>
-            </div>
-</template>
-            <template #label>
-<div>
-              買價：{{ item.buyPrice }}
-            </div>
-</template>
-          </van-cell>
-</template>
+            <van-cell center>
+              <template #title>
+                <div>
+                  <span class="fs-18">{{ $filters.formatWeekRange(item.id) }}</span>
+                  <span class="little-text margin-l-5">{{ $filters.formatYear(item.id) }}</span>
+                </div>
+              </template>
+              <template #label>
+                <div>
+                  買價：{{ item.buyPrice }}
+                </div>
+              </template>
+            </van-cell>
+          </template>
           <TurnipSellPrice :sell-price="item.sellPrice" />
           <div class="padding-bt-10">
             <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />

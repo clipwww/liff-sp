@@ -271,7 +271,8 @@ const router = createRouter({
     // console.log('savedPosition', savedPosition)
     if (savedPosition) {
       return savedPosition
-    } else {
+    }
+    else {
       return { left: 0, top: 0 }
     }
   },

@@ -1,11 +1,11 @@
 <script>
-import { mapGetters } from 'vuex'
 import moment from 'moment'
-
-import { momentUtil } from '@/utils'
-import { turnipSVC } from '@/services'
+import { mapGetters } from 'vuex'
 
 import TurnipEditorPopup from '@/components/TurnipEditorPopup.vue'
+import { turnipSVC } from '@/services'
+
+import { momentUtil } from '@/utils'
 
 const weekdays = momentUtil.getWeekdays()
 const weekStart = momentUtil.getWeekStart()
@@ -60,7 +60,7 @@ export default {
     async initListener() {
       this.isLoading = true
 
-      const ret = await Promise.all([
+      await Promise.all([
         turnipSVC.listenerGroupList((list) => {
           this.groupList = list
         }),

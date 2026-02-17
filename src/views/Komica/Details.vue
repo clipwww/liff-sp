@@ -1,9 +1,9 @@
 <script>
 import { showImagePreview } from 'vant'
 
-import { komicaSVC } from '@/services'
-
 import KomicaPostCell from '@/components/KomicaPostCell.vue'
+
+import { komicaSVC } from '@/services'
 
 export default {
   components: {

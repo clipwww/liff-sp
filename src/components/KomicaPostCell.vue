@@ -26,6 +26,7 @@ export default {
       type: Object,
     },
   },
+  emits: ['click', 'click-preview', 'click-image'],
   data() {
     return {
       showPopup: false,
@@ -36,7 +37,7 @@ export default {
   computed: {
     replyCount() {
       let count = 0
-      const matchArr = this.item.warnText.match(/\d{1,}/g)
+      const matchArr = this.item.warnText.match(/\d+/g)
       if (matchArr) {
         count += +matchArr[0]
       }

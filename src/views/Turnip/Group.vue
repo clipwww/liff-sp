@@ -55,7 +55,8 @@ export default {
     async updateProfileByUserId() {
       try {
         await turnipSVC.updateProfileByUserId(this.profile.userId, this.profile)
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },
@@ -70,7 +71,8 @@ export default {
         this.showEditor = false
 
         this.updateProfileByUserId()
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },
@@ -109,7 +111,8 @@ export default {
 
         done()
         this.$router.push({ name: 'TurnipGroupDetails', params: { id: this.group.id } })
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
         done()
       }
@@ -139,22 +142,22 @@ export default {
         @click="goDetails(item)"
       >
         <template #label>
-<div>
-          <span class="margin-r-10 little-text">{{ item.password ? '私密' : '公開' }}群組</span>
-          <van-icon name="user-o" />
-          <span class="margin-l-5">{{ item.members.length }}</span>
-        </div>
-</template>
+          <div>
+            <span class="margin-r-10 little-text">{{ item.password ? '私密' : '公開' }}群組</span>
+            <van-icon name="user-o" />
+            <span class="margin-l-5">{{ item.members.length }}</span>
+          </div>
+        </template>
         <template #icon>
-<div class="margin-r-15">
-          <van-tag v-if="item.members.includes(profile.userId)" type="success" plain>
-            已加入
-          </van-tag>
-          <van-tag v-else plain>
-            未加入
-          </van-tag>
-        </div>
-</template>
+          <div class="margin-r-15">
+            <van-tag v-if="item.members.includes(profile.userId)" type="success" plain>
+              已加入
+            </van-tag>
+            <van-tag v-else plain>
+              未加入
+            </van-tag>
+          </div>
+        </template>
       </van-cell>
     </van-cell-group>
 
@@ -212,10 +215,10 @@ export default {
       :before-close="beforeClose"
     >
       <template #title>
-<div class="padding-a-10">
-        您不在群組內，是否要加入群組？
-      </div>
-</template>
+        <div class="padding-a-10">
+          您不在群組內，是否要加入群組？
+        </div>
+      </template>
       <div class="padding-a-10 fs-14">
         群組名稱：{{ group.name }}
         <br>加入群組後菜價資訊將會公開分享給群組內成員。

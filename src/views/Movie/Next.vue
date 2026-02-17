@@ -1,11 +1,11 @@
 <script>
-import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
-
-import { movieSVC } from '@/services'
-import { movieRef } from '@/plugins/firebase'
+import moment from 'moment'
 
 import MovieListCell from '@/components/MovieListCell.vue'
+import { movieRef } from '@/plugins/firebase'
+
+import { movieSVC } from '@/services'
 
 export default {
   components: {
@@ -65,15 +65,15 @@ export default {
       <div class="list__content padding-b-30">
         <van-cell-group v-for="(group, index) in filterMoviesGroupByDate" :key="index">
           <template #title>
-<van-tag
-           
-            type="primary"
-            size="large"
-            plain
-          >
-            {{ group.releaseDate }}
-          </van-tag>
-</template>
+            <van-tag
+
+              type="primary"
+              size="large"
+              plain
+            >
+              {{ group.releaseDate }}
+            </van-tag>
+          </template>
           <MovieListCell :items="group.movies" />
         </van-cell-group>
         <div v-show="!moviesGroupByDate.length">

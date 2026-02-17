@@ -20,10 +20,10 @@ export default {
   <div>
     <van-panel>
       <template #header>
-<div class="text-center padding-bt-10">
-        <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
-      </div>
-</template>
+        <div class="text-center padding-bt-10">
+          <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
+        </div>
+      </template>
 
       <van-cell title="賣價">
         {{ $filters.commafy(item.price) }}
@@ -58,17 +58,17 @@ export default {
       </van-grid>
 
       <template #footer>
-<div>
-        <van-tag
-          v-for="name in item.name"
-          :key="name"
-          class="margin-a-5"
-          plain
-        >
-          {{ name }}
-        </van-tag>
-      </div>
-</template>
+        <div>
+          <van-tag
+            v-for="name in item.name"
+            :key="name"
+            class="margin-a-5"
+            plain
+          >
+            {{ name }}
+          </van-tag>
+        </div>
+      </template>
     </van-panel>
   </div>
 </template>

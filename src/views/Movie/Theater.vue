@@ -1,10 +1,10 @@
 <script>
-import { mapGetters } from 'vuex'
-import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import moment from 'moment'
+import { mapGetters } from 'vuex'
 
-import { movieSVC } from '@/services'
 import { movieRef } from '@/plugins/firebase'
+import { movieSVC } from '@/services'
 
 export default {
   data() {
@@ -139,7 +139,8 @@ export default {
 
       if (!this.favoriteList.find(f => f.id === item.id)) {
         this.favoriteList.push(item)
-      } else {
+      }
+      else {
         this.favoriteList = this.favoriteList.filter(f => f.id !== item.id)
       }
 
@@ -174,14 +175,14 @@ export default {
         @click="goDetails(item)"
       >
         <template #icon>
-<van-icon
-         
-          class="lh-inherit margin-r-10"
-          :name="isFavorite(item) ? 'like' : 'like-o'"
-          color="#f48fb1"
-          @click.stop="toggleFavorite(item)"
-         />
-</template>
+          <van-icon
+
+            class="lh-inherit margin-r-10"
+            :name="isFavorite(item) ? 'like' : 'like-o'"
+            color="#f48fb1"
+            @click.stop="toggleFavorite(item)"
+          />
+        </template>
         {{ item.name }}
       </van-cell>
       <div v-show="!theaters.length && cityId">

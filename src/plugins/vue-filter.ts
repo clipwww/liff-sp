@@ -25,7 +25,8 @@ const filters = {
   commafy(num: string | number, maximumFractionDigits: number = 4) {
     try {
       return (+num).toLocaleString(undefined, { maximumFractionDigits })
-    } catch (err) {
+    }
+    catch (err) {
       return num
     }
   },

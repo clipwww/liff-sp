@@ -1,6 +1,6 @@
-import { axiosInstace } from './base.svc'
-
 import type { ResultGenericVM, ResultListGenericVM } from '@/view-models/result.vm'
+
+import { axiosInstace } from './base.svc'
 
 const baseURL = '/himawari'
 
@@ -29,7 +29,7 @@ export function getDanmaku(id: string) {
  * [GET] 取得彈幕列表
  */
 export function getDanmakuList(keyword = '', page = 1) {
-  return axiosInstace.get<ResultListGenericVM<{ group_id: string; title: string; count: string; source: string }>>(baseURL, {
+  return axiosInstace.get<ResultListGenericVM<{ group_id: string, title: string, count: string, source: string }>>(baseURL, {
     params: {
       mode: 'commentgroup',
       keyword,

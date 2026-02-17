@@ -1,6 +1,6 @@
-import { Toast } from '@/plugins/vant'
-
 import type { CustomAxiosResponse } from './base.svc'
+
+import { Toast } from '@/plugins/vant'
 import { createAxiosInstance } from './base.svc'
 
 const axiosInstance = createAxiosInstance(import.meta.env.VUE_APP_ACNH_API_URL)

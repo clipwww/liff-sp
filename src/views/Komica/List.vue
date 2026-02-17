@@ -1,8 +1,8 @@
 <script>
-import { komicaSVC } from '@/services'
-import { lsUtil } from '@/utils'
-
 import KomicaPostCell from '@/components/KomicaPostCell.vue'
+import { komicaSVC } from '@/services'
+
+import { lsUtil } from '@/utils'
 
 export default {
   components: {
@@ -13,7 +13,8 @@ export default {
       lsUtil.setObj(`${this.$route.name}-items`, this.items)
       lsUtil.set(`${this.$route.name}-page`, this.page)
       lsUtil.set(`${this.$route.name}-finished`, this.isFinished)
-    } else {
+    }
+    else {
       lsUtil.remove(`${this.$route.name}-items`)
       lsUtil.remove(`${this.$route.name}-page`)
       lsUtil.remove(`${this.$route.name}-finished`)
@@ -99,19 +100,19 @@ export default {
           @load="getList"
         >
           <template #loading>
-<div>
-            <van-cell v-for="n in 2" :key="n">
-              <van-skeleton
-                class="padding-bt-5 padding-lr-0"
-                :row="4"
-                title
-                avatar
-                avatar-shape="square"
-                avatar-size="90"
-              />
-            </van-cell>
-          </div>
-</template>
+            <div>
+              <van-cell v-for="n in 2" :key="n">
+                <van-skeleton
+                  class="padding-bt-5 padding-lr-0"
+                  :row="4"
+                  title
+                  avatar
+                  avatar-shape="square"
+                  avatar-size="90"
+                />
+              </van-cell>
+            </div>
+          </template>
           <KomicaPostCell
             v-for="item in items"
             :key="item.id"

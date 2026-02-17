@@ -60,23 +60,23 @@ export default {
       @search="getList(true)"
     >
       <template #action>
-<van-button
-       
-        type="primary"
-        size="small"
-        plain
-        @click="getList(true)"
-      >
-        搜尋
-      </van-button>
-</template>
+        <van-button
+
+          type="primary"
+          size="small"
+          plain
+          @click="getList(true)"
+        >
+          搜尋
+        </van-button>
+      </template>
     </van-search>
     <div class="list__content with-safe-area-inset-bottom">
       <van-pull-refresh v-model="isRefreshing" head-height="150" @refresh="getList(true)">
         <van-list
           v-model="isLoading"
-          :finished="isFinished"
           v-model:error="isError"
+          :finished="isFinished"
           :immediate-check="false"
           finished-text="没有更多了"
           error-text="Oops...發生錯誤"
@@ -84,19 +84,19 @@ export default {
           @load="getList"
         >
           <template #loading>
-<div>
-            <van-cell v-for="n in 2" :key="n">
-              <van-skeleton
-                class="padding-bt-5 padding-lr-0"
-                :row="4"
-                title
-                avatar
-                avatar-shape="square"
-                avatar-size="80"
-              />
-            </van-cell>
-          </div>
-</template>
+            <div>
+              <van-cell v-for="n in 2" :key="n">
+                <van-skeleton
+                  class="padding-bt-5 padding-lr-0"
+                  :row="4"
+                  title
+                  avatar
+                  avatar-shape="square"
+                  avatar-size="80"
+                />
+              </van-cell>
+            </div>
+          </template>
           <!-- <van-grid :column-num="2">
             <van-grid-item v-for="item in items" width="100" :key="item.id" square :border="false">
               <template #icon>
@@ -117,15 +117,15 @@ export default {
             :href="`${BASE_URL}/himawari/${item.group_id}/danmaku?mode=download&group=1&filename=${item.title}`"
           >
             <template #title>
-<div>
-              {{ item.title }}
-            </div>
-</template>
+              <div>
+                {{ item.title }}
+              </div>
+            </template>
             <template #label>
-<div class="little-text">
-              彈幕量: {{ item.count }}
-            </div>
-</template>
+              <div class="little-text">
+                彈幕量: {{ item.count }}
+              </div>
+            </template>
             <!-- <template #label>
 <div v-html="toSafeHtmlString(item.description)"></div>
 </template> -->

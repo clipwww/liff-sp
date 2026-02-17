@@ -4,7 +4,8 @@ export function logEvent(eventCategory: string, eventAction: string, eventLabel:
       event_category: eventCategory,
       event_label: eventLabel,
     })
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err)
   }
 }

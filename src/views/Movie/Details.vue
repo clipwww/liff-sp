@@ -1,11 +1,11 @@
 <script>
-import { mapGetters } from 'vuex'
-import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import moment from 'moment'
+import { mapGetters } from 'vuex'
 
-import { movieSVC } from '@/services'
 import { movieRef } from '@/plugins/firebase'
 import { shareTargetPicker } from '@/plugins/liff'
+import { movieSVC } from '@/services'
 
 export default {
   metaInfo() {
@@ -133,7 +133,8 @@ export default {
 
       if (this.isFavorite) {
         this.favoriteList = this.favoriteList.filter(item => item.id !== this.movieInfo.id)
-      } else {
+      }
+      else {
         this.favoriteList.push({
           ...this.movieInfo,
           dateCreated: +moment(),
@@ -152,7 +153,8 @@ export default {
           url,
           external: true,
         })
-      } else {
+      }
+      else {
         window.open(url)
       }
     },
@@ -186,7 +188,7 @@ export default {
           type: 'box',
           layout: 'horizontal',
           margin: 'md',
-          contents: Array(colmunNum)
+          contents: new Array(colmunNum)
             .fill('')
             .map((s, i) => {
               return {

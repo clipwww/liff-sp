@@ -1,5 +1,5 @@
-import router from '../index'
 import store from '@/store'
+import router from '../index'
 
 router.beforeEach(async () => {
   store.dispatch('updateLoggedIn')

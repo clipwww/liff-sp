@@ -1,13 +1,13 @@
 <script>
+import _cloneDeep from 'lodash/cloneDeep'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import _cloneDeep from 'lodash/cloneDeep'
-
-import { turnipSVC } from '@/services'
-import { copyValue, momentUtil } from '@/utils'
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
+
+import { turnipSVC } from '@/services'
+import { copyValue, momentUtil } from '@/utils'
 
 const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
@@ -30,6 +30,10 @@ export default {
   components: {
     TurnipLineChart,
     TurnipSellPrice,
+  },
+  beforeRouteLeave(to, from, next) {
+    turnipSVC.removeListenerGroupById(this.groupId)
+    next()
   },
   props: {
     userList: {
@@ -94,7 +98,8 @@ export default {
             console.log(aPrice, bPrice)
 
             return aPrice > bPrice ? -1 : 1
-          } catch (err) {
+          }
+          catch (err) {
             console.log(err)
             return 1
           }
@@ -122,10 +127,7 @@ export default {
       }
     })
   },
-  beforeRouteLeave(to, from, next) {
-    turnipSVC.removeListenerGroupById(this.groupId)
-    next()
-  },
+
   methods: {
     async removeMembers(userId) {
       try {
@@ -144,7 +146,8 @@ export default {
           type: 'success',
           message: '成功',
         })
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },
@@ -161,7 +164,8 @@ export default {
           type: 'success',
           message: '修改成功',
         })
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },
@@ -173,7 +177,8 @@ export default {
         })
 
         await turnipSVC.removeGroup(this.groupId)
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },
@@ -209,77 +214,77 @@ export default {
         center
       >
         <template #label>
-<div>
-          <van-icon name="user-o" />
-          <span class="margin-l-5">{{ group.members.length }}</span>
-        </div>
-</template>
+          <div>
+            <van-icon name="user-o" />
+            <span class="margin-l-5">{{ group.members.length }}</span>
+          </div>
+        </template>
         <template #right-icon>
-<div>
-          <van-button
-            v-if="isCreator"
-            class="margin-r-5"
-            type="info"
-            size="small"
-            @click="showEditor = true"
-          >
-            編輯
-          </van-button>
-          <van-button
-            v-else
-            class="margin-r-5"
-            type="danger"
-            size="mini"
-            @click="removeMembers(profile.userId)"
-          >
-            退出
-          </van-button>
-          <van-button
-            class="padding-lr-5"
-            type="primary"
-            size="mini"
-            plain
-            @click="copyLink"
-          >
-            複製網址
-          </van-button>
-        </div>
-</template>
+          <div>
+            <van-button
+              v-if="isCreator"
+              class="margin-r-5"
+              type="info"
+              size="small"
+              @click="showEditor = true"
+            >
+              編輯
+            </van-button>
+            <van-button
+              v-else
+              class="margin-r-5"
+              type="danger"
+              size="mini"
+              @click="removeMembers(profile.userId)"
+            >
+              退出
+            </van-button>
+            <van-button
+              class="padding-lr-5"
+              type="primary"
+              size="mini"
+              plain
+              @click="copyLink"
+            >
+              複製網址
+            </van-button>
+          </div>
+        </template>
       </van-cell>
       <van-panel v-for="item in filterPriceList" :key="item.id" class="margin-b-15">
         <template #header>
-<van-cell>
-          <template #icon>
-<van-image
-            v-if="item.profile.pictureUrl"
-           
-            class="margin-r-15"
-            :src="item.profile.pictureUrl"
-            width="50"
-            height="50"
-            round
-            lazy-load
-           />
-</template>
-          <template #title>
-<div>
-            {{ item.profile.displayName }}
-          </div>
-</template>
-          <template #label>
-<div class="little-text">
-            買價：{{ item.buyPrice }}
-          </div>
-</template>
-          <template #right-icon>
-<div v-if="isCreator && item.id !== profile.userId">
-            <van-button type="danger" size="mini" @click="removeMembers(item.id)">
-              移出
-            </van-button>
-          </div>
-</template>
-        </van-cell>
-</template>
+          <van-cell>
+            <template #icon>
+              <van-image
+                v-if="item.profile.pictureUrl"
+
+                class="margin-r-15"
+                :src="item.profile.pictureUrl"
+                width="50"
+                height="50"
+                round
+                lazy-load
+              />
+            </template>
+            <template #title>
+              <div>
+                {{ item.profile.displayName }}
+              </div>
+            </template>
+            <template #label>
+              <div class="little-text">
+                買價：{{ item.buyPrice }}
+              </div>
+            </template>
+            <template #right-icon>
+              <div v-if="isCreator && item.id !== profile.userId">
+                <van-button type="danger" size="mini" @click="removeMembers(item.id)">
+                  移出
+                </van-button>
+              </div>
+            </template>
+          </van-cell>
+        </template>
         <TurnipSellPrice :sell-price="item.sellPrice" />
         <div class="padding-bt-10">
           <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />

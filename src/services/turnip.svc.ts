@@ -1,9 +1,9 @@
 import type { Moment } from 'moment'
-import moment from 'moment'
-import * as uuid from 'uuid'
-
-import { turnipRef } from '@/plugins/firebase'
 import type { LineProfile } from '@/view-models/liff.vm'
+import moment from 'moment'
+
+import * as uuid from 'uuid'
+import { turnipRef } from '@/plugins/firebase'
 
 export function listenerPriceList(date: Moment, callback: any): Promise<void> {
   return new Promise((resolve) => {
@@ -32,7 +32,8 @@ export function listenerPriceList(date: Moment, callback: any): Promise<void> {
 export function removeListenerPriceList(date: Moment) {
   return turnipRef
     .child('price')
-    .child(moment(date).format('YYYY-MM-DD')).off()
+    .child(moment(date).format('YYYY-MM-DD'))
+    .off()
 }
 
 export function getPriceByUserId(userId: string, date: Moment): Promise<any> {
@@ -66,7 +67,8 @@ export function listenerHistoriesByUserId(userId: string, callback: any) {
         })
 
         callback(list)
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
         callback([])
       }
@@ -75,7 +77,8 @@ export function listenerHistoriesByUserId(userId: string, callback: any) {
 
 export function removeListenerHistoriesByUserId() {
   return turnipRef
-    .child('price').off()
+    .child('price')
+    .off()
 }
 
 export function listenerUserList(callback: any) {
@@ -100,10 +103,11 @@ export function listenerUserList(callback: any) {
 
 export function removeListenerUserList() {
   return turnipRef
-    .child('profile').off()
+    .child('profile')
+    .off()
 }
 
-export function updatePriceByUserId(userId: string, date: Moment, params: { buyPrice: any; sellPrice: any }) {
+export function updatePriceByUserId(userId: string, date: Moment, params: { buyPrice: any, sellPrice: any }) {
   return turnipRef
     .child('price')
     .child(moment(date).format('YYYY-MM-DD'))
@@ -127,7 +131,8 @@ export function updateProfileByUserId(userId: string, params: LineProfile) {
 export function listenerGroupList(callback: any): Promise<void> {
   return new Promise((resolve) => {
     turnipRef
-      .child('group').on('value', (snapshot) => {
+      .child('group')
+      .on('value', (snapshot) => {
         resolve()
         const data = snapshot.val()
         if (!data) {
@@ -143,10 +148,11 @@ export function listenerGroupList(callback: any): Promise<void> {
 
 export function removeListenerGroupList() {
   return turnipRef
-    .child('group').off()
+    .child('group')
+    .off()
 }
 
-export function createGroup(params: { name: string; password: string; creatorId: string }) {
+export function createGroup(params: { name: string, password: string, creatorId: string }) {
   const newId = uuid.v4()
   return turnipRef
     .child('group')
@@ -179,7 +185,9 @@ export function removeGroup(groupId: string) {
 export function listenerGroupById(groupId: string, callback: any): Promise<void> {
   return new Promise((resolve) => {
     turnipRef
-      .child('group').child(groupId).on('value', (snapshot) => {
+      .child('group')
+      .child(groupId)
+      .on('value', (snapshot) => {
         resolve()
         const data = snapshot.val()
         if (!data) {
@@ -193,5 +201,7 @@ export function listenerGroupById(groupId: string, callback: any): Promise<void>
 
 export function removeListenerGroupById(groupId: string) {
   return turnipRef
-    .child('group').child(groupId).off()
+    .child('group')
+    .child(groupId)
+    .off()
 }

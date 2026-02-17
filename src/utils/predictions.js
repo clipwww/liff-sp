@@ -170,7 +170,8 @@ function possiblePatterns(filters) {
     const basePrice = filters[0]
     if (!basePrice || basePrice < 90 || basePrice > 110) {
       posibilities = explodeBasePrices(fns[fn])
-    } else {
+    }
+    else {
       posibilities = fns[fn](filters[0])
     }
     const filtered = posibilities.filter(filterByPattern(filters))
@@ -221,11 +222,11 @@ function patternReducer(patternsCategories, reducer = minMaxReducer) {
 }
 
 export {
-  possiblePatterns,
-  patternReducer,
-  minMaxReducer,
   averageReducer,
+  minMaxReducer,
   minWeekReducer,
+  patternReducer,
+  possiblePatterns,
 }
 
 export const patternMapping = [

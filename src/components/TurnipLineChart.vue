@@ -140,7 +140,7 @@ export default {
             {
               label: '買入價格',
               borderColor: '#ffffff',
-              data: Array(12).fill(this.buyPrice),
+              data: Array.from({ length: 12 }).fill(this.buyPrice),
               pointRadius: 0,
               pointHoverRadius: 0,
               borderDash: [2, 5],

@@ -1,8 +1,8 @@
 import type { AxiosRequestConfig, AxiosResponse, Canceler } from 'axios'
-import axios from 'axios'
-import { Toast } from '@/plugins/vant'
-
 import type { ResultVM } from '@/view-models/result.vm'
+import axios from 'axios'
+
+import { Toast } from '@/plugins/vant'
 import { ResultCode } from '@/view-models/result.vm'
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {

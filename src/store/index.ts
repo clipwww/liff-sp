@@ -1,7 +1,7 @@
 import type { ActionContext } from 'vuex'
-import { createStore } from 'vuex'
-
 import type { LineProfile } from '@/view-models/liff.vm'
+
+import { createStore } from 'vuex'
 
 export interface RootState {
   isLoading: boolean

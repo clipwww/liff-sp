@@ -1,9 +1,9 @@
 <script>
-import moment from 'moment'
 import _isEqual from 'lodash/isEqual'
+import moment from 'moment'
 
-import { movieSVC } from '@/services'
 import { movieRef } from '@/plugins/firebase'
+import { movieSVC } from '@/services'
 
 export default {
   metaInfo() {

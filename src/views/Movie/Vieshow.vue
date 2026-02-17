@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, watch } from 'vue'
-import moment from 'moment'
 import { movieSVC } from '@/services'
 
 const CinemaCodeMapping = {
@@ -48,7 +47,7 @@ const movies = ref<{
   id: string
   name: string
   nameEN: string
-  showTimes: { date: string; times: string[] }[]
+  showTimes: { date: string, times: string[] }[]
 }[]>([])
 
 const filteredMovies = computed(() => movies.value.filter(item => keyword.value ? item.name.includes(keyword.value) || item.nameEN.includes(keyword.value) : true))

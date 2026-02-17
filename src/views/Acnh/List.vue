@@ -1,9 +1,9 @@
 <script>
 import moment from 'moment'
 
+import { logEvent } from '@/plugins/vue-analytics'
 import { acnhSVC } from '@/services'
 import { translateSpecies } from '@/utils/acnh.util'
-import { logEvent } from '@/plugins/vue-analytics'
 
 export default {
   filters: {
@@ -66,13 +66,13 @@ export default {
           ?.filter((item) => {
             return this.keyword
               ? Object.keys(item.name).some((key) => {
-                return (
-                  item.name[key]?.toLowerCase()?.includes(this.keyword?.toLowerCase())
+                  return (
+                    item.name[key]?.toLowerCase()?.includes(this.keyword?.toLowerCase())
                     || (item.species
                       ? translateSpecies(item.species).includes(this.keyword) || item.species.includes(this.keyword)
                       : false)
-                )
-              })
+                  )
+                })
               : true
           })
           ?.filter((item) => {
@@ -184,7 +184,8 @@ export default {
               done()
             },
           })
-        } catch (err) {
+        }
+        catch (err) {
           console.log(err)
         }
       }

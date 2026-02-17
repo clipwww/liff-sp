@@ -1,6 +1,6 @@
-import { Toast } from '@/plugins/vant'
-import moment from 'moment'
 import device from 'current-device'
+import moment from 'moment'
+import { Toast } from '@/plugins/vant'
 
 export function toSafeHtmlString(htmlString: string) {
   return htmlString.replace(/(javascript\s*:)/g, 'javascripts：')
@@ -9,10 +9,9 @@ export function toSafeHtmlString(htmlString: string) {
       str
         .replace(/</g, '&lt')
         .replace(/>/g, '&gt')
-        .replace(/"/g, '&quot;'),
-    )
+        .replace(/"/g, '&quot;'))
     .replace(
-      /(ondblclick|onclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|onload|onunload|onerror)=[^<]*(?=\>)/g,
+      /(ondblclick|onclick|onkeydown|onkeypress|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|onload|onunload|onerror)=[^<]*(?=>)/g,
       str => `__${str}`,
     )
     .replace(/\n/g, '<br/>') ?? ''
@@ -21,7 +20,7 @@ export function toSafeHtmlString(htmlString: string) {
 export function toPureHtmlString(htmlString: string) {
   return toSafeHtmlString(htmlString)
     .replace(
-      /(href)=[^<]*(?=\>)/g,
+      /(href)=[^<]*(?=>)/g,
       str => `__${str}`,
     )
     .trim()
@@ -47,8 +46,9 @@ export const lsUtil = {
       if (value) {
         return JSON.parse(value)
       }
-    } catch (err) {
-      Toast.fail(err.message)
+    }
+    catch (err) {
+      Toast.fail((err as Error).message)
     }
     return ''
   },
@@ -64,7 +64,7 @@ export const momentUtil = (() => {
   }
 
   function getWeekdays() {
-    return Array(6)
+    return Array.from({ length: 6 })
       .fill('')
       .map((v, i) => {
         const momentInstance = getWeekStart().add(i + 1, 'day')
@@ -113,7 +113,7 @@ export function copyValue(value: string): boolean {
   const editable = $textArea.contentEditable
   const readOnly = $textArea.readOnly
 
-  // @ts-expect-error
+  // @ts-expect-error polyfill for iOS
   $textArea.contentEditable = true
   $textArea.readOnly = true
 
@@ -125,7 +125,8 @@ export function copyValue(value: string): boolean {
     selection?.removeAllRanges()
     selection?.addRange(range)
     $textArea.setSelectionRange(0, 999999)
-  } catch (err) {
+  }
+  catch (err) {
     $textArea.select()
   }
 

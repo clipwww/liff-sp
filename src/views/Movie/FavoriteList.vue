@@ -1,11 +1,22 @@
 <script>
-import { Toast } from '@/plugins/vant'
 import { mapGetters } from 'vuex'
-
-import store from '@/store'
 import { movieRef } from '@/plugins/firebase'
 
+import { Toast } from '@/plugins/vant'
+import store from '@/store'
+
 export default {
+  beforeRouteEnter(to, from, next) {
+    const isLoggedIn = store.state.isLoggedIn
+
+    if (isLoggedIn) {
+      next()
+    }
+    else {
+      Toast.fail('必須要登入才可以使用唷！')
+      next({ name: 'MovieSearchTypeChoice' })
+    }
+  },
   data() {
     return {
       favoriteList: [],
@@ -18,16 +29,7 @@ export default {
       profile: 'profile',
     }),
   },
-  beforeRouteEnter(to, from, next) {
-    const isLoggedIn = store.state.isLoggedIn
 
-    if (isLoggedIn) {
-      next()
-    } else {
-      Toast.fail('必須要登入才可以使用唷！')
-      next({ name: 'MovieSearchTypeChoice' })
-    }
-  },
   created() {
     this.isLoading = true
     movieRef.child(`favorite-movie-${this.profile.userId}`).on('value', (snapshot) => {
@@ -52,7 +54,8 @@ export default {
         this.favoriteList = this.favoriteList.filter(f => f.id !== item.id)
 
         movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList)
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },

@@ -23,6 +23,7 @@ export default {
       required: true,
     },
   },
+  emits: ['input', 'success'],
   data() {
     return {
       buyDay: weekStart.format('M/D (ddd)'),
@@ -88,16 +89,19 @@ export default {
         })
         this.$emit('success')
         this.isOpen = false
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
-      } finally {
+      }
+      finally {
         this.isLoading = false
       }
     },
     async updateProfileByUserId() {
       try {
         await turnipSVC.updateProfileByUserId(this.profile.userId, this.profile)
-      } catch (err) {
+      }
+      catch (err) {
         console.log(err)
       }
     },
@@ -122,7 +126,8 @@ export default {
           // this.$refs[`w${w}${key}`]?.[0].focus();
 
           this.$refs.popup?.$el?.scrollTo(0, 50 * offsetCount)
-        } catch (err) {
+        }
+        catch (err) {
           console.log(err)
         }
       })
@@ -146,10 +151,10 @@ export default {
       <div class="editor">
         <van-cell-group>
           <template #title>
-<div class="fs-20">
-            {{ buyDay }}
-          </div>
-</template>
+            <div class="fs-20">
+              {{ buyDay }}
+            </div>
+          </template>
           <van-field
             v-model="buyPrice"
             type="digit"

@@ -1,6 +1,6 @@
-import { Toast } from '@/plugins/vant'
-
 import type { LiffError } from '@/view-models/liff.vm'
+
+import { Toast } from '@/plugins/vant'
 
 const liff = window.liff
 export async function installLIFF() {
@@ -16,7 +16,8 @@ export async function installLIFF() {
     await liff.init({
       liffId,
     })
-  } catch (err) {
+  }
+  catch (err) {
     Toast.fail((err as LiffError).message)
   }
 
@@ -41,7 +42,8 @@ export async function scanCode() {
   try {
     const ret = await liff.scanCode()
     return ret
-  } catch (err) {
+  }
+  catch (err) {
     Toast.fail(err.message)
   }
 }
@@ -51,7 +53,8 @@ export async function shareTargetPicker(message: any[]) {
     await liff.shareTargetPicker(message)
 
     return true
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err)
     alert(err.message)
     return false

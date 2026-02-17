@@ -1,6 +1,6 @@
-import { axiosInstace } from './base.svc'
-
 import type { ResultGenericVM, ResultListGenericVM } from '@/view-models/result.vm'
+
+import { axiosInstace } from './base.svc'
 
 const baseURL = '/komica'
 
