@@ -1,0 +1,1 @@
+import{_ as o,r as t,o as r,c as s,g as a,a as n}from"./index-COOF5Zia.js";const c={data(){return{}},methods:{}},_={class:"movie-container"};function d(i,p,u,l,m,f){const e=t("router-view");return r(),s("div",null,[a("div",_,[n(e)])])}const $=o(c,[["render",d]]);export{$ as default};
