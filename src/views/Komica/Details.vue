@@ -1,5 +1,5 @@
 <script>
-import { ImagePreview } from 'vant'
+import { showImagePreview } from 'vant'
 
 import { komicaSVC } from '@/services'
 
@@ -70,7 +70,7 @@ export default {
     onClickImage(item) {
       const index = this.oImages.findIndex(src => src === item.oImg) || 0
 
-      ImagePreview({
+      showImagePreview({
         images: this.oImages,
         startPosition: index,
         closeable: true,
@@ -140,7 +140,7 @@ export default {
     </van-pull-refresh>
 
     <van-popup
-      v-model="showPopup"
+      v-model:show="showPopup"
       round
       position="bottom"
       close-on-popstate

@@ -30,9 +30,11 @@ export default {
 <template>
   <div>
     <van-panel>
-      <div slot="header" class="text-center padding-bt-10">
+      <template #header>
+<div class="text-center padding-bt-10">
         <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
       </div>
+</template>
 
       <van-cell title="性別">
         {{ item.gender === 'Male' ? '男孩 ♂' : '女孩 ♀' }}
@@ -66,7 +68,8 @@ export default {
       </van-grid>
       <van-image :src="villager.houseImage" lazy />
 
-      <div slot="footer">
+      <template #footer>
+<div>
         <van-tag
           v-for="name in item.name"
           :key="name"
@@ -76,6 +79,7 @@ export default {
           {{ name }}
         </van-tag>
       </div>
+</template>
     </van-panel>
   </div>
 </template>

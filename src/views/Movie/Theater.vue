@@ -173,13 +173,15 @@ export default {
         is-link
         @click="goDetails(item)"
       >
-        <van-icon
-          slot="icon"
+        <template #icon>
+<van-icon
+         
           class="lh-inherit margin-r-10"
           :name="isFavorite(item) ? 'like' : 'like-o'"
           color="#f48fb1"
           @click.stop="toggleFavorite(item)"
-        />
+         />
+</template>
         {{ item.name }}
       </van-cell>
       <div v-show="!theaters.length && cityId">

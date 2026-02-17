@@ -64,14 +64,16 @@ export default {
       <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋" />
       <div class="list__content padding-b-30">
         <van-cell-group v-for="(group, index) in filterMoviesGroupByDate" :key="index">
-          <van-tag
-            slot="title"
+          <template #title>
+<van-tag
+           
             type="primary"
             size="large"
             plain
           >
             {{ group.releaseDate }}
           </van-tag>
+</template>
           <MovieListCell :items="group.movies" />
         </van-cell-group>
         <div v-show="!moviesGroupByDate.length">

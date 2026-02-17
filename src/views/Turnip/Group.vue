@@ -138,12 +138,15 @@ export default {
         clickable
         @click="goDetails(item)"
       >
-        <div slot="label">
+        <template #label>
+<div>
           <span class="margin-r-10 little-text">{{ item.password ? '私密' : '公開' }}群組</span>
           <van-icon name="user-o" />
           <span class="margin-l-5">{{ item.members.length }}</span>
         </div>
-        <div slot="icon" class="margin-r-15">
+</template>
+        <template #icon>
+<div class="margin-r-15">
           <van-tag v-if="item.members.includes(profile.userId)" type="success" plain>
             已加入
           </van-tag>
@@ -151,6 +154,7 @@ export default {
             未加入
           </van-tag>
         </div>
+</template>
       </van-cell>
     </van-cell-group>
 
@@ -159,7 +163,7 @@ export default {
     </div>
 
     <van-popup
-      v-model="showEditor"
+      v-model:show="showEditor"
       position="bottom"
       closeable
       :style="{ height: '70%' }"
@@ -202,14 +206,16 @@ export default {
     </van-popup>
 
     <van-dialog
-      v-model="showDialog"
+      v-model:show="showDialog"
       show-cancel-button
       close-on-popstate
       :before-close="beforeClose"
     >
-      <div slot="title" class="padding-a-10">
+      <template #title>
+<div class="padding-a-10">
         您不在群組內，是否要加入群組？
       </div>
+</template>
       <div class="padding-a-10 fs-14">
         群組名稱：{{ group.name }}
         <br>加入群組後菜價資訊將會公開分享給群組內成員。

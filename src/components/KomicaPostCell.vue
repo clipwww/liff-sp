@@ -126,7 +126,7 @@ export default {
       :clickable="!isDetails"
       @click="$emit('click')"
     >
-      <div slot="title">
+      <template #title>
         <div class="flex-between is-align-start">
           <div @click="isDetails ? showPopup = true : ''">
             {{ item.title }}
@@ -146,34 +146,33 @@ export default {
         <div class="little-text">
           No. {{ item.id }}
         </div>
-      </div>
-      <div v-if="item.sImg" slot="icon" class="margin-r-10">
-        <van-image
-          :src="item.sImg"
-          width="90"
-          lazy-load
-          @click="$emit('click-image', item)"
-        />
-      </div>
-      <div slot="label">
+      </template>
+      <template #icon>
+        <div v-if="item.sImg" class="margin-r-10">
+          <van-image
+            :src="item.sImg"
+            width="90"
+            lazy-load
+            @click="$emit('click-image', item)"
+          />
+        </div>
+      </template>
+      <template #label>
         <div
           class="break-word"
           :class="{ 'van-multi-ellipsis--l3': !isDetails, 'fs-14': isDetails }"
           v-html="toSafeHtmlString(item.text)"
         />
         <div class="little-text margin-t-15 text-right">
-          {{ item.dateCreated | formatDate }}
+          {{ $filters.formatDate(item.dateCreated) }}
         </div>
         <div v-if="!isDetails" class="little-text text-right">
           總共 {{ replyCount }} 則回應
         </div>
-        <div slot="right-icon">
-          <div />
-        </div>
-      </div>
+      </template>
     </van-cell>
     <van-popup
-      v-model="showPopup"
+      v-model:show="showPopup"
       round
       position="bottom"
       close-on-popstate
@@ -181,40 +180,40 @@ export default {
     >
       <div class="padding-t-15 padding-b-20">
         <van-cell>
-          <div slot="title">
-            No.
-          </div>
+          <template #title>
+            <div>No.</div>
+          </template>
           <div>{{ item.id }}</div>
         </van-cell>
         <van-cell>
-          <div slot="title">
-            使用者 Id
-          </div>
+          <template #title>
+            <div>使用者 Id</div>
+          </template>
           <div>{{ item.userId }}</div>
         </van-cell>
         <van-cell>
-          <div slot="title">
-            使用者名稱
-          </div>
+          <template #title>
+            <div>使用者名稱</div>
+          </template>
           <div>{{ item.name }}</div>
         </van-cell>
         <van-cell>
-          <div slot="title">
-            標題
-          </div>
+          <template #title>
+            <div>標題</div>
+          </template>
           <div>{{ item.title }}</div>
         </van-cell>
         <van-cell>
-          <div slot="title">
-            E-mail
-          </div>
+          <template #title>
+            <div>E-mail</div>
+          </template>
           <div>{{ item.email }}</div>
         </van-cell>
         <van-cell>
-          <div slot="title">
-            建立日期
-          </div>
-          <div>{{ item.dateCreated | formatDate }}</div>
+          <template #title>
+            <div>建立日期</div>
+          </template>
+          <div>{{ $filters.formatDate(item.dateCreated) }}</div>
         </van-cell>
       </div>
     </van-popup>

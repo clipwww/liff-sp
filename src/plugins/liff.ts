@@ -1,4 +1,4 @@
-import { Toast } from 'vant'
+import { Toast } from '@/plugins/vant'
 
 import type { LiffError } from '@/view-models/liff.vm'
 

@@ -219,7 +219,7 @@ export default {
         {{ species || '全部' | translateSpecies }}
       </van-button>
     </van-search>
-    <van-action-sheet v-model="showSelect" :actions="actions" @select="onSelect" />
+    <van-action-sheet v-model:show="showSelect" :actions="actions" @select="onSelect" />
 
     <div ref="list" class="list__content with-safe-area-inset-bottom">
       <van-list
@@ -261,7 +261,7 @@ export default {
             <div slot="label">
               <template v-if="item.price">
                 <span class="little-text">賣價</span>
-                {{ item.price | commafy }}
+                {{ $filters.commafy(item.price) }}
               </template>
               <div v-if="item.species">
                 {{ item.species | translateSpecies }}
@@ -273,7 +273,7 @@ export default {
     </div>
 
     <van-popup
-      v-model="showDetails"
+      v-model:show="showDetails"
       round
       position="bottom"
       closeable

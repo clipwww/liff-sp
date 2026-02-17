@@ -1,14 +1,51 @@
-import Vue from 'vue'
-import Vant, { Lazyload, Locale, Toast } from 'vant'
+import Vant, {
+	Lazyload,
+	Locale,
+	closeToast,
+	showFailToast,
+	showLoadingToast,
+	showSuccessToast,
+	showToast,
+} from 'vant'
 
-// @ts-expect-error
-import zhTW from 'vant/lib/locale/lang/zh-TW'
+import zhTW from 'vant/es/locale/lang/zh-TW'
 
-import 'vant/lib/index.less'
+import 'vant/lib/index.css'
 
-Toast.setDefaultOptions({ duration: 3000 })
+type ToastOptions = string | { message?: string; [key: string]: any }
+
+function normalizeOptions(options: ToastOptions) {
+	if (typeof options === 'string') {
+		return { message: options }
+	}
+
+	return options
+}
+
+const toast = Object.assign(
+	(options: ToastOptions) => showToast(normalizeOptions(options)),
+	{
+		fail(options: ToastOptions) {
+			return showFailToast(normalizeOptions(options))
+		},
+		success(options: ToastOptions) {
+			return showSuccessToast(normalizeOptions(options))
+		},
+		loading(options: ToastOptions) {
+			return showLoadingToast(normalizeOptions(options))
+		},
+		clear() {
+			closeToast()
+		},
+	},
+)
+
+export const Toast = toast
+
 Locale.use('zh-TW', zhTW)
 
-Vue.use(Vant)
-
-Vue.use(Lazyload)
+export function installVant(app: any) {
+	app.use(Vant)
+	app.use(Lazyload)
+	app.config.globalProperties.$toast = toast
+}

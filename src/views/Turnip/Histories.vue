@@ -63,15 +63,21 @@ export default {
         @load="onLoad"
       >
         <van-panel v-for="item in filterHistories" :key="item.id" class="margin-b-15">
-          <van-cell slot="header" center>
-            <div slot="title">
-              <span class="fs-18">{{ item.id | formatWeekRange }}</span>
-              <span class="little-text margin-l-5">{{ item.id | formatYear }}</span>
+          <template #header>
+<van-cell center>
+            <template #title>
+<div>
+              <span class="fs-18">{{ $filters.formatWeekRange(item.id) }}</span>
+              <span class="little-text margin-l-5">{{ $filters.formatYear(item.id) }}</span>
             </div>
-            <div slot="label">
+</template>
+            <template #label>
+<div>
               買價：{{ item.buyPrice }}
             </div>
+</template>
           </van-cell>
+</template>
           <TurnipSellPrice :sell-price="item.sellPrice" />
           <div class="padding-bt-10">
             <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />

@@ -52,13 +52,13 @@ export default {
         </template>
         <div>{{ item.meta.label }}</div>
       </van-grid-item>
-      <van-grid-item icon="photo-o" text="How Ger 好帥ㄛ" />
+      <!-- <van-grid-item icon="photo-o" text="How Ger 好帥ㄛ" /> -->
     </van-grid>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.my-swipe ::v-deep .van-swipe-item {
+.my-swipe :deep(.van-swipe-item) {
   // color: #fff;
   // font-size: 20px;
   // line-height: 150px;

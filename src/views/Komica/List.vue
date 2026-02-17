@@ -69,7 +69,7 @@ export default {
       }
 
       this.page++
-      if (this.page > ret.pages.length) {
+      if (this.page > ret.pages?.length) {
         this.isFinished = true
       }
       this.items = this.items.concat(ret.items)
@@ -98,7 +98,8 @@ export default {
           offset="50"
           @load="getList"
         >
-          <div slot="loading">
+          <template #loading>
+<div>
             <van-cell v-for="n in 2" :key="n">
               <van-skeleton
                 class="padding-bt-5 padding-lr-0"
@@ -110,6 +111,7 @@ export default {
               />
             </van-cell>
           </div>
+</template>
           <KomicaPostCell
             v-for="item in items"
             :key="item.id"
@@ -123,7 +125,7 @@ export default {
       </van-pull-refresh>
     </div>
     <van-popup
-      v-model="showPopup"
+      v-model:show="showPopup"
       round
       position="bottom"
       close-on-popstate

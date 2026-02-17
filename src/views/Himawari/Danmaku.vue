@@ -59,8 +59,9 @@ export default {
       placeholder="請輸入關鍵字搜尋"
       @search="getList(true)"
     >
-      <van-button
-        slot="action"
+      <template #action>
+<van-button
+       
         type="primary"
         size="small"
         plain
@@ -68,20 +69,22 @@ export default {
       >
         搜尋
       </van-button>
+</template>
     </van-search>
     <div class="list__content with-safe-area-inset-bottom">
       <van-pull-refresh v-model="isRefreshing" head-height="150" @refresh="getList(true)">
         <van-list
           v-model="isLoading"
           :finished="isFinished"
-          :error.sync="isError"
+          v-model:error="isError"
           :immediate-check="false"
           finished-text="没有更多了"
           error-text="Oops...發生錯誤"
           offset="50"
           @load="getList"
         >
-          <div slot="loading">
+          <template #loading>
+<div>
             <van-cell v-for="n in 2" :key="n">
               <van-skeleton
                 class="padding-bt-5 padding-lr-0"
@@ -93,10 +96,15 @@ export default {
               />
             </van-cell>
           </div>
+</template>
           <!-- <van-grid :column-num="2">
             <van-grid-item v-for="item in items" width="100" :key="item.id" square :border="false">
-              <van-image slot="icon" :src="item.image" lazy-load></van-image>
-              <div slot="text" class="little-text">{{ item.title }}</div>
+              <template #icon>
+<van-image :src="item.image" lazy-load></van-image>
+</template>
+              <template #text>
+<div class="little-text">{{ item.title }}</div>
+</template>
             </van-grid-item>
           </van-grid> -->
           <van-cell
@@ -108,13 +116,19 @@ export default {
             :url="`${BASE_URL}/himawari/${item.group_id}/danmaku?mode=download&group=1&filename=${item.title}`"
             :href="`${BASE_URL}/himawari/${item.group_id}/danmaku?mode=download&group=1&filename=${item.title}`"
           >
-            <div slot="title">
+            <template #title>
+<div>
               {{ item.title }}
             </div>
-            <div slot="label" class="little-text">
+</template>
+            <template #label>
+<div class="little-text">
               彈幕量: {{ item.count }}
             </div>
-            <!-- <div slot="label" v-html="toSafeHtmlString(item.description)"></div> -->
+</template>
+            <!-- <template #label>
+<div v-html="toSafeHtmlString(item.description)"></div>
+</template> -->
           </van-cell>
         </van-list>
       </van-pull-refresh>

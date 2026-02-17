@@ -1,4 +1,4 @@
-import { Toast } from 'vant'
+import { Toast } from '@/plugins/vant'
 import moment from 'moment'
 import device from 'current-device'
 

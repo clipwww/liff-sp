@@ -208,11 +208,14 @@ export default {
         :border="false"
         center
       >
-        <div slot="label">
+        <template #label>
+<div>
           <van-icon name="user-o" />
           <span class="margin-l-5">{{ group.members.length }}</span>
         </div>
-        <div slot="right-icon">
+</template>
+        <template #right-icon>
+<div>
           <van-button
             v-if="isCreator"
             class="margin-r-5"
@@ -241,31 +244,42 @@ export default {
             複製網址
           </van-button>
         </div>
+</template>
       </van-cell>
       <van-panel v-for="item in filterPriceList" :key="item.id" class="margin-b-15">
-        <van-cell slot="header">
-          <van-image
+        <template #header>
+<van-cell>
+          <template #icon>
+<van-image
             v-if="item.profile.pictureUrl"
-            slot="icon"
+           
             class="margin-r-15"
             :src="item.profile.pictureUrl"
             width="50"
             height="50"
             round
             lazy-load
-          />
-          <div slot="title">
+           />
+</template>
+          <template #title>
+<div>
             {{ item.profile.displayName }}
           </div>
-          <div slot="label" class="little-text">
+</template>
+          <template #label>
+<div class="little-text">
             買價：{{ item.buyPrice }}
           </div>
-          <div v-if="isCreator && item.id !== profile.userId" slot="right-icon">
+</template>
+          <template #right-icon>
+<div v-if="isCreator && item.id !== profile.userId">
             <van-button type="danger" size="mini" @click="removeMembers(item.id)">
               移出
             </van-button>
           </div>
+</template>
         </van-cell>
+</template>
         <TurnipSellPrice :sell-price="item.sellPrice" />
         <div class="padding-bt-10">
           <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
@@ -273,7 +287,7 @@ export default {
       </van-panel>
 
       <van-popup
-        v-model="showEditor"
+        v-model:show="showEditor"
         position="bottom"
         closeable
         :style="{ height: '70%' }"

@@ -1,5 +1,5 @@
 <script>
-import Chart from 'chart.js'
+import Chart from 'chart.js/auto'
 import _zip from 'lodash/zip'
 
 import { momentUtil } from '@/utils'
@@ -127,6 +127,10 @@ export default {
         return
       }
 
+      if (this.chartInstance) {
+        this.chartInstance.destroy()
+      }
+
       const ctx = document.getElementById(this.canvasId).getContext('2d')
       this.chartInstance = new Chart(ctx, {
         type: 'line',
@@ -177,43 +181,39 @@ export default {
         },
         options: {
           responsive: true,
-          legend: {
-            display: true,
-            labels: {
-              fontColor: '#fff',
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: '#fff',
+              },
+            },
+            tooltip: {
+              intersect: false,
+              mode: 'index',
             },
           },
-          tooltips: {
-            intersect: false,
-            mode: 'index',
-          },
           scales: {
-            yAxes: [
-              {
-                display: true,
-                ticks: {
-                  fontColor: '#fff',
-                  min: 0,
-                  stepSize: 50, // <----- This prop sets the stepSize
-                },
-                gridLines: {
-                  color: '#666',
-                  zeroLineColor: '#666',
-                },
+            y: {
+              display: true,
+              min: 0,
+              ticks: {
+                color: '#fff',
+                stepSize: 50,
               },
-            ],
-            xAxes: [
-              {
-                display: true,
-                ticks: {
-                  fontColor: '#fff',
-                },
-                gridLines: {
-                  color: '#666',
-                  zeroLineColor: '#666',
-                },
+              grid: {
+                color: '#666',
               },
-            ],
+            },
+            x: {
+              display: true,
+              ticks: {
+                color: '#fff',
+              },
+              grid: {
+                color: '#666',
+              },
+            },
           },
         },
       })

@@ -239,7 +239,7 @@ export default {
           {{ item.movie_width }}x{{ item.movie_height }}
         </div>
         <div slot="label">
-          {{ item.add_date | formatDate }}
+          {{ $filters.formatDate(item.add_date) }}
         </div>
       </van-cell>
       <van-cell
@@ -263,12 +263,12 @@ export default {
           </van-tag>
         </div>
         <div slot="label">
-          {{ s.adddate | formatDate }}
+          {{ $filters.formatDate(s.adddate) }}
         </div>
       </van-cell>
 
       <van-popup
-        v-model="showPopup"
+        v-model:show="showPopup"
         round
         position="bottom"
         close-on-popstate

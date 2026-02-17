@@ -144,10 +144,10 @@ export default {
         @click="openHistory(item)"
       >
         <div slot="title">
-          {{ item.id | formatWeekRange }}
+          {{ $filters.formatWeekRange(item.id) }}
         </div>
         <div slot="label">
-          {{ item.id | formatYear }} 第{{ item.id | formatWeek }}
+          {{ $filters.formatYear(item.id) }} 第{{ $filters.formatWeek(item.id) }}
         </div>
       </van-cell>
       <van-cell
@@ -161,13 +161,13 @@ export default {
     </van-cell-group>
 
     <van-popup
-      v-model="showHistory"
+      v-model:show="showHistory"
       position="bottom"
       closeable
       :style="{ height: '70%' }"
     >
       <div v-if="historyItem">
-        <van-divider>{{ historyItem.id | formatWeekRange }}</van-divider>
+        <van-divider>{{ $filters.formatWeekRange(historyItem.id) }}</van-divider>
         <div class="little-text padding-a-10">
           買價：{{ historyItem.buyPrice }}
         </div>

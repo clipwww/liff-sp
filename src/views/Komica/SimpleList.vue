@@ -71,16 +71,22 @@ export default {
             center
             @click="goDetails(item)"
           >
-            <div slot="title">
+            <template #title>
+<div>
               <span>{{ item.title }}</span>
             </div>
-            <div slot="label">
-              <span class="margin-r-5">{{ item.dateCreated | formatDate }}</span>
+</template>
+            <template #label>
+<div>
+              <span class="margin-r-5">{{ $filters.formatDate(item.dateCreated) }}</span>
               <!-- <van-tag plain size="mini">{{ item.replyCount }}</van-tag> -->
             </div>
-            <div slot="right-icon">
+</template>
+            <template #right-icon>
+<div>
               <van-icon name="chat-o" size="25" :info="item.replyCount" />
             </div>
+</template>
           </van-cell>
         </van-cell-group>
       </van-pull-refresh>

@@ -141,7 +141,7 @@ export default {
       @click="showCalendar = true"
     />
     <van-calendar
-      v-model="showCalendar"
+      v-model:show="showCalendar"
       :show-confirm="false"
       :max-date="maxDate"
       close-on-popstate
@@ -207,10 +207,8 @@ export default {
 
 <style lang="scss" scoped>
 .square {
-  &::v-deep {
-    img {
-      border-radius: 0;
-    }
+  :deep(img) {
+    border-radius: 0;
   }
 }
 </style>

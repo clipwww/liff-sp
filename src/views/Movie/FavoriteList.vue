@@ -1,5 +1,5 @@
 <script>
-import { Toast } from 'vant'
+import { Toast } from '@/plugins/vant'
 import { mapGetters } from 'vuex'
 
 import store from '@/store'
@@ -119,7 +119,7 @@ export default {
       <div slot="footer">
         <div class="flex-between">
           <div class="little-text">
-            加入收藏日期 {{ item.dateCreated | formatDate }}
+            加入收藏日期 {{ $filters.formatDate(item.dateCreated) }}
           </div>
           <van-button
             icon="delete"
@@ -145,6 +145,6 @@ export default {
 
 <style lang="scss" scoped>
 .favorite-list {
-  padding-bottom: $paddingBottom;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 65px);
 }
 </style>

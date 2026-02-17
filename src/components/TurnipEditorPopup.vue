@@ -134,7 +134,7 @@ export default {
 <template>
   <van-popup
     ref="popup"
-    v-model="isOpen"
+    v-model:show="isOpen"
     position="bottom"
     closeable
     lazy-render
@@ -145,9 +145,11 @@ export default {
     <div class="padding-t-30">
       <div class="editor">
         <van-cell-group>
-          <div slot="title" class="fs-20">
+          <template #title>
+<div class="fs-20">
             {{ buyDay }}
           </div>
+</template>
           <van-field
             v-model="buyPrice"
             type="digit"
@@ -197,7 +199,7 @@ export default {
 <style lang="scss" scoped>
 .editor {
   position: relative;
-  padding-bottom: calc(#{$paddingBottom} + 30px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 95px);
 }
 .fixed-btn {
   position: fixed;

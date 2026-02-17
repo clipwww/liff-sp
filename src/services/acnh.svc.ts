@@ -1,4 +1,4 @@
-import { Toast } from 'vant'
+import { Toast } from '@/plugins/vant'
 
 import type { CustomAxiosResponse } from './base.svc'
 import { createAxiosInstance } from './base.svc'

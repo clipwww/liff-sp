@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
-import vue from '@vitejs/plugin-vue2'
+import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 
-function pathResolve(dir) {
+function pathResolve(dir: string) {
   return resolve(__dirname, '.', dir)
 }
 
@@ -25,8 +25,8 @@ export default defineConfig(({ mode }) => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-          @import "@/assets/scss/_variables.scss";
-          @import "@/assets/scss/_mixin.scss";
+          @use "@/assets/scss/_variables.scss" as *;
+          @use "@/assets/scss/_mixin.scss" as *;
         `,
         },
         less: {
@@ -38,7 +38,6 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    define: {},
     resolve: {
       alias: [
         { find: '@', replacement: pathResolve('src') },
@@ -49,6 +48,10 @@ export default defineConfig(({ mode }) => {
     esbuild: {
       drop: ['debugger'],
       pure: ['console.log'],
+    },
+    define: {
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false,
     },
   }
 })

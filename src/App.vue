@@ -55,78 +55,81 @@ export default {
 </script>
 
 <template>
-  <div id="app">
-    <van-nav-bar v-if="!hideTopbar" fixed @click-left="showSidePopup = true">
-      <van-icon
-        slot="left"
-        class="padding-b-5"
-        size="26px"
-        name="wap-nav"
-      />
-    </van-nav-bar>
-    <div class="main-container" :class="{ 'hide-top-bar': hideTopbar }">
-      <router-view />
-    </div>
-
-    <van-popup
-      v-model="showSidePopup"
-      :lazy-render="false"
-      position="left"
-      close-icon="close"
-      close-on-popstate
-      :style="{ width: '250px', height: '100%' }"
-    >
-      <div class="sidebar__top">
-        <van-image
-          width="100%"
-          height="140px"
-          fit="cover"
-          src="./images/tenkinoko.jpeg"
-        />
-        <div class="sidebar__pic">
-          <van-image
-            :src="pictureUrl"
-            fit="cover"
-            round
-            @click="login"
+  <van-config-provider theme="dark">
+    <div id="app">
+      <van-nav-bar v-if="!hideTopbar" fixed @click-left="showSidePopup = true">
+        <template #left>
+          <van-icon
+            class="padding-b-5"
+            size="26px"
+            name="wap-nav"
           />
+        </template>
+      </van-nav-bar>
+      <div class="main-container" :class="{ 'hide-top-bar': hideTopbar }">
+        <router-view />
+      </div>
+
+      <van-popup
+        v-model:show="showSidePopup"
+        :lazy-render="false"
+        position="left"
+        close-icon="close"
+        close-on-popstate
+        :style="{ width: '250px', height: '100%' }"
+      >
+        <div class="sidebar__top">
+          <van-image
+            width="100%"
+            height="140px"
+            fit="cover"
+            src="./images/tenkinoko.jpeg"
+          />
+          <div class="sidebar__pic">
+            <van-image
+              :src="pictureUrl"
+              fit="cover"
+              round
+              @click="login"
+            />
+          </div>
         </div>
-      </div>
-      <div class="sidebar__content">
-        <van-cell-group>
-          <van-cell
-            v-for="item in routes"
-            :key="item.name"
-            center
-            clickable
-            :to="{ name: item.name }"
-            @click="showSidePopup = false"
-          >
-            <template v-if="item.meta">
-              <van-icon
-                v-if="item.meta.icon"
-                slot="icon"
-                class="margin-r-10"
-                size="20"
-                :name="item.meta.icon"
-              />
-              <van-image
-                v-if="item.meta.image"
-                slot="icon"
-                class="margin-r-10"
-                width="20"
-                height="20"
-                fit="contain"
-                :src="item.meta.image"
-                alt="komica"
-              />
-            </template>
-            <span slot="title">{{ item.meta.label }}</span>
-          </van-cell>
-        </van-cell-group>
-      </div>
-    </van-popup>
-  </div>
+        <div class="sidebar__content">
+          <van-cell-group>
+            <van-cell
+              v-for="item in routes"
+              :key="item.name"
+              center
+              clickable
+              :to="{ name: item.name }"
+              @click="showSidePopup = false"
+            >
+              <template #icon>
+                <van-icon
+                  v-if="item.meta && item.meta.icon"
+                  class="margin-r-10"
+                  size="20"
+                  :name="item.meta.icon"
+                />
+                <van-image
+                  v-if="item.meta && item.meta.image"
+                  class="margin-r-10"
+                  width="20"
+                  height="20"
+                  fit="contain"
+                  :src="item.meta.image"
+                  alt="komica"
+                />
+              </template>
+              <template #title>
+                <span>{{ item.meta?.label }}</span>
+              </template>
+            </van-cell>
+          </van-cell-group>
+        </div>
+      </van-popup>
+    </div>
+  </van-config-provider>
 </template>
 
 <style lang="scss">

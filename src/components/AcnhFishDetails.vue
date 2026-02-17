@@ -19,15 +19,17 @@ export default {
 <template>
   <div>
     <van-panel>
-      <div slot="header" class="text-center padding-bt-10">
+      <template #header>
+<div class="text-center padding-bt-10">
         <b class="fs-20">{{ item.name['name-TWzh'] }}</b>
       </div>
+</template>
 
       <van-cell title="賣價">
-        {{ item.price | commafy }}
+        {{ $filters.commafy(item.price) }}
       </van-cell>
       <van-cell title="賣價 (俞司廷)">
-        {{ item['price-cj'] | commafy }}
+        {{ $filters.commafy(item['price-cj']) }}
       </van-cell>
       <van-cell title="魚影大小">
         {{ item.shadow }}
@@ -61,7 +63,8 @@ export default {
         </van-grid-item>
       </van-grid>
 
-      <div slot="footer">
+      <template #footer>
+<div>
         <van-tag
           v-for="name in item.name"
           :key="name"
@@ -71,6 +74,7 @@ export default {
           {{ name }}
         </van-tag>
       </div>
+</template>
     </van-panel>
   </div>
 </template>

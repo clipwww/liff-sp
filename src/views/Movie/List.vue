@@ -142,15 +142,17 @@ export default {
       </div>
       <div v-if="isGroupByDateMode" class="list__content with-safe-area-inset-bottom">
         <van-cell-group v-for="group in filterMoviesGroupByDate" :key="group.releaseDate">
-          <van-tag
+          <template #title>
+<van-tag
             v-if="group.movies.length"
-            slot="title"
+           
             type="primary"
             size="large"
             plain
           >
             {{ group.releaseDate }}
           </van-tag>
+</template>
           <MovieListCell :items="group.movies" />
         </van-cell-group>
         <div v-show="!moviesGroupByDate.length">
