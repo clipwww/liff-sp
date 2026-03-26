@@ -40,7 +40,7 @@ export default {
     posterSrc() {
       return !this.movieInfo.poster || this.movieInfo.poster.includes('l10l010l3322l1')
         ? 'https://via.placeholder.com/250x370?text=404'
-        : this.movieInfo.poster
+        : `https://www.atmovies.com.tw${this.movieInfo.poster}`
     },
   },
   watch: {

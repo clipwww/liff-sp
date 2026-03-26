@@ -29,7 +29,7 @@ export default {
         slot="icon"
         class="margin-r-10"
         width="65"
-        :src="item.poster"
+        :src="`https://www.atmovies.com.tw${item.poster}`"
         :lazy-load="i > 0"
       />
       <van-image

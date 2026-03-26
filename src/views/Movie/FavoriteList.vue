@@ -60,7 +60,9 @@ export default {
       }
     },
     getSrc(src = '') {
-      return !src || src.includes('l10l010l3322l1') ? 'https://via.placeholder.com/250x370?text=404' : src
+      return !src || src.includes('l10l010l3322l1')
+        ? 'https://via.placeholder.com/250x370?text=404'
+        : `https://www.atmovies.com.tw${src}`
     },
     goMovie({ id }) {
       this.$router.push({ name: 'MovieDetails', params: { id } })

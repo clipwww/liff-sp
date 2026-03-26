@@ -10,7 +10,7 @@ import router from './router'
 import store from './store'
 import 'moment/locale/zh-tw.js'
 import 'moment/locale/en-gb.js'
-import './registerServiceWorker'
+// import './registerServiceWorker'
 import '@/plugins/register-components'
 import '@/router/guards'
 
