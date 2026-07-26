@@ -1,15 +1,15 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { installLIFF } from '@/plugins/liff'
+import { installComponents } from '@/plugins/register-components'
 import { installVant } from '@/plugins/vant'
-import '@/plugins/dayjs'
 
 import { installAnalytics } from '@/plugins/vue-analytics'
 import { installFilters } from '@/plugins/vue-filter'
-import { installComponents } from '@/plugins/register-components'
 import App from './App.vue'
-
 import router from './router'
+
+import '@/plugins/dayjs'
 // import './registerServiceWorker'
 import '@/router/guards'
 

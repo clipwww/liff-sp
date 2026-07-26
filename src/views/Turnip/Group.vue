@@ -1,8 +1,8 @@
 <script>
 import { mapState } from 'pinia'
-import { useAppStore } from '@/store'
-
 import { turnipSVC } from '@/services'
+
+import { useAppStore } from '@/store'
 
 export default {
   props: {

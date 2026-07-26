@@ -46,9 +46,9 @@ export default {
       </van-cell>
 
       <van-grid :column-num="2">
-        <van-grid-item v-for="item in art.variants" :key="item.filename">
-          <div>{{ item.genuine ? '真品' : '贗品' }}</div>
-          <van-image :src="item.image" />
+        <van-grid-item v-for="variant in art.variants" :key="variant.filename">
+          <div>{{ variant.genuine ? '真品' : '贗品' }}</div>
+          <van-image :src="variant.image" />
         </van-grid-item>
       </van-grid>
 

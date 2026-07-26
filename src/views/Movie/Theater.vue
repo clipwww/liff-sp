@@ -1,11 +1,11 @@
 <script>
 import _isEqual from 'lodash/isEqual'
-import dayjs from '@/plugins/dayjs'
 import { mapState } from 'pinia'
-import { useAppStore } from '@/store'
-
+import dayjs from '@/plugins/dayjs'
 import { movieRef } from '@/plugins/firebase'
+
 import { movieSVC } from '@/services'
+import { useAppStore } from '@/store'
 
 export default {
   data() {

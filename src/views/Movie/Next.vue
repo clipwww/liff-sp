@@ -1,8 +1,8 @@
 <script>
 import _isEqual from 'lodash/isEqual'
-import dayjs from '@/plugins/dayjs'
-
 import MovieListCell from '@/components/MovieListCell.vue'
+
+import dayjs from '@/plugins/dayjs'
 import { movieRef } from '@/plugins/firebase'
 
 import { movieSVC } from '@/services'

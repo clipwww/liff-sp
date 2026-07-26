@@ -1,7 +1,7 @@
 <script>
 import Danmaku from 'danmaku'
-import dayjs from '@/plugins/dayjs'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import dayjs from '@/plugins/dayjs'
 import { himawariSVC } from '@/services'
 
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
@@ -291,23 +291,23 @@ export default {
           key-field="no"
           :min-item-size="33"
         >
-          <template #default="{ item, index, active }">
+          <template #default="{ item: comment, index, active }">
             <DynamicScrollerItem
-              :item="item"
+              :item="comment"
               :active="active"
               :size-dependencies="[
-                item.msg,
+                comment.msg,
               ]"
               :data-index="index"
             >
               <div class="scroller__item">
                 <div class="little-text">
-                  {{ item.digital_time }}
+                  {{ comment.digital_time }}
                 </div>
                 <div class="scroller__item__msg">
-                  {{ item.msg }}
+                  {{ comment.msg }}
                 </div>
-                <!-- <div class="little-text">{{ item.id }}</div> -->
+                <!-- <div class="little-text">{{ comment.id }}</div> -->
               </div>
             </DynamicScrollerItem>
           </template>

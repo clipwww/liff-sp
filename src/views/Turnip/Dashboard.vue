@@ -1,10 +1,10 @@
 <script>
 import { mapState } from 'pinia'
-import { useAppStore } from '@/store'
-
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
 
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
+
+import { useAppStore } from '@/store'
 import { momentUtil } from '@/utils'
 
 const weekdays = momentUtil.getWeekdays()
@@ -118,34 +118,34 @@ export default {
 
     <van-cell-group title="已加入群組">
       <van-cell
-        v-for="item in filterGroupList"
-        :key="item.id"
-        :title="item.name"
+        v-for="group in filterGroupList"
+        :key="group.id"
+        :title="group.name"
         center
         is-link
         clickable
-        @click="goDetails(item)"
+        @click="goDetails(group)"
       >
         <div slot="label">
           <van-icon name="user-o" />
-          <span class="margin-l-5">{{ item.members.length }}</span>
+          <span class="margin-l-5">{{ group.members.length }}</span>
         </div>
       </van-cell>
     </van-cell-group>
 
     <van-cell-group title="歷史紀錄">
       <van-cell
-        v-for="item in filterHistories"
-        :key="item.id"
+        v-for="history in filterHistories"
+        :key="history.id"
         center
         is-link
-        @click="openHistory(item)"
+        @click="openHistory(history)"
       >
         <div slot="title">
-          {{ $filters.formatWeekRange(item.id) }}
+          {{ $filters.formatWeekRange(history.id) }}
         </div>
         <div slot="label">
-          {{ $filters.formatYear(item.id) }} 第{{ $filters.formatWeek(item.id) }}
+          {{ $filters.formatYear(history.id) }} 第{{ $filters.formatWeek(history.id) }}
         </div>
       </van-cell>
       <van-cell

@@ -1,7 +1,7 @@
 <script>
-import dayjs from '@/plugins/dayjs'
-
 import villagers from '@/json/villagers.json'
+
+import dayjs from '@/plugins/dayjs'
 import { translateSpecies } from '@/utils/acnh.util'
 
 export default {

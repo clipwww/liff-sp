@@ -114,13 +114,13 @@ export default {
             </div>
           </template>
           <KomicaPostCell
-            v-for="item in items"
-            :key="item.id"
-            :item="item"
+            v-for="post in items"
+            :key="post.id"
+            :item="post"
             show-preview-btn
             ellipsis
-            @click="goDetails(item)"
-            @click-preview="openPopup(item)"
+            @click="goDetails(post)"
+            @click-preview="openPopup(post)"
           />
         </van-list>
       </van-pull-refresh>

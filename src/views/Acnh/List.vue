@@ -243,19 +243,19 @@ export default {
         </div>
         <template v-if="list">
           <van-cell
-            v-for="(item, i) in filterList"
-            :key="item.id"
-            :title="item.name['name-TWzh']"
+            v-for="(listItem, i) in filterList"
+            :key="listItem.id"
+            :title="listItem.name['name-TWzh']"
             is-link
             center
-            @click="openDetails(item)"
+            @click="openDetails(listItem)"
           >
             <van-image
-              v-if="item.icon_uri || item.image_uri"
+              v-if="listItem.icon_uri || listItem.image_uri"
               slot="icon"
               class="margin-r-10"
               width="65"
-              :src="item.icon_uri || item.image_uri.toLowerCase()"
+              :src="listItem.icon_uri || listItem.image_uri.toLowerCase()"
               :lazy-load="i > 0"
             />
 
