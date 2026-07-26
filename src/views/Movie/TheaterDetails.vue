@@ -1,6 +1,6 @@
 <script>
 import _isEqual from 'lodash/isEqual'
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 
 import { movieRef } from '@/plugins/firebase'
 import { movieSVC } from '@/services'
@@ -15,7 +15,7 @@ export default {
     return {
       theaterInfo: {},
       movies: [],
-      date: moment(),
+      date: dayjs(),
       showCalendar: false,
       isEmpty: false,
     }
@@ -31,10 +31,10 @@ export default {
       return this.date.format('YYYYMMDD')
     },
     maxDate() {
-      return new Date(moment().add(7, 'day'))
+      return dayjs().add(7, 'day').toDate()
     },
     isToday() {
-      return moment().isSame(this.date, 'day')
+      return dayjs().isSame(this.date, 'day')
     },
   },
   watch: {
@@ -65,13 +65,13 @@ export default {
   },
   created() {
     movieRef.on('value', (snapshot) => {
-      const keys = Object.keys(snapshot.val())
-      keys
+      const val = snapshot.val()
+      if (!val || typeof val !== 'object') { return }
+      Object.keys(val)
         .filter(key => key.includes('theater-'))
         .forEach((key) => {
           const data = snapshot.child(key).val()
-          if (moment().isAfter(data.dateCreated, 'day')) {
-            console.log('key', key)
+          if (data?.dateCreated && dayjs().isAfter(data.dateCreated, 'day')) {
             movieRef.child(key).remove()
           }
         })
@@ -99,17 +99,17 @@ export default {
         movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).set({
           item: ret.item,
           items: ret.items,
-          dateCreated: +moment(),
+          dateCreated: dayjs().valueOf(),
         })
       }
     },
     onDateChange(value) {
-      this.date = moment(value)
+      this.date = dayjs(value)
       this.showCalendar = false
       this.getTheaterById()
     },
     isExpired(time) {
-      return moment().isAfter(moment(time, 'HH：mm'))
+      return dayjs().isAfter(dayjs(time, 'HH：mm'))
     },
     goMovie({ id }) {
       this.$router.push({ name: 'MovieDetails', params: { id } })

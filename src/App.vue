@@ -1,5 +1,6 @@
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 export default {
   metaInfo() {
@@ -15,11 +16,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-      pictureUrl: 'pictureUrl',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile', 'pictureUrl']),
     routes() {
       return this.$router?.options?.routes ?? []
     },

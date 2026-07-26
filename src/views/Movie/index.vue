@@ -1,14 +1,13 @@
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 export default {
   data() {
     return {}
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn']),
   },
   methods: {
 

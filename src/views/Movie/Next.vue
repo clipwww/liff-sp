@@ -1,6 +1,6 @@
 <script>
 import _isEqual from 'lodash/isEqual'
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 
 import MovieListCell from '@/components/MovieListCell.vue'
 import { movieRef } from '@/plugins/firebase'
@@ -50,7 +50,7 @@ export default {
       if (!_isEqual(this.moviesGroupByDate, ret.items)) {
         movieRef.child('movies-next').set({
           items: ret.items,
-          dateCreated: +moment(),
+          dateCreated: dayjs().valueOf(),
         })
       }
     },

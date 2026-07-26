@@ -1,16 +1,14 @@
-import firebase from 'firebase/compat/app'
-import 'firebase/compat/database'
+import { IdbRef } from '@/utils/idb-ref'
 
-export const firebaseInstance = firebase.initializeApp({
-  apiKey: 'AIzaSyDI578qA-BjjSFfxV07GU5V-GLbBledu_Q',
-  authDomain: 'my-first-firebase-projec-30d45.firebaseapp.com',
-  databaseURL: 'https://my-first-firebase-projec-30d45.firebaseio.com',
-  projectId: 'my-first-firebase-projec-30d45',
-  storageBucket: 'my-first-firebase-projec-30d45.appspot.com',
-  messagingSenderId: '1018687191918',
-  appId: '1:1018687191918:web:dccdcdc93aedda045e9f7f',
-})
+/**
+ * 電影資料快取（原 Firebase Realtime Database）
+ * 資料儲存於 IndexedDB 命名空間 'movie'
+ */
+export const movieRef = new IdbRef('movie')
 
-export const movieRef = firebaseInstance.database().ref('/movie/')
-
-export const turnipRef = firebaseInstance.database().ref('/turnip/')
+/**
+ * 蕪菁價格共享資料（原 Firebase Realtime Database）
+ * 資料儲存於 IndexedDB 命名空間 'turnip'
+ * 注意：移除 Firebase 後，多用戶即時同步功能已改為本機單機模式
+ */
+export const turnipRef = new IdbRef('turnip')

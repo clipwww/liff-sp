@@ -1,17 +1,18 @@
 <script>
 import _cloneDeep from 'lodash/cloneDeep'
-import moment from 'moment'
-import { mapGetters } from 'vuex'
-
+import dayjs from '@/plugins/dayjs'
+import { mapState } from 'pinia'
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
-import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
 
+import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
 import { turnipSVC } from '@/services'
+
+import { useAppStore } from '@/store'
 import { copyValue, momentUtil } from '@/utils'
 
 const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
-const now = moment()
+const now = dayjs()
 
 const sellPrice = {}
 weekdays.forEach((item) => {
@@ -63,10 +64,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
     groupId() {
       return this.$route.params.id
     },

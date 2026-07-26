@@ -1,5 +1,6 @@
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 import { turnipSVC } from '@/services'
 
@@ -26,10 +27,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
     filterGroupList() {
       switch (this.activeTab) {
         case 'all':

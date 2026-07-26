@@ -1,15 +1,15 @@
-import type { Moment } from 'moment'
+import type { Dayjs } from 'dayjs'
 import type { LineProfile } from '@/view-models/liff.vm'
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 
 import * as uuid from 'uuid'
 import { turnipRef } from '@/plugins/firebase'
 
-export function listenerPriceList(date: Moment, callback: any): Promise<void> {
+export function listenerPriceList(date: Dayjs, callback: any): Promise<void> {
   return new Promise((resolve) => {
     turnipRef
       .child('price')
-      .child(moment(date).format('YYYY-MM-DD'))
+      .child(dayjs(date).format('YYYY-MM-DD'))
       .on('value', (snapshot) => {
         resolve()
         const data = snapshot.val()
@@ -29,18 +29,18 @@ export function listenerPriceList(date: Moment, callback: any): Promise<void> {
   })
 }
 
-export function removeListenerPriceList(date: Moment) {
+export function removeListenerPriceList(date: Dayjs) {
   return turnipRef
     .child('price')
-    .child(moment(date).format('YYYY-MM-DD'))
+    .child(dayjs(date).format('YYYY-MM-DD'))
     .off()
 }
 
-export function getPriceByUserId(userId: string, date: Moment): Promise<any> {
+export function getPriceByUserId(userId: string, date: Dayjs): Promise<any> {
   return new Promise((resolve) => {
     turnipRef
       .child('price')
-      .child(moment(date).format('YYYY-MM-DD'))
+      .child(dayjs(date).format('YYYY-MM-DD'))
       .child(userId)
       .once('value', (snapshot) => {
         const data = snapshot.val()
@@ -107,14 +107,14 @@ export function removeListenerUserList() {
     .off()
 }
 
-export function updatePriceByUserId(userId: string, date: Moment, params: { buyPrice: any, sellPrice: any }) {
+export function updatePriceByUserId(userId: string, date: Dayjs, params: { buyPrice: any, sellPrice: any }) {
   return turnipRef
     .child('price')
-    .child(moment(date).format('YYYY-MM-DD'))
+    .child(dayjs(date).format('YYYY-MM-DD'))
     .child(userId)
     .set({
       ...params,
-      dateUpdated: moment().toISOString(),
+      dateUpdated: dayjs().toISOString(),
     })
 }
 
@@ -124,7 +124,7 @@ export function updateProfileByUserId(userId: string, params: LineProfile) {
     .child(userId)
     .set({
       ...params,
-      dateUpdated: moment().toISOString(),
+      dateUpdated: dayjs().toISOString(),
     })
 }
 
@@ -160,7 +160,7 @@ export function createGroup(params: { name: string, password: string, creatorId:
     .set({
       ...params,
       id: newId,
-      dateCreated: moment().toISOString(),
+      dateCreated: dayjs().toISOString(),
       members: [params.creatorId],
     })
 }
@@ -171,7 +171,7 @@ export function updateGroup(groupId: string, params: any) {
     .child(groupId)
     .set({
       ...params,
-      dateUpdated: moment().toISOString(),
+      dateUpdated: dayjs().toISOString(),
     })
 }
 

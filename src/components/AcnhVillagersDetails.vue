@@ -1,5 +1,5 @@
 <script>
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 
 import villagers from '@/json/villagers.json'
 import { translateSpecies } from '@/utils/acnh.util'
@@ -7,7 +7,7 @@ import { translateSpecies } from '@/utils/acnh.util'
 export default {
   filters: {
     formatBirthday(val) {
-      return moment(val, 'D/M').format('M月D日')
+      return dayjs(val, 'D/M').format('M月D日')
     },
     translateSpecies,
   },

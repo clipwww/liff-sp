@@ -1,5 +1,5 @@
 <script>
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 
 import { logEvent } from '@/plugins/vue-analytics'
 import { acnhSVC } from '@/services'
@@ -156,10 +156,10 @@ export default {
         return
       }
       const hpd = this.objToList.filter((item) => {
-        return moment().isSame(moment(item.birthday, 'D/M'), 'day')
+        return dayjs().isSame(dayjs(item.birthday, 'D/M'), 'day')
       })
 
-      const nowDay = moment().format('M/D')
+      const nowDay = dayjs().format('M/D')
       if (hpd.length && !localStorage.getItem(nowDay)) {
         try {
           this.$dialog({

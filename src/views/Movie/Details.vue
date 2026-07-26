@@ -1,7 +1,8 @@
 <script>
 import _isEqual from 'lodash/isEqual'
-import moment from 'moment'
-import { mapGetters } from 'vuex'
+import dayjs from '@/plugins/dayjs'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 import { movieRef } from '@/plugins/firebase'
 import { shareTargetPicker } from '@/plugins/liff'
@@ -24,10 +25,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
     citys() {
       return this.movieInfo?.citys ?? []
     },
@@ -35,7 +33,7 @@ export default {
       return this.$route.params.id
     },
     isFavorite() {
-      return !!this.favoriteList.find(item => item.id === this.movieInfo.id)
+      return this.favoriteList.some(item => item.id === this.movieInfo.id)
     },
     posterSrc() {
       return !this.movieInfo.poster || this.movieInfo.poster.includes('l10l010l3322l1')
@@ -66,7 +64,7 @@ export default {
             this.movieInfo = data.item
             this.cacheTheaterList = data.items || []
 
-            if (moment().isSame(data.dateCreated, 'day')) {
+            if (dayjs().isSame(data.dateCreated, 'day')) {
               // 同一天的資料
               this.theaterList = this.cacheTheaterList
             }
@@ -107,7 +105,7 @@ export default {
         movieRef.child(`movie-${this.movieId}${this.cityId ? `-${this.cityId}` : ''}`).set({
           item: ret.item,
           items: ret.items,
-          dateCreated: +moment(),
+          dateCreated: dayjs().valueOf(),
         })
       }
 
@@ -137,14 +135,14 @@ export default {
       else {
         this.favoriteList.push({
           ...this.movieInfo,
-          dateCreated: +moment(),
+          dateCreated: dayjs().valueOf(),
         })
       }
 
       movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList)
     },
     isExpired(time) {
-      return moment().isAfter(moment(time, 'HH：mm'))
+      return dayjs().isAfter(dayjs(time, 'HH：mm'))
     },
     watchTrailer() {
       const url = this.movieInfo.trailer

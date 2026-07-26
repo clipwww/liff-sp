@@ -1,6 +1,6 @@
 <script>
 import Danmaku from 'danmaku'
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { himawariSVC } from '@/services'
 
@@ -37,7 +37,7 @@ export default {
       return this.$route.params.id
     },
     formatTime() {
-      return moment()
+      return dayjs()
         .startOf('day')
         .add(this.item.movie_time, 'second')
         .format('HH:mm:ss')

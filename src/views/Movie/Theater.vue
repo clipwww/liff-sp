@@ -1,7 +1,8 @@
 <script>
 import _isEqual from 'lodash/isEqual'
-import moment from 'moment'
-import { mapGetters } from 'vuex'
+import dayjs from '@/plugins/dayjs'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 import { movieRef } from '@/plugins/firebase'
 import { movieSVC } from '@/services'
@@ -19,10 +20,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
     filterList() {
       return (this.isFavorteMode ? this.favoriteList : this.theaters).filter(item =>
         this.keyword ? item.name.includes(this.keyword) : true,
@@ -85,7 +83,7 @@ export default {
       if (!_isEqual(this.citys, ret.items)) {
         movieRef.child('citys').set({
           items: ret.items,
-          dateCreated: +moment(),
+          dateCreated: dayjs().valueOf(),
         })
       }
     },
@@ -109,7 +107,7 @@ export default {
       if (!_isEqual(this.theaters, ret.items)) {
         movieRef.child(`theaters-${this.cityId}`).set({
           items: ret.items,
-          dateCreated: +moment(),
+          dateCreated: dayjs().valueOf(),
         })
       }
       this.theaters = ret.items
@@ -137,7 +135,7 @@ export default {
         return
       }
 
-      if (!this.favoriteList.find(f => f.id === item.id)) {
+      if (!this.favoriteList.some(f => f.id === item.id)) {
         this.favoriteList.push(item)
       }
       else {
@@ -148,7 +146,7 @@ export default {
       this.getFavoriteTheaters()
     },
     isFavorite(item) {
-      return !!this.favoriteList.find(f => f.id === item.id)
+      return this.favoriteList.some(f => f.id === item.id)
     },
     goDetails(item) {
       this.$router.push({

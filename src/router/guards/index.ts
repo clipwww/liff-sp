@@ -1,11 +1,11 @@
-import store from '@/store'
+import { useAppStore } from '@/store'
 import router from '../index'
 
 router.beforeEach(async () => {
-  store.dispatch('updateLoggedIn')
-  const isLoggedIn = store.state.isLoggedIn
-  if (isLoggedIn) {
-    store.dispatch('updateProfile')
+  const appStore = useAppStore()
+  appStore.updateLoggedIn()
+  if (appStore.isLoggedIn) {
+    appStore.updateProfile()
   }
 
   return true

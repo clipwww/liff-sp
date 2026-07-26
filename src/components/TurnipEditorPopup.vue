@@ -1,6 +1,7 @@
 <script>
-import moment from 'moment'
-import { mapGetters } from 'vuex'
+import dayjs from '@/plugins/dayjs'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 import { turnipSVC } from '@/services'
 import { momentUtil } from '@/utils'
@@ -36,10 +37,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
     isOpen: {
       get() {
         return this.value
@@ -108,13 +106,13 @@ export default {
     focusField() {
       this.$nextTick(() => {
         try {
-          if (moment().isSame(weekStart, 'day')) {
+          if (dayjs().isSame(weekStart, 'day')) {
             return
           }
 
           let offsetCount = 0
 
-          const now = moment()
+          const now = dayjs()
           const w = now.weekday()
           const key = now.locale('en-us').format('a')
           console.log('[key]', key)

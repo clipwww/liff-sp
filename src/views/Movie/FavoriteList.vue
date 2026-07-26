@@ -1,15 +1,13 @@
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
 import { movieRef } from '@/plugins/firebase'
-
 import { Toast } from '@/plugins/vant'
-import store from '@/store'
+import { useAppStore } from '@/store'
 
 export default {
   beforeRouteEnter(to, from, next) {
-    const isLoggedIn = store.state.isLoggedIn
-
-    if (isLoggedIn) {
+    const appStore = useAppStore()
+    if (appStore.isLoggedIn) {
       next()
     }
     else {
@@ -24,10 +22,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
   },
 
   created() {

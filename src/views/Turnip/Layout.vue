@@ -1,9 +1,10 @@
 <script>
-import moment from 'moment'
-import { mapGetters } from 'vuex'
-
+import dayjs from '@/plugins/dayjs'
+import { mapState } from 'pinia'
 import TurnipEditorPopup from '@/components/TurnipEditorPopup.vue'
+
 import { turnipSVC } from '@/services'
+import { useAppStore } from '@/store'
 
 import { momentUtil } from '@/utils'
 
@@ -26,10 +27,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
   },
   watch: {
     profile: {
@@ -41,8 +39,8 @@ export default {
         turnipSVC.removeListenerHistoriesByUserId()
         turnipSVC.listenerHistoriesByUserId(val.userId, (list) => {
           this.histories = list
-            .filter(item => !moment().isSame(item.id, 'week'))
-            .sort((a, b) => (moment(a.id).isBefore(b.id) ? 1 : -1))
+            .filter(item => !dayjs().isSame(item.id, 'week'))
+            .sort((a, b) => (dayjs(a.id).isBefore(b.id) ? 1 : -1))
         })
       },
     },

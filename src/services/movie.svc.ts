@@ -1,4 +1,4 @@
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 
 import { axiosInstace } from './base.svc'
 
@@ -43,7 +43,7 @@ export function getTheaterList(cityId: string) {
 }
 
 export function getTheaterById(theaterId: string, cityId: string = '', date?: string) {
-  const isToday = moment().isSame(date, 'day')
+  const isToday = dayjs().isSame(date, 'day')
   return axiosInstace.request({
     method: 'GET',
     url: `${baseURL}/theater/${theaterId}`,

@@ -15,7 +15,7 @@ export default {
   props: {
     id: {
       type: String,
-      default: `${+new Date()}`,
+      default: `${Date.now()}`,
     },
     buyPrice: {
       type: [Number, String],
@@ -99,7 +99,7 @@ export default {
       return this.datasetData.filter(v => v > 0).length < 2
     },
     noSellPrice() {
-      return !this.datasetData.filter(v => v > 0).length
+      return !this.datasetData.some(v => v > 0)
     },
   },
   watch: {

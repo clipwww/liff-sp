@@ -1,5 +1,5 @@
 import device from 'current-device'
-import moment from 'moment'
+import dayjs from '@/plugins/dayjs'
 import { Toast } from '@/plugins/vant'
 
 export function toSafeHtmlString(htmlString: string) {
@@ -60,7 +60,7 @@ export const lsUtil = {
 
 export const momentUtil = (() => {
   function getWeekStart() {
-    return moment().startOf('week').clone()
+    return dayjs().startOf('week')
   }
 
   function getWeekdays() {
@@ -90,7 +90,7 @@ export function copyValue(value: string): boolean {
   }
 
   const $textArea = document.createElement('textArea') as HTMLTextAreaElement
-  const className = `copy-value-${+new Date()}`
+  const className = `copy-value-${Date.now()}`
   $textArea.className = className
 
   const $style = document.createElement('style')

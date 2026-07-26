@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
+          silenceDeprecations: ['import'],
           additionalData: `
           @use "@/assets/scss/_variables.scss" as *;
           @use "@/assets/scss/_mixin.scss" as *;

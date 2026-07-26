@@ -1,5 +1,6 @@
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'pinia'
+import { useAppStore } from '@/store'
 
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
 
@@ -50,10 +51,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      isLoggedIn: 'isLoggedIn',
-      profile: 'profile',
-    }),
+    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
     filterGroupList() {
       return this.groupList.filter(item => item.members.includes(this.profile.userId))
     },
