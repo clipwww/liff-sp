@@ -1,0 +1,1 @@
+import{B as e,I as t,_ as n,p as r,t as i}from"./_plugin-vue_export-helper-Cb3PNGju.js";var a={},o={class:`movie-layout app-page`};function s(i,a){let s=e(`router-view`);return t(),r(`section`,o,[n(s)])}var c=i(a,[[`render`,s],[`__scopeId`,`data-v-fe6d599e`]]);export{c as default};

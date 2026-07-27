@@ -1,0 +1,1 @@
+import{t as e}from"./vant-B1QiFO01.js";var t=window.liff;async function n(){let n=`1557984400-gjEoY0y1`;console.log(t,n);try{await t.init({liffId:n})}catch(t){e.fail(t.message)}console.log(t.getVersion())}async function r(e){try{return await t.shareTargetPicker(e),!0}catch(e){return console.error(e),alert(e.message),!1}}export{r as n,n as t};

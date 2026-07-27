@@ -1,1 +1,0 @@
-import{P as e,R as t,f as n,g as r,l as i}from"./runtime-core.esm-bundler-CvQ1bGqK.js";import{a}from"./index-CJBon7Dh.js";var o={data(){return{}},methods:{}},s={class:`movie-container`};function c(a,o,c,l,u,d){let f=t(`router-view`);return e(),n(`div`,null,[i(`div`,s,[r(f)])])}var l=a(o,[[`render`,c]]);export{l as default};
