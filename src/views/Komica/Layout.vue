@@ -1,28 +1,28 @@
-<script>
-export default {
-  data() {
-    return {}
-  },
-  computed: {
-    komicaType() {
-      switch (true) {
-        case this.$route.name.includes('KomicaNew'):
-          return 'new'
-        case this.$route.name.includes('KomicaLive'):
-          return 'live'
-        default:
-          return ''
-      }
-    },
-    isDetails() {
-      return this.$route.name.includes('Details')
-    },
-  },
-}
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const komicaType = computed(() => {
+  const routeName = route.name?.toString() ?? ''
+
+  if (routeName.includes('KomicaNew')) {
+    return 'new'
+  }
+
+  if (routeName.includes('KomicaLive')) {
+    return 'live'
+  }
+
+  return ''
+})
+
+const isDetails = computed(() => route.name?.toString().includes('Details'))
 </script>
 
 <template>
-  <div>
+  <div class="komica-layout app-page">
     <router-view :key="komicaType" />
     <van-tabbar
       v-show="!isDetails"
@@ -44,4 +44,8 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.komica-layout {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 </style>

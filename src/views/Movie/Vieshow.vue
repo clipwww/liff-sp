@@ -95,13 +95,13 @@ function isExpired(time: string) {
 </script>
 
 <template>
-  <div>
+  <div class="movie-vieshow">
     <van-dropdown-menu>
       <van-dropdown-item v-model="cinemaCode" :options="cinemaOptions" />
     </van-dropdown-menu>
     <van-search v-model="keyword" placeholder="輸入關鍵字篩選" />
 
-    <van-collapse v-model="activeName" border>
+    <van-collapse v-model="activeName" class="movie-vieshow__collapse" border>
       <van-collapse-item
         v-for="(item) in filteredMovies"
         :key="item.id"
@@ -128,4 +128,8 @@ function isExpired(time: string) {
   </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.movie-vieshow__collapse {
+  margin-top: 14px;
+}
+</style>

@@ -1,60 +1,36 @@
-<script>
+<script setup lang="ts">
+import { computed, shallowRef } from 'vue'
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
-
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
-import { momentUtil } from '@/utils'
+import { filters } from '@/plugins/vue-filter'
 
-const weekdays = momentUtil.getWeekdays()
-const sellPrice = {}
-weekdays.forEach((item) => {
-  sellPrice[item.id] = {
-    am: '',
-    pm: '',
-  }
+const props = withDefaults(defineProps<{
+  histories?: any[]
+}>(), {
+  histories: () => [],
 })
 
-export default {
-  components: {
-    TurnipLineChart,
-    TurnipSellPrice,
-  },
-  props: {
-    histories: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-  },
-  data() {
-    return {
-      page: 1,
-      isFinished: false,
-    }
-  },
-  computed: {
-    filterHistories() {
-      return this.histories.slice(0, this.page * 2)
-    },
-  },
-  methods: {
-    onLoad() {
-      if (this.isFinished) {
-        return
-      }
-      console.log('on load')
-      this.page += 1
-      if (this.filterHistories.length === this.histories.length) {
-        this.isFinished = true
-      }
-    },
-  },
+const page = shallowRef(1)
+const isFinished = shallowRef(false)
+
+const filterHistories = computed(() => {
+  return props.histories.slice(0, page.value * 2)
+})
+
+function onLoad() {
+  if (isFinished.value) {
+    return
+  }
+
+  page.value += 1
+  if (filterHistories.value.length === props.histories.length) {
+    isFinished.value = true
+  }
 }
 </script>
 
 <template>
   <div class="list__container">
-    <van-cell-group title="歷史紀錄" />
     <div title="歷史紀錄" class="list__content with-safe-area-inset-bottom">
       <van-list
         :finished="isFinished"
@@ -62,27 +38,23 @@ export default {
         :offset="10"
         @load="onLoad"
       >
-        <van-panel v-for="item in filterHistories" :key="item.id" class="margin-b-15">
-          <template #header>
-            <van-cell center>
-              <template #title>
-                <div>
-                  <span class="fs-18">{{ $filters.formatWeekRange(item.id) }}</span>
-                  <span class="little-text margin-l-5">{{ $filters.formatYear(item.id) }}</span>
-                </div>
-              </template>
-              <template #label>
-                <div>
-                  買價：{{ item.buyPrice }}
-                </div>
-              </template>
-            </van-cell>
-          </template>
-          <TurnipSellPrice :sell-price="item.sellPrice" />
-          <div class="padding-bt-10">
-            <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
+        <section v-for="item in filterHistories" :key="item.id" class="app-surface turnip-history-card margin-b-15">
+          <div class="turnip-history-card__head">
+            <div>
+              <div class="turnip-history-card__title">
+                {{ filters.formatWeekRange(item.id) }}
+              </div>
+              <div class="little-text">
+                {{ filters.formatYear(item.id) }}
+              </div>
+            </div>
+            <div class="turnip-history-card__buy">
+              買價 {{ item.buyPrice || '--' }}
+            </div>
           </div>
-        </van-panel>
+          <TurnipSellPrice :sell-price="item.sellPrice" />
+          <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
+        </section>
       </van-list>
     </div>
   </div>
@@ -91,5 +63,28 @@ export default {
 <style lang="scss" scoped>
 .list__container {
   height: calc(100vh - 105px);
+}
+
+.turnip-history-card__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.turnip-history-card {
+  padding: 20px;
+}
+
+.turnip-history-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.turnip-history-card__buy {
+  font-size: 14px;
+  color: var(--van-text-color);
 }
 </style>

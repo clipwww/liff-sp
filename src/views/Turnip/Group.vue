@@ -1,127 +1,142 @@
-<script>
-import { mapState } from 'pinia'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { showFailToast, showNotify } from 'vant'
+import { computed, ref, shallowRef, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { turnipSVC } from '@/services'
-
 import { useAppStore } from '@/store'
 
-export default {
-  props: {
-    groupList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-  },
-  data() {
-    return {
-      activeTab: 'all',
-      showEditor: false,
-      groupName: '',
-      password: '',
-      isPrivate: false,
-      showDialog: false,
+const props = withDefaults(defineProps<{
+  groupList?: any[]
+}>(), {
+  groupList: () => [],
+})
 
-      group: {},
-      joinPassword: '',
-    }
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
-    filterGroupList() {
-      switch (this.activeTab) {
-        case 'all':
-          return this.groupList
-        case 'joined':
-          return this.groupList.filter(item => item.members.includes(this.profile.userId))
-        case 'notjoin':
-          return this.groupList.filter(item => !item.members.includes(this.profile.userId))
-        default:
-          return []
-      }
-    },
-  },
-  watch: {
-    showDialog(bool) {
-      if (!bool) {
-        this.joinPassword = ''
-        this.group = {}
-      }
-    },
-  },
-  methods: {
-    async updateProfileByUserId() {
-      try {
-        await turnipSVC.updateProfileByUserId(this.profile.userId, this.profile)
-      }
-      catch (err) {
-        console.log(err)
-      }
-    },
-    async onSubmit() {
-      try {
-        await turnipSVC.createGroup({
-          name: this.groupName,
-          password: this.isPrivate ? this.password : '',
-          creatorId: this.profile.userId,
-        })
+const router = useRouter()
+const appStore = useAppStore()
+const { isLoggedIn, profile } = storeToRefs(appStore)
 
-        this.showEditor = false
+const activeTab = shallowRef('all')
+const showEditor = shallowRef(false)
+const groupName = shallowRef('')
+const password = shallowRef('')
+const isPrivate = shallowRef(false)
+const showDialog = shallowRef(false)
+const group = ref<any>({})
+const joinPassword = shallowRef('')
 
-        this.updateProfileByUserId()
-      }
-      catch (err) {
-        console.log(err)
-      }
-    },
-    async goDetails(item) {
-      if (!item.members.includes(this.profile.userId)) {
-        // 不在群組內
-        this.group = item
-        this.showDialog = true
-        return
-      }
+const filterGroupList = computed(() => {
+  switch (activeTab.value) {
+    case 'all':
+      return props.groupList
+    case 'joined':
+      return props.groupList.filter(item => item.members.includes(profile.value?.userId))
+    case 'notjoin':
+      return props.groupList.filter(item => !item.members.includes(profile.value?.userId))
+    default:
+      return []
+  }
+})
 
-      this.$router.push({ name: 'TurnipGroupDetails', params: { id: item.id } })
-    },
-    async beforeClose(action, done) {
-      if (action === 'cancel') {
-        done()
-        return
-      }
+watch(showDialog, (opened) => {
+  if (!opened) {
+    joinPassword.value = ''
+    group.value = {}
+  }
+})
 
-      if (this.joinPassword !== this.group.password) {
-        this.$notify({
-          type: 'danger',
-          message: 'Oops... 密碼錯誤',
-        })
-        done(false)
-        return
-      }
+async function updateProfileByUserId() {
+  if (!profile.value?.userId) {
+    return
+  }
 
-      try {
-        this.group.members.push(this.profile.userId)
+  try {
+    await turnipSVC.updateProfileByUserId(profile.value.userId, profile.value)
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
 
-        await turnipSVC.updateGroup(this.group.id, {
-          ...this.group,
-        })
-        this.updateProfileByUserId()
+function openEditor() {
+  if (!isLoggedIn.value) {
+    showFailToast('必須要登入才可以使用唷')
+    return
+  }
 
-        done()
-        this.$router.push({ name: 'TurnipGroupDetails', params: { id: this.group.id } })
-      }
-      catch (err) {
-        console.log(err)
-        done()
-      }
-    },
-  },
+  showEditor.value = true
+}
+
+async function onSubmit() {
+  if (!profile.value?.userId) {
+    return
+  }
+
+  try {
+    await turnipSVC.createGroup({
+      name: groupName.value,
+      password: isPrivate.value ? password.value : '',
+      creatorId: profile.value.userId,
+    })
+
+    showEditor.value = false
+    groupName.value = ''
+    password.value = ''
+    isPrivate.value = false
+
+    updateProfileByUserId()
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
+async function goDetails(item: any) {
+  if (!item.members.includes(profile.value?.userId)) {
+    group.value = item
+    showDialog.value = true
+    return
+  }
+
+  router.push({ name: 'TurnipGroupDetails', params: { id: item.id } })
+}
+
+async function beforeClose(action: string, done: (value?: boolean) => void) {
+  if (action === 'cancel') {
+    done()
+    return
+  }
+
+  if (joinPassword.value !== group.value.password) {
+    showNotify({
+      type: 'danger',
+      message: 'Oops... 密碼錯誤',
+    })
+    done(false)
+    return
+  }
+
+  try {
+    group.value.members.push(profile.value?.userId)
+
+    await turnipSVC.updateGroup(group.value.id, {
+      ...group.value,
+    })
+    updateProfileByUserId()
+
+    done()
+    router.push({ name: 'TurnipGroupDetails', params: { id: group.value.id } })
+  }
+  catch (err) {
+    console.log(err)
+    done()
+  }
 }
 </script>
 
 <template>
   <div class="group">
-    <div class="margin-bt-15">
+    <div class="turnip-group__tabs app-surface">
       <van-tabs v-model="activeTab" type="card">
         <van-tab title="全部" name="all" />
         <van-tab title="已加入" name="joined" />
@@ -129,39 +144,40 @@ export default {
       </van-tabs>
     </div>
 
-    <van-cell-group>
-      <van-cell
+    <div class="turnip-group__list">
+      <button
         v-for="item in filterGroupList"
         :key="item.id"
-        :title="item.name"
-        center
-        is-link
-        clickable
+        type="button"
+        class="turnip-group__card app-surface"
         @click="goDetails(item)"
       >
-        <template #label>
+        <div class="turnip-group__card-head">
           <div>
-            <span class="margin-r-10 little-text">{{ item.password ? '私密' : '公開' }}群組</span>
-            <van-icon name="user-o" />
-            <span class="margin-l-5">{{ item.members.length }}</span>
+            <div class="turnip-group__card-title">
+              {{ item.name }}
+            </div>
+            <div class="little-text">
+              {{ item.password ? '私密群組' : '公開群組' }}
+            </div>
           </div>
-        </template>
-        <template #icon>
-          <div class="margin-r-15">
-            <van-tag v-if="item.members.includes(profile.userId)" type="success" plain>
-              已加入
-            </van-tag>
-            <van-tag v-else plain>
-              未加入
-            </van-tag>
-          </div>
-        </template>
-      </van-cell>
-    </van-cell-group>
-
-    <div class="plus-btn" @click="showEditor = true">
-      <van-icon name="plus" />
+          <van-tag v-if="item.members.includes(profile.userId)" type="success" plain>
+            已加入
+          </van-tag>
+          <van-tag v-else plain>
+            未加入
+          </van-tag>
+        </div>
+        <div class="turnip-group__card-foot">
+          <span class="little-text">{{ item.members.length }} 位成員</span>
+          <span class="turnip-group__card-action">查看詳情</span>
+        </div>
+      </button>
     </div>
+
+    <button type="button" class="plus-btn" @click="openEditor">
+      <van-icon name="plus" />
+    </button>
 
     <van-popup
       v-model:show="showEditor"
@@ -236,18 +252,59 @@ export default {
   position: relative;
 }
 
+.turnip-group__tabs {
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.turnip-group__card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.turnip-group__list {
+  display: grid;
+  gap: 12px;
+}
+
+.turnip-group__card {
+  width: 100%;
+  padding: 18px;
+  border: 0;
+  text-align: left;
+}
+
+.turnip-group__card-head,
+.turnip-group__card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.turnip-group__card-action {
+  color: var(--van-primary-color);
+}
+
+.turnip-group__card-foot {
+  margin-top: 14px;
+}
+
 .plus-btn {
   position: fixed;
   right: 15px;
   bottom: calc(env(safe-area-inset-bottom) + 65px);
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background-color: mediumseagreen;
+  border: 0;
+  background-color: #16a34a;
+  color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 22px;
-  opacity: 0.7;
+  box-shadow: 0 16px 24px rgba(22, 163, 74, 0.24);
 }
 </style>

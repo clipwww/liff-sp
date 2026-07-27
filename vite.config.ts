@@ -30,13 +30,6 @@ export default defineConfig(({ mode }) => {
           @use "@/assets/scss/_mixin.scss" as *;
         `,
         },
-        less: {
-          // http://lesscss.org/usage/#less-options-strict-units `Global Variables`
-          // `primary` is global variables fields name
-          modifyVars: {
-            hack: 'true; @import "../../../src/assets/less/vant.var.less";',
-          },
-        },
       },
     },
     resolve: {

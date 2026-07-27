@@ -1,15 +1,24 @@
-<script>
+<script setup lang="ts">
 import _cloneDeep from 'lodash/cloneDeep'
-import { mapState } from 'pinia'
+import { storeToRefs } from 'pinia'
+import { showConfirmDialog, showNotify } from 'vant'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
-
 import dayjs from '@/plugins/dayjs'
+import { Toast } from '@/plugins/vant'
 import { turnipSVC } from '@/services'
-
 import { useAppStore } from '@/store'
 import { copyValue, momentUtil } from '@/utils'
 
+const props = withDefaults(defineProps<{
+  userList?: any[]
+  priceList?: any[]
+}>(), {
+  userList: () => [],
+  priceList: () => [],
+})
 const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
 const now = dayjs()
@@ -22,174 +31,158 @@ weekdays.forEach((item) => {
   }
 })
 
-export default {
-  metaInfo() {
-    return {
-      title: this.$route.query.title || this.group?.name,
-    }
-  },
-  components: {
-    TurnipLineChart,
-    TurnipSellPrice,
-  },
-  beforeRouteLeave(to, from, next) {
-    turnipSVC.removeListenerGroupById(this.groupId)
-    next()
-  },
-  props: {
-    userList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-    priceList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-  },
-  data() {
-    return {
-      weekdays,
-      group: null,
-      showEditor: false,
+const route = useRoute()
+const router = useRouter()
+const appStore = useAppStore()
+const { profile } = storeToRefs(appStore)
 
-      form: {
-        groupName: '',
-        isPrivate: false,
-        password: '',
-      },
-    }
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
-    groupId() {
-      return this.$route.params.id
-    },
-    filterPriceList() {
-      return this.userList
-        .filter(item => this.group?.members?.includes(item.id))
-        .map((user) => {
-          const price = this.priceList.find(p => p.id === user.id) || {
-            buyPrice: '',
-            sellPrice: _cloneDeep(sellPrice),
-          }
+const groupId = route.params.id?.toString() ?? ''
+const group = ref<any | null>(null)
+const showEditor = shallowRef(false)
 
-          return {
-            ...price,
-            profile: user,
-          }
-        })
-        .sort((a, b) => {
-          try {
-            const w = now.weekday()
-            if (w <= 0) {
-              return (+a.buyPrice || 110) > (+b.buyPrice || 110) ? 1 : -1
-            }
-            // am 或 pm
-            const key = now.locale('en-us').format('a')
+const form = reactive({
+  groupName: '',
+  isPrivate: false,
+  password: '',
+})
 
-            const aPrice = +a?.sellPrice[`w${w}`][key] || 0
-            const bPrice = +b?.sellPrice[`w${w}`][key] || 0
-            console.log(aPrice, bPrice)
+const filterPriceList = computed(() => {
+  return props.userList
+    .filter(item => group.value?.members?.includes(item.id))
+    .map((user) => {
+      const price = props.priceList.find(entry => entry.id === user.id) || {
+        buyPrice: '',
+        sellPrice: _cloneDeep(sellPrice),
+      }
 
-            return aPrice > bPrice ? -1 : 1
-          }
-          catch (err) {
-            console.log(err)
-            return 1
-          }
-        })
-    },
-    isCreator() {
-      // 創造群組之人
-      return this.group?.creatorId === this.profile.userId
-    },
-  },
-  watch: {
-    showEditor(bool) {
-      this.form.groupName = this.group.name
-      this.form.isPrivate = !!this.group.password
-      this.form.password = this.group.password
-    },
-  },
-  created() {
-    turnipSVC.listenerGroupById(this.groupId, (group) => {
-      this.group = group
-
-      if (!this.group?.members?.includes(this.profile.userId)) {
-        // 不在群組內
-        this.$router.replace({ name: 'TurnipGroup' })
+      return {
+        ...price,
+        profile: user,
       }
     })
-  },
-
-  methods: {
-    async removeMembers(userId) {
+    .sort((a, b) => {
       try {
-        await this.$dialog.confirm({
-          title: '確定嗎？',
-        })
+        const weekday = now.weekday()
+        if (weekday <= 0) {
+          return (+a.buyPrice || 110) > (+b.buyPrice || 110) ? 1 : -1
+        }
 
-        const members = this.group.members.filter(id => id !== userId)
+        const periodKey = now.locale('en-us').format('a')
+        const aPrice = +a?.sellPrice[`w${weekday}`][periodKey] || 0
+        const bPrice = +b?.sellPrice[`w${weekday}`][periodKey] || 0
 
-        await turnipSVC.updateGroup(this.groupId, {
-          ...this.group,
-          members,
-        })
-
-        this.$notify({
-          type: 'success',
-          message: '成功',
-        })
+        return aPrice > bPrice ? -1 : 1
       }
       catch (err) {
         console.log(err)
+        return 1
       }
-    },
-    async onSubmit() {
-      try {
-        await turnipSVC.updateGroup(this.groupId, {
-          ...this.group,
-          name: this.form.groupName,
-          password: this.form.isPrivate ? this.form.password : '',
-        })
+    })
+})
 
-        this.showEditor = false
-        this.$notify({
-          type: 'success',
-          message: '修改成功',
-        })
-      }
-      catch (err) {
-        console.log(err)
-      }
-    },
-    async removeGroup() {
-      try {
-        await this.$dialog.confirm({
-          title: '注意，此動作無法復原',
-          message: '確定要刪除群組？',
-        })
+const isCreator = computed(() => group.value?.creatorId === profile.value?.userId)
 
-        await turnipSVC.removeGroup(this.groupId)
-      }
-      catch (err) {
-        console.log(err)
-      }
-    },
-    copyLink() {
-      const isOk = copyValue(`https://liff.line.me/1557984400-gjEoY0y1/liff-sp${this.$route.fullPath}`)
-      if (isOk) {
-        this.$toast.success({
-          message: '已複製群組網址',
-          duration: 700,
-        })
-      }
-    },
-  },
+watch(showEditor, (opened) => {
+  if (!opened || !group.value) {
+    return
+  }
+
+  form.groupName = group.value.name
+  form.isPrivate = !!group.value.password
+  form.password = group.value.password
+})
+
+onMounted(() => {
+  turnipSVC.listenerGroupById(groupId, (currentGroup) => {
+    group.value = currentGroup
+
+    if (!group.value?.members?.includes(profile.value?.userId)) {
+      router.replace({ name: 'TurnipGroup' })
+    }
+  })
+})
+
+onBeforeUnmount(() => {
+  turnipSVC.removeListenerGroupById(groupId)
+})
+
+onBeforeRouteLeave(() => {
+  turnipSVC.removeListenerGroupById(groupId)
+})
+
+async function removeMembers(userId: string) {
+  if (!group.value) {
+    return
+  }
+
+  try {
+    await showConfirmDialog({
+      title: '確定嗎？',
+    })
+
+    const members = group.value.members.filter((id: string) => id !== userId)
+
+    await turnipSVC.updateGroup(groupId, {
+      ...group.value,
+      members,
+    })
+
+    showNotify({
+      type: 'success',
+      message: '成功',
+    })
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
+async function onSubmit() {
+  if (!group.value) {
+    return
+  }
+
+  try {
+    await turnipSVC.updateGroup(groupId, {
+      ...group.value,
+      name: form.groupName,
+      password: form.isPrivate ? form.password : '',
+    })
+
+    showEditor.value = false
+    showNotify({
+      type: 'success',
+      message: '修改成功',
+    })
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
+async function removeGroup() {
+  try {
+    await showConfirmDialog({
+      title: '注意，此動作無法復原',
+      message: '確定要刪除群組？',
+    })
+
+    await turnipSVC.removeGroup(groupId)
+    router.replace({ name: 'TurnipGroup' })
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
+function copyLink() {
+  const isOk = copyValue(`https://liff.line.me/1557984400-gjEoY0y1/liff-sp${route.fullPath}`)
+  if (isOk) {
+    Toast.success({
+      message: '已複製群組網址',
+      duration: 700,
+    })
+  }
 }
 </script>
 
@@ -205,20 +198,17 @@ export default {
       :loading="!group"
     />
     <div v-else>
-      <van-cell
-        class="margin-b-15"
-        :title="group.name"
-        :border="false"
-        center
-      >
-        <template #label>
+      <section class="turnip-group-details__hero app-surface margin-b-15">
+        <div class="turnip-group-details__hero-head">
           <div>
-            <van-icon name="user-o" />
-            <span class="margin-l-5">{{ group.members.length }}</span>
+            <div class="turnip-group-details__name">
+              {{ group.name }}
+            </div>
+            <div class="little-text">
+              {{ group.members.length }} 位成員
+            </div>
           </div>
-        </template>
-        <template #right-icon>
-          <div>
+          <div class="turnip-group-details__actions">
             <van-button
               v-if="isCreator"
               class="margin-r-5"
@@ -232,13 +222,12 @@ export default {
               v-else
               class="margin-r-5"
               type="danger"
-              size="mini"
+              size="small"
               @click="removeMembers(profile.userId)"
             >
               退出
             </van-button>
             <van-button
-              class="padding-lr-5"
               type="primary"
               size="mini"
               plain
@@ -247,47 +236,39 @@ export default {
               複製網址
             </van-button>
           </div>
-        </template>
-      </van-cell>
-      <van-panel v-for="item in filterPriceList" :key="item.id" class="margin-b-15">
-        <template #header>
-          <van-cell>
-            <template #icon>
-              <van-image
-                v-if="item.profile.pictureUrl"
+        </div>
+      </section>
 
-                class="margin-r-15"
-                :src="item.profile.pictureUrl"
-                width="50"
-                height="50"
-                round
-                lazy-load
-              />
-            </template>
-            <template #title>
-              <div>
+      <section v-for="item in filterPriceList" :key="item.id" class="turnip-member-card app-surface margin-b-15">
+        <div class="turnip-member-card__head">
+          <div class="turnip-member-card__profile">
+            <van-image
+              v-if="item.profile.pictureUrl"
+              class="turnip-member-card__avatar"
+              :src="item.profile.pictureUrl"
+              width="52"
+              height="52"
+              round
+              lazy-load
+            />
+            <div>
+              <div class="turnip-member-card__name">
                 {{ item.profile.displayName }}
               </div>
-            </template>
-            <template #label>
               <div class="little-text">
-                買價：{{ item.buyPrice }}
+                買價：{{ item.buyPrice || '--' }}
               </div>
-            </template>
-            <template #right-icon>
-              <div v-if="isCreator && item.id !== profile.userId">
-                <van-button type="danger" size="mini" @click="removeMembers(item.id)">
-                  移出
-                </van-button>
-              </div>
-            </template>
-          </van-cell>
-        </template>
-        <TurnipSellPrice :sell-price="item.sellPrice" />
-        <div class="padding-bt-10">
-          <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
+            </div>
+          </div>
+          <div v-if="isCreator && item.id !== profile.userId">
+            <van-button type="danger" size="mini" @click="removeMembers(item.id)">
+              移出
+            </van-button>
+          </div>
         </div>
-      </van-panel>
+        <TurnipSellPrice :sell-price="item.sellPrice" />
+        <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
+      </section>
 
       <van-popup
         v-model:show="showEditor"
@@ -341,4 +322,34 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.turnip-group-details__hero,
+.turnip-member-card {
+  padding: 20px;
+}
+
+.turnip-group-details__hero-head,
+.turnip-member-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+
+.turnip-group-details__name,
+.turnip-member-card__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.turnip-group-details__actions {
+  display: flex;
+  align-items: center;
+}
+
+.turnip-member-card__profile {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
 </style>

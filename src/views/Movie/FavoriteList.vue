@@ -1,75 +1,74 @@
-<script>
-import { mapState } from 'pinia'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { showConfirmDialog } from 'vant'
+import { onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
 import { movieRef } from '@/plugins/firebase'
 import { Toast } from '@/plugins/vant'
+import { filters } from '@/plugins/vue-filter'
 import { useAppStore } from '@/store'
 
-export default {
-  beforeRouteEnter(to, from, next) {
-    const appStore = useAppStore()
-    if (appStore.isLoggedIn) {
-      next()
-    }
-    else {
-      Toast.fail('必須要登入才可以使用唷！')
-      next({ name: 'MovieSearchTypeChoice' })
-    }
-  },
-  data() {
-    return {
-      favoriteList: [],
-      isLoading: false,
-    }
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
-  },
+const router = useRouter()
+const appStore = useAppStore()
+const { isLoggedIn, profile } = storeToRefs(appStore)
 
-  created() {
-    this.isLoading = true
-    movieRef.child(`favorite-movie-${this.profile.userId}`).on('value', (snapshot) => {
-      const data = snapshot.val()
+const favoriteList = ref<any[]>([])
+const isLoading = shallowRef(false)
 
-      if (data && data?.length) {
-        this.favoriteList = data || []
-      }
-      this.isLoading = false
+onMounted(() => {
+  if (!isLoggedIn.value || !profile.value?.userId) {
+    Toast.fail('必須要登入才可以使用唷！')
+    router.replace({ name: 'MovieSearchTypeChoice' })
+    return
+  }
+
+  isLoading.value = true
+  movieRef.child(`favorite-movie-${profile.value.userId}`).on('value', (snapshot) => {
+    const data = snapshot.val()
+    favoriteList.value = data?.length ? data : []
+    isLoading.value = false
+  })
+})
+
+onBeforeUnmount(() => {
+  if (profile.value?.userId) {
+    movieRef.child(`favorite-movie-${profile.value.userId}`).off()
+  }
+})
+
+async function removeFavorite(item: any) {
+  if (!profile.value?.userId) {
+    return
+  }
+
+  try {
+    await showConfirmDialog({
+      title: '確定要刪除收藏嗎？',
     })
-  },
-  beforeUnmount() {
-    movieRef.child(`favorite-movie-${this.profile.userId}`).off()
-  },
-  methods: {
-    async removeFavorite(item) {
-      try {
-        await this.$dialog.confirm({
-          title: '確定要刪除收藏嗎？',
-        })
 
-        this.favoriteList = this.favoriteList.filter(f => f.id !== item.id)
+    favoriteList.value = favoriteList.value.filter(favorite => favorite.id !== item.id)
+    movieRef.child(`favorite-movie-${profile.value.userId}`).set(favoriteList.value)
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
 
-        movieRef.child(`favorite-movie-${this.profile.userId}`).set(this.favoriteList)
-      }
-      catch (err) {
-        console.log(err)
-      }
-    },
-    getSrc(src = '') {
-      return !src || src.includes('l10l010l3322l1')
-        ? 'https://via.placeholder.com/250x370?text=404'
-        : `https://www.atmovies.com.tw${src}`
-    },
-    goMovie({ id }) {
-      this.$router.push({ name: 'MovieDetails', params: { id } })
-    },
-  },
+function getSrc(src = '') {
+  return !src || src.includes('l10l010l3322l1')
+    ? 'https://via.placeholder.com/250x370?text=404'
+    : `https://www.atmovies.com.tw${src}`
+}
+
+function goMovie(item: any) {
+  router.push({ name: 'MovieDetails', params: { id: item.id }, query: { title: item.name } })
 }
 </script>
 
 <template>
   <div class="favorite-list">
-    <van-panel v-show="isLoading">
-      <div slot="header" class="padding-bt-10">
+    <div v-if="isLoading" class="movie-favorites__stack">
+      <div v-for="n in 3" :key="n" class="app-surface movie-favorites__skeleton">
         <van-skeleton
           title
           avatar
@@ -77,50 +76,62 @@ export default {
           :row="4"
         />
       </div>
-    </van-panel>
-    <van-panel
+    </div>
+
+    <article
       v-for="item in favoriteList"
-      v-show="!isLoading"
       :key="item.id"
-      class="margin-bt-10"
+      class="movie-favorites__card app-surface"
     >
-      <div slot="header">
-        <van-cell :title="item.name" size="large">
-          <van-image
-            slot="right-icon"
-            width="40"
-            fit="contain"
-            :src="item.cerImg"
-            lazy-load
-          />
-        </van-cell>
-      </div>
-      <van-row class="padding-lr-15" :gutter="15">
-        <van-col span="7">
-          <van-image
-            :src="getSrc(item.poster)"
-            width="100%"
-            lazy-load
-            @click="goMovie(item)"
-          />
-        </van-col>
-        <van-col span="17">
-          <p class="fs-14">
-            {{ item.description }}
-          </p>
-          <van-tag plain class="margin-r-5 margin-bt-5">
-            片長: {{ item.runtime }} 分
-          </van-tag>
-          <van-tag plain class="margin-bt-5">
-            上映日期: {{ item.releaseDate }}
-          </van-tag>
-        </van-col>
-      </van-row>
-      <div slot="footer">
-        <div class="flex-between">
-          <div class="little-text">
-            加入收藏日期 {{ $filters.formatDate(item.dateCreated) }}
+      <div class="movie-favorites__head">
+        <div>
+          <div class="movie-favorites__card-title">
+            {{ item.name }}
           </div>
+          <div class="little-text">
+            加入收藏日期 {{ filters.formatDate(item.dateCreated) }}
+          </div>
+        </div>
+        <van-image
+          v-if="item.cerImg"
+          width="40"
+          fit="contain"
+          :src="item.cerImg"
+          lazy-load
+        />
+      </div>
+
+      <div class="movie-favorites__body">
+        <van-image
+          class="movie-favorites__poster"
+          :src="getSrc(item.poster)"
+          width="92"
+          height="132"
+          radius="18"
+          fit="cover"
+          lazy-load
+          @click="goMovie(item)"
+        />
+        <div class="movie-favorites__content">
+          <p class="movie-favorites__description">
+            {{ item.description || '暫無簡介。' }}
+          </p>
+          <div class="movie-favorites__meta">
+            <van-tag plain class="margin-r-5 margin-bt-5">
+              片長: {{ item.runtime }} 分
+            </van-tag>
+            <van-tag plain class="margin-bt-5">
+              上映日期: {{ item.releaseDate }}
+            </van-tag>
+          </div>
+        </div>
+      </div>
+
+      <div class="movie-favorites__footer">
+        <van-button size="small" plain @click="goMovie(item)">
+          查看電影
+        </van-button>
+        <div>
           <van-button
             icon="delete"
             type="danger"
@@ -131,20 +142,54 @@ export default {
           </van-button>
         </div>
       </div>
-    </van-panel>
-    <van-panel v-show="!favoriteList.length && !isLoading">
-      <div slot="header">
-        <div class="text-center padding-bt-30">
-          <van-icon class="fs-30" name="info" />
-          <div>這裡還什麼都沒有</div>
-        </div>
-      </div>
-    </van-panel>
+    </article>
+
+    <section v-if="!favoriteList.length && !isLoading" class="app-surface app-empty">
+      這裡還什麼都沒有
+    </section>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .favorite-list {
   padding-bottom: calc(env(safe-area-inset-bottom) + 65px);
+}
+
+.movie-favorites__card,
+.movie-favorites__skeleton {
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.movie-favorites__card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.movie-favorites__head,
+.movie-favorites__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.movie-favorites__body {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.movie-favorites__description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--van-text-color-2);
+}
+
+.movie-favorites__meta {
+  margin-top: 12px;
 }
 </style>

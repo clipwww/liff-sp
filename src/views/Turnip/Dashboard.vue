@@ -1,162 +1,160 @@
-<script>
-import { mapState } from 'pinia'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { computed, ref, shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
 import TurnipLineChart from '@/components/TurnipLineChart.vue'
-
 import TurnipSellPrice from '@/components/TurnipSellPrice.vue'
-
+import { filters } from '@/plugins/vue-filter'
 import { useAppStore } from '@/store'
 import { momentUtil } from '@/utils'
 
+const props = withDefaults(defineProps<{
+  groupList?: any[]
+  priceList?: any[]
+  histories?: any[]
+}>(), {
+  groupList: () => [],
+  priceList: () => [],
+  histories: () => [],
+})
+
 const weekdays = momentUtil.getWeekdays()
-const sellPrice = {}
-weekdays.forEach((item) => {
-  sellPrice[item.id] = {
-    am: '',
-    pm: '',
+
+function createSellPrice() {
+  return weekdays.reduce<Record<string, { am: string, pm: string }>>((result, item) => {
+    result[item.id] = {
+      am: '',
+      pm: '',
+    }
+    return result
+  }, {})
+}
+
+const router = useRouter()
+const appStore = useAppStore()
+const { profile } = storeToRefs(appStore)
+
+const showHistory = shallowRef(false)
+const historyItem = ref<any | null>(null)
+
+const filterGroupList = computed(() => {
+  return props.groupList.filter(item => item.members.includes(profile.value?.userId))
+})
+
+const filterHistories = computed(() => {
+  return props.histories.filter((item, index) => index < 3)
+})
+
+const item = computed(() => {
+  return {
+    profile: profile.value,
+    ...(props.priceList.find(entry => entry.id === profile.value?.userId) || {
+      buyPrice: '',
+      sellPrice: createSellPrice(),
+    }),
   }
 })
 
-export default {
-  components: {
-    TurnipLineChart,
-    TurnipSellPrice,
-  },
+function goDetails(group: any) {
+  router.push({ name: 'TurnipGroupDetails', params: { id: group.id } })
+}
 
-  props: {
-    groupList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-    priceList: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-    histories: {
-      type: Array,
-      default() {
-        return []
-      },
-    },
-  },
-  data() {
-    return {
-      weekdays,
-
-      showHistory: false,
-      historyItem: null,
-    }
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
-    filterGroupList() {
-      return this.groupList.filter(item => item.members.includes(this.profile.userId))
-    },
-    filterHistories() {
-      return this.histories.filter((item, index) => index < 3)
-    },
-    item() {
-      return {
-        profile: this.profile,
-        ...(this.priceList.find(item => item.id === this.profile.userId) || {
-          buyPrice: '',
-          sellPrice,
-        }),
-      }
-    },
-  },
-  methods: {
-    goDetails(item) {
-      this.$router.push({ name: 'TurnipGroupDetails', params: { id: item.id } })
-    },
-    openHistory(item) {
-      console.log(item)
-      this.historyItem = item
-      this.showHistory = true
-    },
-  },
+function openHistory(history: any) {
+  historyItem.value = history
+  showHistory.value = true
 }
 </script>
 
 <template>
-  <div>
-    <van-panel v-if="item">
-      <van-cell slot="header">
-        <van-image
-          v-if="item.profile.pictureUrl"
-          slot="icon"
-          class="margin-r-15"
-          :src="item.profile.pictureUrl"
-          width="50"
-          height="50"
-          round
-          lazy-load
-        />
-        <div slot="title">
-          {{ item.profile.displayName }}
+  <div class="turnip-dashboard">
+    <section v-if="item.profile" class="app-surface app-section turnip-dashboard__profile-card">
+      <div class="turnip-dashboard__profile-head">
+        <div class="turnip-dashboard__profile-main">
+          <van-image
+            v-if="item.profile.pictureUrl"
+            class="turnip-dashboard__avatar"
+            :src="item.profile.pictureUrl"
+            width="56"
+            height="56"
+            round
+            lazy-load
+          />
+          <div>
+            <div class="turnip-dashboard__profile-name">
+              {{ item.profile.displayName }}
+            </div>
+            <div class="little-text">
+              買價：{{ item.buyPrice || '--' }}
+            </div>
+          </div>
         </div>
-        <div slot="label" class="little-text">
-          買價：{{ item.buyPrice }}
-        </div>
-      </van-cell>
+      </div>
       <TurnipSellPrice :sell-price="item.sellPrice" />
-      <div class="padding-bt-10">
-        <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
-      </div>
-    </van-panel>
-    <van-panel v-else>
-      <div slot="header">
-        <div class="text-center padding-bt-30">
-          <van-icon class="fs-30" name="info" />
-          <div>本週次還沒提供任何菜價唷</div>
-        </div>
-      </div>
-    </van-panel>
+      <TurnipLineChart :id="item.id" :buy-price="item.buyPrice" :sell-price="item.sellPrice" />
+    </section>
 
-    <van-cell-group title="已加入群組">
-      <van-cell
-        v-for="group in filterGroupList"
-        :key="group.id"
-        :title="group.name"
-        center
-        is-link
-        clickable
-        @click="goDetails(group)"
-      >
-        <div slot="label">
-          <van-icon name="user-o" />
-          <span class="margin-l-5">{{ group.members.length }}</span>
-        </div>
-      </van-cell>
-    </van-cell-group>
+    <section v-else class="app-surface app-empty app-section">
+      本週次還沒提供任何菜價唷
+    </section>
 
-    <van-cell-group title="歷史紀錄">
-      <van-cell
-        v-for="history in filterHistories"
-        :key="history.id"
-        center
-        is-link
-        @click="openHistory(history)"
-      >
-        <div slot="title">
-          {{ $filters.formatWeekRange(history.id) }}
+    <section class="app-section">
+      <div class="turnip-dashboard__section-head">
+        <div class="app-section-title">
+          已加入群組
         </div>
-        <div slot="label">
-          {{ $filters.formatYear(history.id) }} 第{{ $filters.formatWeek(history.id) }}
+        <div class="little-text">
+          {{ filterGroupList.length }} 個群組
         </div>
-      </van-cell>
-      <van-cell
-        v-if="histories.length > 3"
-        is-link
-        center
-        title
-        label="查看更多"
-        :to="{ name: 'TurnipHistories' }"
-      />
-    </van-cell-group>
+      </div>
+
+      <div class="turnip-dashboard__group-list">
+        <button
+          v-for="group in filterGroupList"
+          :key="group.id"
+          type="button"
+          class="turnip-dashboard__group-card app-surface"
+          @click="goDetails(group)"
+        >
+          <div class="turnip-dashboard__group-name">
+            {{ group.name }}
+          </div>
+          <div class="little-text">
+            {{ group.members.length }} 位成員
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section class="app-section">
+      <div class="turnip-dashboard__section-head">
+        <div class="app-section-title">
+          歷史紀錄
+        </div>
+        <router-link v-if="histories.length > 3" class="turnip-dashboard__history-link" :to="{ name: 'TurnipHistories' }">
+          查看更多
+        </router-link>
+      </div>
+
+      <div class="turnip-dashboard__history-list">
+        <button
+          v-for="history in filterHistories"
+          :key="history.id"
+          type="button"
+          class="turnip-dashboard__history-card app-surface"
+          @click="openHistory(history)"
+        >
+          <div class="turnip-dashboard__history-title">
+            {{ filters.formatWeekRange(history.id) }}
+          </div>
+          <div class="little-text">
+            {{ filters.formatYear(history.id) }} 第{{ filters.formatWeek(history.id) }}
+          </div>
+          <div class="turnip-dashboard__history-buy">
+            買價 {{ history.buyPrice || '--' }}
+          </div>
+        </button>
+      </div>
+    </section>
 
     <van-popup
       v-model:show="showHistory"
@@ -165,7 +163,7 @@ export default {
       :style="{ height: '70%' }"
     >
       <div v-if="historyItem">
-        <van-divider>{{ $filters.formatWeekRange(historyItem.id) }}</van-divider>
+        <van-divider>{{ filters.formatWeekRange(historyItem.id) }}</van-divider>
         <div class="little-text padding-a-10">
           買價：{{ historyItem.buyPrice }}
         </div>
@@ -181,4 +179,56 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.turnip-dashboard__profile-card {
+  padding: 20px;
+}
+
+.turnip-dashboard__profile-head {
+  margin-bottom: 14px;
+}
+
+.turnip-dashboard__profile-main {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.turnip-dashboard__profile-name,
+.turnip-dashboard__group-name,
+.turnip-dashboard__history-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.turnip-dashboard__section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.turnip-dashboard__group-list,
+.turnip-dashboard__history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.turnip-dashboard__group-card,
+.turnip-dashboard__history-card {
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  text-align: left;
+}
+
+.turnip-dashboard__history-buy {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--van-text-color);
+}
+
+.turnip-dashboard__history-link {
+  color: var(--van-primary-color);
+}
 </style>

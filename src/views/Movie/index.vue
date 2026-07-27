@@ -1,56 +1,91 @@
-<script>
-import { mapState } from 'pinia'
-import { useAppStore } from '@/store'
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
 
-export default {
-  data() {
-    return {}
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn']),
-  },
-  methods: {
+const router = useRouter()
 
+const movieLinks = [
+  {
+    icon: 'wap-home',
+    label: '電影院查詢',
+    routeName: 'MovieTheaterList',
   },
+  {
+    icon: 'video',
+    label: '上映中電影查詢',
+    routeName: 'MovieList',
+  },
+  {
+    icon: 'new',
+    label: '近期上映',
+    routeName: 'MovieNext',
+  },
+  {
+    icon: 'play-circle-o',
+    label: '威秀時刻表',
+    routeName: 'MovieVieshow',
+  },
+  {
+    icon: 'like-o',
+    label: '收藏的電影',
+    routeName: 'MovieFavoriteList',
+  },
+]
+
+function goFeature(routeName: string) {
+  router.push({ name: routeName })
 }
 </script>
 
 <template>
-  <div class="margin-bt-10">
-    <van-grid :gutter="10" :column-num="2">
-      <van-grid-item clickable :to="{ name: 'MovieTheaterList' }">
-        <div class="text-center">
-          <van-icon class="fs-30" name="wap-home" />
-          <div>電影院查詢</div>
+  <div class="movie-home">
+    <section class="app-section movie-home__grid">
+      <button
+        v-for="item in movieLinks"
+        :key="item.routeName"
+        type="button"
+        class="movie-home__card app-surface"
+        @click="goFeature(item.routeName)"
+      >
+        <div class="movie-home__card-icon">
+          <van-icon :name="item.icon" size="28" />
         </div>
-      </van-grid-item>
-      <van-grid-item clickable :to="{ name: 'MovieList' }">
-        <div class="text-center">
-          <van-icon class="fs-30" name="video" />
-          <div>上映中電影查詢</div>
+        <div class="movie-home__card-title">
+          {{ item.label }}
         </div>
-      </van-grid-item>
-      <van-grid-item clickable :to="{ name: 'MovieNext' }">
-        <div class="text-center">
-          <van-icon class="fs-30" name="new" />
-          <div>近期上映</div>
-        </div>
-      </van-grid-item>
-      <van-grid-item clickable :to="{ name: 'MovieVieshow' }">
-        <div class="text-center">
-          <van-icon class="fs-30" name="video" />
-          <div>威秀時刻表</div>
-        </div>
-      </van-grid-item>
-      <van-grid-item clickable :to="{ name: 'MovieFavoriteList' }">
-        <div class="text-center">
-          <van-icon class="fs-30" name="like" />
-          <div>收藏的電影</div>
-        </div>
-      </van-grid-item>
-    </van-grid>
+      </button>
+    </section>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.movie-home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.movie-home__card {
+  width: 100%;
+  padding: 20px;
+  border: 0;
+  text-align: left;
+}
+
+.movie-home__card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(25, 137, 250, 0.08);
+  color: var(--van-primary-color);
+}
+
+.movie-home__card-title {
+  margin-top: 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
 </style>

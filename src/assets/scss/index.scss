@@ -15,21 +15,70 @@
 }
 
 .van-nav-bar {
-  height: 40px;
-  line-height: 40px;
-  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
 .van-skeleton {
   &__avatar  {
-    background-color: #444;
+    background-color: var(--van-gray-3);
   }
   &__title, &__row {
-    background-color: #444;
+    background-color: var(--van-gray-3);
   }
 }
 .van-search__action {
   &:active {
     background-color: transparent;
+  }
+}
+
+:root {
+  --app-page-max-width: 960px;
+  --app-page-padding: 16px;
+}
+
+.app-page {
+  width: min(100%, var(--app-page-max-width));
+  margin: 0 auto;
+  padding: var(--app-page-padding);
+}
+
+.app-section + .app-section {
+  margin-top: 16px;
+}
+
+.app-surface {
+  background: var(--van-background-2);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.app-section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.app-section-copy {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--van-text-color-2);
+}
+
+.app-empty {
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--van-text-color-2);
+}
+
+.little-text {
+  color: var(--van-text-color-2);
+}
+
+.list {
+  &__container {
+    min-height: calc(100dvh - var(--van-nav-bar-height));
   }
 }

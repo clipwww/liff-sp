@@ -1,127 +1,110 @@
-<script>
+<script setup lang="ts">
 import _isEqual from 'lodash/isEqual'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import dayjs from '@/plugins/dayjs'
-
 import { movieRef } from '@/plugins/firebase'
 import { movieSVC } from '@/services'
 
-export default {
-  metaInfo() {
-    return {
-      title: this.$route.query.title || this.theaterInfo.name,
-    }
-  },
-  data() {
-    return {
-      theaterInfo: {},
-      movies: [],
-      date: dayjs(),
-      showCalendar: false,
-      isEmpty: false,
-    }
-  },
-  computed: {
-    theaterId() {
-      return this.$route.params.id
-    },
-    cityId() {
-      return this.$route.query.cityId
-    },
-    formatDate() {
-      return this.date.format('YYYYMMDD')
-    },
-    maxDate() {
-      return dayjs().add(7, 'day').toDate()
-    },
-    isToday() {
-      return dayjs().isSame(this.date, 'day')
-    },
-  },
-  watch: {
-    formatDate: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        this.movies = []
+const route = useRoute()
+const router = useRouter()
 
-        movieRef.child(`theater-${this.theaterId}-${oldVal}`).off()
-        movieRef.child(`theater-${this.theaterId}-${newVal}`).off()
-        movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).on('value', (snapshot) => {
-          const data = snapshot.val()
-          if (data) {
-            this.theaterInfo = data.item
-            this.movies = data.items
-          }
-        })
-      },
-    },
-    showCalendar: {
-      immediate: true,
-      handler(bool) {
-        if (!bool) {
-          document.body?.classList?.remove('van-overflow-hidden')
+const theaterInfo = ref<any>({})
+const movies = ref<any[]>([])
+const date = ref(dayjs())
+const showCalendar = shallowRef(false)
+const isEmpty = shallowRef(false)
+
+const theaterId = route.params.id?.toString() ?? ''
+const cityId = route.query.cityId?.toString() ?? ''
+const formatDate = computed(() => date.value.format('YYYYMMDD'))
+const maxDate = computed(() => dayjs().add(7, 'day').toDate())
+
+watch(formatDate, (newValue, oldValue) => {
+  movies.value = []
+
+  movieRef.child(`theater-${theaterId}-${oldValue}`).off()
+  movieRef.child(`theater-${theaterId}-${newValue}`).off()
+  movieRef.child(`theater-${theaterId}-${formatDate.value}`).on('value', (snapshot) => {
+    const data = snapshot.val()
+    if (data) {
+      theaterInfo.value = data.item
+      movies.value = data.items
+    }
+  })
+
+  getTheaterById()
+}, { immediate: true })
+
+watch(showCalendar, (opened) => {
+  if (!opened) {
+    document.body?.classList?.remove('van-overflow-hidden')
+  }
+})
+
+onMounted(() => {
+  movieRef.on('value', (snapshot) => {
+    const value = snapshot.val()
+    if (!value || typeof value !== 'object') {
+      return
+    }
+
+    Object.keys(value)
+      .filter(key => key.includes('theater-'))
+      .forEach((key) => {
+        const data = snapshot.child(key).val()
+        if (data?.dateCreated && dayjs().isAfter(data.dateCreated, 'day')) {
+          movieRef.child(key).remove()
         }
-      },
-    },
-  },
-  created() {
-    movieRef.on('value', (snapshot) => {
-      const val = snapshot.val()
-      if (!val || typeof val !== 'object') { return }
-      Object.keys(val)
-        .filter(key => key.includes('theater-'))
-        .forEach((key) => {
-          const data = snapshot.child(key).val()
-          if (data?.dateCreated && dayjs().isAfter(data.dateCreated, 'day')) {
-            movieRef.child(key).remove()
-          }
-        })
-    })
+      })
+  })
+})
 
-    this.getTheaterById()
-  },
-  beforeUnmount() {
-    movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).off()
-    movieRef.off()
-  },
-  methods: {
-    async getTheaterById() {
-      this.isEmpty = false
-      const ret = await movieSVC.getTheaterById(this.theaterId, this.cityId, this.formatDate)
-      if (!ret.success) {
-        return
-      }
+onBeforeUnmount(() => {
+  movieRef.child(`theater-${theaterId}-${formatDate.value}`).off()
+  movieRef.off()
+})
 
-      if (!ret.items.length) {
-        this.isEmpty = true
-      }
+async function getTheaterById() {
+  isEmpty.value = false
+  const ret = await movieSVC.getTheaterById(theaterId, cityId, formatDate.value)
+  if (!ret.success) {
+    return
+  }
 
-      if (!_isEqual(this.movies, ret.items)) {
-        movieRef.child(`theater-${this.theaterId}-${this.formatDate}`).set({
-          item: ret.item,
-          items: ret.items,
-          dateCreated: dayjs().valueOf(),
-        })
-      }
-    },
-    onDateChange(value) {
-      this.date = dayjs(value)
-      this.showCalendar = false
-      this.getTheaterById()
-    },
-    isExpired(time) {
-      return dayjs().isAfter(dayjs(time, 'HH：mm'))
-    },
-    goMovie({ id }) {
-      this.$router.push({ name: 'MovieDetails', params: { id } })
-    },
-  },
+  if (!ret.items.length) {
+    isEmpty.value = true
+  }
+
+  if (!_isEqual(movies.value, ret.items)) {
+    movieRef.child(`theater-${theaterId}-${formatDate.value}`).set({ item: ret.item, items: ret.items, dateCreated: dayjs().valueOf() })
+  }
+}
+
+function onDateChange(value: Date) {
+  date.value = dayjs(value)
+  showCalendar.value = false
+}
+
+function isExpired(time: string) {
+  return dayjs().isAfter(dayjs(time, 'HH：mm'))
+}
+
+function goMovie(item: any) {
+  router.push({ name: 'MovieDetails', params: { id: item.id }, query: { title: item.title } })
 }
 </script>
 
 <template>
   <div>
-    <van-panel :title="theaterInfo.name" :desc="theaterInfo.address">
-      <div slot="footer">
+    <section class="movie-theater-details__hero app-surface">
+      <div class="movie-theater-details__title">
+        {{ theaterInfo.name || '影城資訊' }}
+      </div>
+      <div class="movie-theater-details__address">
+        {{ theaterInfo.address }}
+      </div>
+      <div class="movie-theater-details__meta">
         <van-tag plain class="margin-r-5 margin-bt-5">
           營業時間 {{ theaterInfo.openingHours }}
         </van-tag>
@@ -132,7 +115,7 @@ export default {
           <van-tag plain>網站</van-tag>
         </a>
       </div>
-    </van-panel>
+    </section>
 
     <van-cell
       class="margin-t-5"
@@ -148,64 +131,109 @@ export default {
       @confirm="onDateChange"
     />
 
-    <van-card
+    <article
       v-for="item in movies"
       :key="item.id"
-      :title="item.title"
-      @click-thumb="goMovie(item)"
+      class="movie-theater-details__card app-surface"
     >
-      <div slot="thumb">
+      <div class="movie-theater-details__card-head">
+        <div class="movie-theater-details__card-title">
+          {{ item.title }}
+        </div>
+        <van-button size="small" plain @click="goMovie(item)">
+          查看電影
+        </van-button>
+      </div>
+
+      <div class="movie-theater-details__card-body">
         <van-image
+          class="movie-theater-details__thumb"
           height="88"
+          width="88"
           fit="cover"
           :src="item.image"
           lazy-load
         />
-        <div class="margin-t-5">
+        <div class="movie-theater-details__content">
           <van-image
-            class="square"
+            v-if="item.cerImg"
+            class="margin-b-10 square"
             width="35"
             fit="contain"
             :src="item.cerImg"
             lazy-load
           />
+          <div>片長: {{ item.runtime }} 分</div>
+          <div v-for="(v, i) in item.versions" :key="i">
+            <van-divider content-position="left">
+              {{ v.name || '數位' }}
+            </van-divider>
+            <van-tag
+              v-for="(time, n) in v.times"
+              :key="n"
+              class="margin-a-5"
+              :type="isExpired(time) ? 'default' : 'success'"
+              plain
+            >
+              {{ time }}
+            </van-tag>
+          </div>
         </div>
       </div>
-
-      <div slot="desc">
-        <div>片長: {{ item.runtime }} 分</div>
-        <div v-for="(v, i) in item.versions" :key="i">
-          <van-divider content-position="left">
-            {{ v.name || '數位' }}
-          </van-divider>
-          <van-tag
-            v-for="(time, n) in v.times"
-            :key="n"
-            class="margin-a-5"
-            :type="isExpired(time) ? 'default' : 'success'"
-            plain
-          >
-            {{ time }}
-          </van-tag>
-        </div>
-      </div>
-    </van-card>
+    </article>
     <template v-if="!movies.length && !isEmpty">
-      <van-card v-for="n in 3" :key="n">
+      <div v-for="n in 3" :key="n" class="app-surface movie-theater-details__skeleton">
         <van-skeleton
-          slot="desc"
           title
           avatar
           avatar-size="88px"
           avatar-shape="square"
           :row="3"
         />
-      </van-card>
+      </div>
     </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.movie-theater-details__hero,
+.movie-theater-details__card,
+.movie-theater-details__skeleton {
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.movie-theater-details__title,
+.movie-theater-details__card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--van-text-color);
+}
+
+.movie-theater-details__address {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--van-text-color-2);
+}
+
+.movie-theater-details__meta {
+  margin-top: 12px;
+}
+
+.movie-theater-details__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.movie-theater-details__card-body {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
 .square {
   :deep(img) {
     border-radius: 0;

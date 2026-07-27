@@ -1,11 +1,11 @@
-<script>
-export default {
-  name: 'VanPanel',
-  props: {
-    title: { type: String, default: '' },
-    desc: { type: String, default: '' },
-  },
-}
+<script setup lang="ts">
+withDefaults(defineProps<{
+  title?: string
+  desc?: string
+}>(), {
+  title: '',
+  desc: '',
+})
 </script>
 
 <template>

@@ -1,89 +1,74 @@
-<script>
+<script setup lang="ts">
+import { ref, shallowRef, watch } from 'vue'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import KomicaPostCell from '@/components/KomicaPostCell.vue'
 import { komicaSVC } from '@/services'
-
 import { lsUtil } from '@/utils'
 
-export default {
-  components: {
-    KomicaPostCell,
-  },
-  beforeRouteLeave(to, from, next) {
-    if (to.name.includes('Details')) {
-      lsUtil.setObj(`${this.$route.name}-items`, this.items)
-      lsUtil.set(`${this.$route.name}-page`, this.page)
-      lsUtil.set(`${this.$route.name}-finished`, this.isFinished)
-    }
-    else {
-      lsUtil.remove(`${this.$route.name}-items`)
-      lsUtil.remove(`${this.$route.name}-page`)
-      lsUtil.remove(`${this.$route.name}-finished`)
-    }
-    next()
-  },
-  data() {
-    return {
-      item: null,
-      items: lsUtil.getObj(`${this.$route.name}-items`) || [],
-      page: +lsUtil.get(`${this.$route.name}-page`) || 1,
-      isLoading: false,
-      isFinished: lsUtil.get(`${this.$route.name}-finished`) === 'true',
-      isRefreshing: false,
-      showPopup: false,
-    }
-  },
-  computed: {
-    komicaType() {
-      switch (true) {
-        case this.$route.name.includes('KomicaNew'):
-          return 'new'
-        case this.$route.name.includes('KomicaLive'):
-          return 'live'
-        default:
-          return ''
-      }
-    },
-  },
-  watch: {
-    showPopup(bool) {
-      if (!bool) {
-        this.item = null
-      }
-    },
-  },
-  methods: {
-    async getList(init = false) {
-      if (init) {
-        this.items = []
-        this.page = 1
-        this.isFinished = false
-        this.isRefreshing = false
-      }
+const route = useRoute()
+const router = useRouter()
 
-      this.isLoading = true
-      const ret = await komicaSVC.getList(this.komicaType, this.page)
-      this.isLoading = false
-      this.isRefreshing = false
-      if (!ret.success) {
-        this.isFinished = true
-        return
-      }
+const item = ref<any | null>(null)
+const items = ref<any[]>(lsUtil.getObj(`${route.name}-items`) || [])
+const page = shallowRef(+lsUtil.get(`${route.name}-page`) || 1)
+const isLoading = shallowRef(false)
+const isFinished = shallowRef(lsUtil.get(`${route.name}-finished`) === 'true')
+const isRefreshing = shallowRef(false)
+const showPopup = shallowRef(false)
 
-      this.page++
-      if (this.page > ret.pages?.length) {
-        this.isFinished = true
-      }
-      this.items = this.items.concat(ret.items)
-    },
-    openPopup(item) {
-      this.item = item
-      this.showPopup = true
-    },
-    goDetails(item) {
-      const name = this.komicaType === 'new' ? 'KomicaNewDetails' : 'KomicaLiveDetails'
-      this.$router.push({ name, params: { id: item.id }, query: { title: item.title } })
-    },
-  },
+const komicaType = route.name?.toString().includes('KomicaLive') ? 'live' : 'new'
+
+watch(showPopup, (opened) => {
+  if (!opened) {
+    item.value = null
+  }
+})
+
+onBeforeRouteLeave((to) => {
+  if (to.name?.toString().includes('Details')) {
+    lsUtil.setObj(`${route.name}-items`, items.value)
+    lsUtil.set(`${route.name}-page`, page.value)
+    lsUtil.set(`${route.name}-finished`, isFinished.value)
+    return
+  }
+
+  lsUtil.remove(`${route.name}-items`)
+  lsUtil.remove(`${route.name}-page`)
+  lsUtil.remove(`${route.name}-finished`)
+})
+
+async function getList(init = false) {
+  if (init) {
+    items.value = []
+    page.value = 1
+    isFinished.value = false
+    isRefreshing.value = false
+  }
+
+  isLoading.value = true
+  const ret = await komicaSVC.getList(komicaType, page.value)
+  isLoading.value = false
+  isRefreshing.value = false
+  if (!ret.success) {
+    isFinished.value = true
+    return
+  }
+
+  page.value += 1
+  if (page.value > ret.pages?.length) {
+    isFinished.value = true
+  }
+  items.value = items.value.concat(ret.items)
+}
+
+function openPopup(post: any) {
+  item.value = post
+  showPopup.value = true
+}
+
+function goDetails(post: any) {
+  const name = komicaType === 'new' ? 'KomicaNewDetails' : 'KomicaLiveDetails'
+  router.push({ name, params: { id: post.id }, query: { title: post.title } })
 }
 </script>
 
@@ -118,7 +103,6 @@ export default {
             :key="post.id"
             :item="post"
             show-preview-btn
-            ellipsis
             @click="goDetails(post)"
             @click-preview="openPopup(post)"
           />

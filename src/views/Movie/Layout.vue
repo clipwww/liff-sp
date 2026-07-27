@@ -1,19 +1,15 @@
-<script>
-export default {
-  data() {
-    return {}
-  },
-  methods: {},
-}
+<script setup lang="ts">
 </script>
 
 <template>
-  <div>
-    <div class="movie-container">
-      <router-view />
-    </div>
-  </div>
+  <section class="movie-layout app-page">
+    <router-view />
+  </section>
 </template>
 
 <style lang="scss" scoped>
+.movie-layout {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 </style>

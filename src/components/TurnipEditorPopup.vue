@@ -1,136 +1,121 @@
-<script>
-import { mapState } from 'pinia'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { showNotify } from 'vant'
+import { nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import dayjs from '@/plugins/dayjs'
 import { turnipSVC } from '@/services'
-
 import { useAppStore } from '@/store'
 import { momentUtil } from '@/utils'
+
+const emit = defineEmits<{
+  success: []
+}>()
+
+const isOpen = defineModel<boolean>({ required: true })
 
 const weekStart = momentUtil.getWeekStart()
 const weekdays = momentUtil.getWeekdays()
 
-const sellPrice = {}
-weekdays.forEach((item) => {
-  sellPrice[item.id] = {
-    am: '',
-    pm: '',
-  }
-})
-
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  emits: ['input', 'success'],
-  data() {
-    return {
-      buyDay: weekStart.format('M/D (ddd)'),
-      weekdays,
-      sellPrice,
-      buyPrice: '',
-      islandName: '',
-      isLoading: false,
-      showBtn: false,
+function createSellPrice() {
+  return weekdays.reduce<Record<string, { am: string, pm: string }>>((result, item) => {
+    result[item.id] = {
+      am: '',
+      pm: '',
     }
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
-    isOpen: {
-      get() {
-        return this.value
-      },
-      set(bool) {
-        this.$emit('input', bool)
-      },
-    },
-  },
-  watch: {
-    isOpen: {
-      immediate: true,
-      handler(bool) {
-        if (bool) {
-          this.getTurnipPrice()
-        }
-      },
-    },
-  },
-  methods: {
-    async getTurnipPrice() {
-      this.isLoading = true
-      const data = await turnipSVC.getPriceByUserId(this.profile.userId, weekStart)
+    return result
+  }, {})
+}
 
-      if (data) {
-        const { buyPrice, sellPrice } = data
-        this.buyPrice = buyPrice
-        this.sellPrice = sellPrice
-      }
-      this.isLoading = false
-      this.focusField()
-    },
-    async updateTurnipPrice() {
-      try {
-        this.isLoading = true
-        await Promise.all([
-          turnipSVC.updatePriceByUserId(this.profile.userId, weekStart, {
-            buyPrice: this.buyPrice,
-            sellPrice: this.sellPrice,
-          }),
-          this.updateProfileByUserId(),
-        ])
+const popupRef = useTemplateRef('popup')
 
-        this.$notify({
-          type: 'success',
-          message: '儲存成功',
-        })
-        this.$emit('success')
-        this.isOpen = false
-      }
-      catch (err) {
-        console.log(err)
-      }
-      finally {
-        this.isLoading = false
-      }
-    },
-    async updateProfileByUserId() {
-      try {
-        await turnipSVC.updateProfileByUserId(this.profile.userId, this.profile)
-      }
-      catch (err) {
-        console.log(err)
-      }
-    },
-    focusField() {
-      this.$nextTick(() => {
-        try {
-          if (dayjs().isSame(weekStart, 'day')) {
-            return
-          }
+const appStore = useAppStore()
+const { profile } = storeToRefs(appStore)
 
-          let offsetCount = 0
+const buyPrice = shallowRef('')
+const sellPrice = ref(createSellPrice())
+const isLoading = shallowRef(false)
+const showBtn = shallowRef(false)
 
-          const now = dayjs()
-          const w = now.weekday()
-          const key = now.locale('en-us').format('a')
-          console.log('[key]', key)
+watch(isOpen, async (opened) => {
+  if (!opened || !profile.value?.userId) {
+    return
+  }
 
-          offsetCount = w * 2
-          if (key === 'am') {
-            offsetCount -= 1
-          }
-          // this.$refs[`w${w}${key}`]?.[0].focus();
+  await getTurnipPrice()
+}, { immediate: true })
 
-          this.$refs.popup?.$el?.scrollTo(0, 50 * offsetCount)
-        }
-        catch (err) {
-          console.log(err)
-        }
-      })
-    },
-  },
+async function getTurnipPrice() {
+  if (!profile.value?.userId) {
+    return
+  }
+
+  isLoading.value = true
+  const data = await turnipSVC.getPriceByUserId(profile.value.userId, weekStart)
+
+  buyPrice.value = data?.buyPrice ?? ''
+  sellPrice.value = {
+    ...createSellPrice(),
+    ...(data?.sellPrice ?? {}),
+  }
+
+  isLoading.value = false
+  await focusField()
+}
+
+async function updateTurnipPrice() {
+  if (!profile.value?.userId) {
+    return
+  }
+
+  try {
+    isLoading.value = true
+    await Promise.all([
+      turnipSVC.updatePriceByUserId(profile.value.userId, weekStart, {
+        buyPrice: buyPrice.value,
+        sellPrice: sellPrice.value,
+      }),
+      turnipSVC.updateProfileByUserId(profile.value.userId, profile.value),
+    ])
+
+    showNotify({
+      type: 'success',
+      message: '儲存成功',
+    })
+    emit('success')
+    isOpen.value = false
+  }
+  catch (err) {
+    console.log(err)
+  }
+  finally {
+    isLoading.value = false
+  }
+}
+
+async function focusField() {
+  await nextTick()
+
+  try {
+    if (dayjs().isSame(weekStart, 'day')) {
+      return
+    }
+
+    let offsetCount = 0
+
+    const now = dayjs()
+    const weekday = now.weekday()
+    const periodKey = now.locale('en-us').format('a')
+
+    offsetCount = weekday * 2
+    if (periodKey === 'am') {
+      offsetCount -= 1
+    }
+
+    popupRef.value?.$el?.scrollTo(0, 50 * offsetCount)
+  }
+  catch (err) {
+    console.log(err)
+  }
 }
 </script>
 

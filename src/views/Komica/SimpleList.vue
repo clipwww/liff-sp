@@ -1,55 +1,56 @@
-<script>
+<script setup lang="ts">
+import { computed, onMounted, shallowRef, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { filters } from '@/plugins/vue-filter'
 import { komicaSVC } from '@/services'
 
-export default {
-  data() {
-    return {
-      keyword: '',
-      items: [],
-      isRefreshing: false,
-      isLoading: false,
-      komicaType: this.$route.query.type || 'new',
-    }
-  },
-  computed: {
-    filterItems() {
-      return this.items.filter(item => (this.keyword ? item.title.includes(this.keyword) : true))
-    },
-  },
-  watch: {
-    komicaType: {
-      immediate: true,
-      handler(val) {
-        if (val) {
-          this.getList()
-        }
-      },
-    },
-  },
-  methods: {
-    async getList() {
-      this.isRefreshing = false
-      this.isLoading = true
+const route = useRoute()
+const router = useRouter()
 
-      const ret = await komicaSVC.getAllList(this.komicaType)
-      this.isLoading = false
-      if (!ret.success) {
-        return
-      }
+const keyword = shallowRef('')
+const items = shallowRef<any[]>([])
+const isRefreshing = shallowRef(false)
+const isLoading = shallowRef(false)
+const komicaType = shallowRef((route.query.type as string) || 'new')
 
-      this.items = ret.items
-    },
-    goDetails(item) {
-      const name = this.komicaType === 'new' ? 'KomicaNewDetails' : 'KomicaLiveDetails'
-      this.$router.push({ name, params: { id: item.id }, query: { title: item.title } })
-    },
-  },
+const filterItems = computed(() => {
+  return items.value.filter(item => (keyword.value ? item.title.includes(keyword.value) : true))
+})
+
+watch(komicaType, (value) => {
+  if (value) {
+    getList()
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (!items.value.length) {
+    getList()
+  }
+})
+
+async function getList() {
+  isRefreshing.value = false
+  isLoading.value = true
+
+  const ret = await komicaSVC.getAllList(komicaType.value)
+  isLoading.value = false
+  if (!ret.success) {
+    return
+  }
+
+  items.value = ret.items
+}
+
+function goDetails(item: any) {
+  const name = komicaType.value === 'new' ? 'KomicaNewDetails' : 'KomicaLiveDetails'
+  router.push({ name, params: { id: item.id }, query: { title: item.title } })
 }
 </script>
 
 <template>
   <div class="list__container">
-    <van-search v-model.trim="keyword" placeholder="請輸入關鍵字搜尋" />
+    <van-search v-model.trim="keyword" class="komica-simple__search" placeholder="請輸入關鍵字搜尋" />
     <div class="list__content with-safe-area-inset-bottom">
       <van-tabs v-model="komicaType" class="margin-bt-5" type="card">
         <van-tab title="新番捏他" name="new" />
@@ -78,7 +79,7 @@ export default {
             </template>
             <template #label>
               <div>
-                <span class="margin-r-5">{{ $filters.formatDate(item.dateCreated) }}</span>
+                <span class="margin-r-5">{{ filters.formatDate(item.dateCreated) }}</span>
               <!-- <van-tag plain size="mini">{{ item.replyCount }}</van-tag> -->
               </div>
             </template>
@@ -95,4 +96,9 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.komica-simple__search {
+  margin-bottom: 12px;
+  border-radius: 18px;
+  overflow: hidden;
+}
 </style>

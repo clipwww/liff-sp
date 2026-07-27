@@ -1,7 +1,7 @@
-<script>
+<script setup lang="ts">
 import Chart from 'chart.js/auto'
 import _zip from 'lodash/zip'
-
+import { computed, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
 import { momentUtil } from '@/utils'
 import {
   averageReducer,
@@ -11,214 +11,181 @@ import {
   possiblePatterns,
 } from '@/utils/predictions.js'
 
-export default {
-  props: {
-    id: {
-      type: String,
-      default: `${Date.now()}`,
-    },
-    buyPrice: {
-      type: [Number, String],
-      default: 0,
-    },
-    sellPrice: {
-      type: Object,
-      default() {
-        return {}
-      },
-    },
-  },
-  data() {
-    return {
-      chartInstance: null,
-    }
-  },
-  computed: {
-    canvasId() {
-      return `canvas-${this.id}`
-    },
-    labels() {
-      const tempArr = []
-      momentUtil
-        .getWeekdays()
-        .map(item => item.momentInstance.format('ddd'))
-        .forEach((label) => {
-          tempArr.push(`${label} 上午`)
-          tempArr.push(`${label} 下午`)
-        })
+const props = withDefaults(defineProps<{
+  id?: string
+  buyPrice?: number | string
+  sellPrice?: Record<string, { am?: string, pm?: string }>
+}>(), {
+  id: () => `${Date.now()}`,
+  buyPrice: 0,
+  sellPrice: () => ({}),
+})
 
-      return tempArr
-    },
-    datasetData() {
-      const tempArr = []
-      Object.keys(this.sellPrice).forEach((key) => {
-        tempArr.push(+this.sellPrice[key].am || 0)
-        tempArr.push(+this.sellPrice[key].pm || 0)
-      })
-      return tempArr.map(num => num || undefined)
-    },
-    possibilities() {
-      const buyPrice = +this.buyPrice
-      const filter = [buyPrice || undefined, ...this.datasetData]
-      console.log(filter)
+const canvasRef = useTemplateRef('canvas')
+let chartInstance: Chart | null = null
 
-      let patterns = possiblePatterns(filter)
-      const patternCount = patterns.reduce((acc, cur) => acc + cur.length, 0)
-      if (patternCount === 0) {
-        patterns = possiblePatterns([0, ...filter.slice(1)])
-      }
+const labels = computed(() => {
+  const result: string[] = []
+  momentUtil
+    .getWeekdays()
+    .map(item => item.momentInstance.format('ddd'))
+    .forEach((label) => {
+      result.push(`${label} 上午`)
+      result.push(`${label} 下午`)
+    })
 
-      const minMaxPattern = patternReducer(patterns)
-      const minMaxData = _zip(...minMaxPattern)
-      const avgPattern = patternReducer(patterns, averageReducer)
-      const avgData = _zip(...avgPattern)
-      const [minWeekValue] = patternReducer(patterns, minWeekReducer)
+  return result
+})
 
+const datasetData = computed(() => {
+  const result: Array<number | undefined> = []
+  Object.keys(props.sellPrice).forEach((key) => {
+    result.push(+props.sellPrice[key].am! || 0)
+    result.push(+props.sellPrice[key].pm! || 0)
+  })
+
+  return result.map(num => num || undefined)
+})
+
+const possibilities = computed(() => {
+  const buyPrice = +props.buyPrice
+  const filter = [buyPrice || undefined, ...datasetData.value]
+
+  let patterns = possiblePatterns(filter)
+  const patternCount = patterns.reduce((acc, cur) => acc + cur.length, 0)
+  if (patternCount === 0) {
+    patterns = possiblePatterns([0, ...filter.slice(1)])
+  }
+
+  const minMaxPattern = patternReducer(patterns)
+  const minMaxData = _zip(...minMaxPattern)
+  patternReducer(patterns, averageReducer)
+  patternReducer(patterns, minWeekReducer)
+
+  return {
+    patterns,
+    minMaxData,
+  }
+})
+
+const patternsPercentage = computed(() => {
+  const total = possibilities.value.patterns.reduce((sum, current) => sum + current.length, 0)
+
+  return possibilities.value.patterns
+    .map((pattern, index) => {
       return {
-        patterns,
-        minMaxData,
-        minWeekValue,
+        id: index,
+        label: patternMapping[index],
+        percentage: pattern.length ? Math.round((pattern.length / total) * 100) : 0,
       }
-    },
-    patternsPercentage() {
-      const { patterns } = this.possibilities
+    })
+    .filter(item => item.percentage)
+})
 
-      const total = patterns.reduce((pre, cur) => (pre += cur.length), 0)
+const isShort = computed(() => datasetData.value.filter(value => value && value > 0).length < 2)
+const noSellPrice = computed(() => !datasetData.value.some(value => value && value > 0))
 
-      return patterns
-        .map((p, i) => {
-          return {
-            id: i,
-            label: patternMapping[i],
-            percentage: p.length ? Math.round((p.length / total) * 100) : 0,
-          }
-        })
-        .filter(item => item.percentage)
+watch(() => props.buyPrice, initChart)
+watch(() => props.sellPrice, initChart, { deep: true })
+
+onMounted(() => {
+  initChart()
+})
+
+onBeforeUnmount(() => {
+  chartInstance?.destroy()
+})
+
+function initChart() {
+  if (noSellPrice.value) {
+    chartInstance?.destroy()
+    chartInstance = null
+    return
+  }
+
+  const canvas = canvasRef.value
+  if (!canvas) {
+    return
+  }
+
+  chartInstance?.destroy()
+
+  chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: labels.value,
+      datasets: [
+        {
+          label: '買入價格',
+          borderColor: '#1989fa',
+          data: Array.from({ length: 12 }).fill(props.buyPrice),
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderDash: [2, 5],
+        },
+        {
+          label: '每日賣價',
+          borderColor: '#f97316',
+          backgroundColor: '#f97316',
+          data: datasetData.value,
+        },
+        {
+          label: '預測最高賣價',
+          borderColor: '#4ade80',
+          backgroundColor: 'rgba(74, 222, 128, 0.16)',
+          data: possibilities.value.minMaxData[1] ?? [],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: 3,
+        },
+        {
+          label: '預測最低賣價',
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22, 163, 74, 0.08)',
+          data: possibilities.value.minMaxData[0] ?? [],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+        },
+      ],
     },
-    isShort() {
-      return this.datasetData.filter(v => v > 0).length < 2
-    },
-    noSellPrice() {
-      return !this.datasetData.some(v => v > 0)
-    },
-  },
-  watch: {
-    buyPrice() {
-      this.$nextTick(() => {
-        this.initChart()
-      })
-    },
-    sellPrice: {
-      deep: true,
-      handler() {
-        this.$nextTick(() => {
-          this.initChart()
-        })
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: '#4b5563',
+          },
+        },
+        tooltip: {
+          intersect: false,
+          mode: 'index',
+        },
+      },
+      scales: {
+        y: {
+          display: true,
+          min: 0,
+          ticks: {
+            color: '#6b7280',
+            stepSize: 50,
+          },
+          grid: {
+            color: 'rgba(148, 163, 184, 0.25)',
+          },
+        },
+        x: {
+          display: true,
+          ticks: {
+            color: '#6b7280',
+          },
+          grid: {
+            color: 'rgba(148, 163, 184, 0.18)',
+          },
+        },
       },
     },
-  },
-  mounted() {
-    this.initChart()
-  },
-  methods: {
-    initChart() {
-      if (this.noSellPrice) {
-        // 無賣價 尚無法預測
-        return
-      }
-
-      if (this.chartInstance) {
-        this.chartInstance.destroy()
-      }
-
-      const ctx = document.getElementById(this.canvasId).getContext('2d')
-      this.chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: this.labels,
-          datasets: [
-            {
-              label: '買入價格',
-              borderColor: '#ffffff',
-              data: Array.from({ length: 12 }).fill(this.buyPrice),
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              borderDash: [2, 5],
-            },
-            // {
-            //   label: '保證價格',
-            //   data: new Array(12).fill(this.possibilities?.minWeekValue || null),
-            //   fill: true,
-            //   borderColor: '#007D75',
-            //   pointRadius: 0,
-            //   pointHoverRadius: 0,
-            //   borderDash: [3, 6],
-            // },
-            {
-              label: '每日賣價',
-              borderColor: '#EF8341',
-              // backgroundColor: '#EF8341',
-              data: this.datasetData,
-            },
-            {
-              label: '預測最高賣價',
-              borderColor: '#A5D5A5',
-              backgroundColor: '#A5D5A5',
-              data: this.possibilities?.minMaxData[1] ?? [],
-              pointRadius: 0,
-              pointHoverRadius: 0,
-              fill: 3,
-            },
-            {
-              label: '預測最低賣價',
-              borderColor: '#88C9A1',
-              backgroundColor: '#88C9A1',
-              data: this.possibilities?.minMaxData[0] ?? [],
-              pointRadius: 0,
-              pointHoverRadius: 0,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              display: true,
-              labels: {
-                color: '#fff',
-              },
-            },
-            tooltip: {
-              intersect: false,
-              mode: 'index',
-            },
-          },
-          scales: {
-            y: {
-              display: true,
-              min: 0,
-              ticks: {
-                color: '#fff',
-                stepSize: 50,
-              },
-              grid: {
-                color: '#666',
-              },
-            },
-            x: {
-              display: true,
-              ticks: {
-                color: '#fff',
-              },
-              grid: {
-                color: '#666',
-              },
-            },
-          },
-        },
-      })
-    },
-  },
+  })
 }
 </script>
 
@@ -234,7 +201,7 @@ export default {
       <div v-if="isShort" class="text-center little-text margin-b-5">
         預測結果僅供參考
       </div>
-      <canvas :id="canvasId" />
+      <canvas ref="canvas" />
     </template>
     <div v-else class="text-center little-text">
       尚無提供賣價，無法預測
@@ -247,5 +214,6 @@ export default {
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
+  padding: 0 16px 16px;
 }
 </style>

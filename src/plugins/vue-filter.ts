@@ -1,6 +1,6 @@
 import dayjs from '@/plugins/dayjs'
 
-const filters = {
+export const filters = {
   formatDate(str: string, hasTime: boolean = true) {
     if (!str) {
       return ''

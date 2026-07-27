@@ -1,114 +1,94 @@
-<script>
+<script setup lang="ts">
 import { showImagePreview } from 'vant'
-
+import { computed, onMounted, shallowRef } from 'vue'
+import { useRoute } from 'vue-router'
 import KomicaPostCell from '@/components/KomicaPostCell.vue'
-
 import { komicaSVC } from '@/services'
 
-export default {
-  components: {
-    KomicaPostCell,
-  },
-  metaInfo() {
-    return {
-      title: this.$route.query.title || this.post?.title,
-    }
-  },
-  data() {
-    return {
-      post: null,
-      isRefreshing: false,
-      showPopup: false,
-    }
-  },
-  computed: {
-    komicaType() {
-      switch (true) {
-        case this.$route.name.includes('KomicaNew'):
-          return 'new'
-        case this.$route.name.includes('KomicaLive'):
-          return 'live'
-        default:
-          return ''
-      }
-    },
-    postId() {
-      return this.$route.params.id
-    },
-    imageObjs() {
-      const arr = []
-      const replyImages = this.post?.reply.filter(item => item.sImg && item.oImg) ?? []
+const route = useRoute()
 
-      if (this.post && this.post.sImg && this.post.oImg) {
-        arr.push(this.post)
-      }
-      return arr.concat(replyImages)
-    },
-    sImages() {
-      return this.imageObjs.map(item => item.sImg)
-    },
-    oImages() {
-      return this.imageObjs.map(item => item.oImg)
-    },
-  },
-  created() {
-    this.getDetails()
-  },
-  methods: {
-    async getDetails() {
-      this.post = null
-      this.isRefreshing = false
+const post = shallowRef<any | null>(null)
+const isRefreshing = shallowRef(false)
+const showPopup = shallowRef(false)
 
-      const ret = await komicaSVC.getDetails(this.komicaType, this.postId)
+const komicaType = route.name?.toString().includes('KomicaLive') ? 'live' : 'new'
+const postId = route.params.id?.toString() ?? ''
 
-      if (!ret.success) {
-        return
-      }
+const imageObjs = computed(() => {
+  const arr: any[] = []
+  const replyImages = post.value?.reply?.filter((item: any) => item.sImg && item.oImg) ?? []
 
-      this.post = ret.item
-    },
-    onClickImage(item) {
-      const index = this.oImages.findIndex(src => src === item.oImg) || 0
+  if (post.value?.sImg && post.value?.oImg) {
+    arr.push(post.value)
+  }
 
-      showImagePreview({
-        images: this.oImages,
-        startPosition: index,
-        closeable: true,
-        showIndex: true,
-        // showIndicators: true,
-        loop: true,
-        closeOnPopstate: true,
-        lazyLoad: true,
-      })
-    },
-    onTabClick(val) {
-      switch (val) {
-        case 'up':
-          window.scrollTo(0, 0)
-          break
-        case 'down':
-          window.scrollTo(0, document.body.clientHeight)
-          break
-        case 'iamges':
-          this.showPopup = true
-          break
-      }
-    },
-    openOriginPage() {
-      window.liff.openWindow({
-        url: this.post.url,
-      })
-    },
-  },
+  return arr.concat(replyImages)
+})
+
+const oImages = computed(() => imageObjs.value.map(item => item.oImg))
+
+onMounted(() => {
+  getDetails()
+})
+
+async function getDetails() {
+  post.value = null
+  isRefreshing.value = false
+
+  const ret = await komicaSVC.getDetails(komicaType, postId)
+
+  if (!ret.success) {
+    return
+  }
+
+  post.value = ret.item
+}
+
+function onClickImage(item: any) {
+  const index = oImages.value.findIndex(src => src === item.oImg) || 0
+
+  showImagePreview({
+    images: oImages.value,
+    startPosition: index,
+    closeable: true,
+    showIndex: true,
+    loop: true,
+    closeOnPopstate: true,
+    lazyLoad: true,
+  })
+}
+
+function onTabClick(value: string | number) {
+  switch (value) {
+    case 'up':
+      window.scrollTo(0, 0)
+      break
+    case 'down':
+      window.scrollTo(0, document.body.clientHeight)
+      break
+    case 'images':
+      showPopup.value = true
+      break
+  }
+}
+
+function openOriginPage() {
+  if (!post.value?.url) {
+    return
+  }
+
+  window.liff.openWindow({
+    url: post.value.url,
+  })
 }
 </script>
 
 <template>
   <div class="with-safe-area-inset-bottom">
     <van-pull-refresh v-model="isRefreshing" head-height="150" @refresh="getDetails">
-      <van-cell-group>
+      <div class="komica-details__stack">
         <van-skeleton
-          class="padding-bt-15"
+          class="app-surface padding-bt-15"
           title
           avatar
           avatar-shape="square"
@@ -131,12 +111,12 @@ export default {
         <van-skeleton
           v-for="n in 4"
           :key="n"
-          class="padding-bt-15"
+          class="app-surface padding-bt-15"
           :row="4"
           title
           :loading="!post"
         />
-      </van-cell-group>
+      </div>
     </van-pull-refresh>
 
     <van-popup
@@ -167,7 +147,7 @@ export default {
       <van-tabbar-item icon="arrow-up" name="up">
         至頂
       </van-tabbar-item>
-      <van-tabbar-item icon="photo" name="iamges">
+      <van-tabbar-item icon="photo" name="images">
         瀏覽圖片
       </van-tabbar-item>
       <van-tabbar-item icon="arrow-down" name="down">
@@ -188,6 +168,11 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.komica-details__stack {
+  display: grid;
+  gap: 14px;
+}
+
 .fixed-btn {
   position: fixed;
   top: 9px;

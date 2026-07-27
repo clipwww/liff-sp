@@ -1,93 +1,84 @@
-<script>
-import { mapState } from 'pinia'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { showFailToast } from 'vant'
+import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import TurnipEditorPopup from '@/components/TurnipEditorPopup.vue'
 import dayjs from '@/plugins/dayjs'
-
 import { turnipSVC } from '@/services'
 import { useAppStore } from '@/store'
-
 import { momentUtil } from '@/utils'
 
 const weekdays = momentUtil.getWeekdays()
 const weekStart = momentUtil.getWeekStart()
 
-export default {
-  components: {
-    TurnipEditorPopup,
-  },
-  data() {
-    return {
-      weekdays,
-      showEditor: false,
-      groupList: [],
-      priceList: [],
-      userList: [],
-      histories: [],
-      isLoading: false,
-    }
-  },
-  computed: {
-    ...mapState(useAppStore, ['isLoggedIn', 'profile']),
-  },
-  watch: {
-    profile: {
-      immediate: true,
-      handler(val) {
-        if (!val || !val.userId) {
-          return
-        }
-        turnipSVC.removeListenerHistoriesByUserId()
-        turnipSVC.listenerHistoriesByUserId(val.userId, (list) => {
-          this.histories = list
-            .filter(item => !dayjs().isSame(item.id, 'week'))
-            .sort((a, b) => (dayjs(a.id).isBefore(b.id) ? 1 : -1))
-        })
-      },
-    },
-  },
-  created() {
-    this.initListener()
-  },
-  beforeUnmount() {
-    turnipSVC.removeListenerGroupList()
-    turnipSVC.removeListenerUserList()
-    turnipSVC.removeListenerPriceList(weekStart)
-    turnipSVC.removeListenerHistoriesByUserId()
-  },
-  methods: {
-    async initListener() {
-      this.isLoading = true
+const appStore = useAppStore()
+const { isLoggedIn, profile } = storeToRefs(appStore)
 
-      await Promise.all([
-        turnipSVC.listenerGroupList((list) => {
-          this.groupList = list
-        }),
-        turnipSVC.listenerPriceList(weekStart, (list) => {
-          this.priceList = list
-        }),
-        turnipSVC.listenerUserList((list) => {
-          this.userList = list
-        }),
-      ])
-      // console.log(ret, this.groupList)
+const showEditor = shallowRef(false)
+const groupList = ref<any[]>([])
+const priceList = ref<any[]>([])
+const userList = ref<any[]>([])
+const histories = ref<any[]>([])
+const isLoading = shallowRef(false)
 
-      this.isLoading = false
-    },
-    openEditor() {
-      if (!this.isLoggedIn) {
-        this.$toast.fail({
-          message: '必須要登入才可以使用唷',
-        })
-        return
-      }
-      this.showEditor = true
-    },
-    login() {
-      window.liff.login({
-        redirectUri: window.location.href,
-      })
-    },
-  },
+watch(profile, (value) => {
+  if (!value?.userId) {
+    histories.value = []
+    return
+  }
+
+  turnipSVC.removeListenerHistoriesByUserId()
+  turnipSVC.listenerHistoriesByUserId(value.userId, (list) => {
+    histories.value = list
+      .filter(item => !dayjs().isSame(item.id, 'week'))
+      .sort((a, b) => (dayjs(a.id).isBefore(b.id) ? 1 : -1))
+  })
+}, { immediate: true })
+
+onMounted(() => {
+  initListener()
+})
+
+onBeforeUnmount(() => {
+  turnipSVC.removeListenerGroupList()
+  turnipSVC.removeListenerUserList()
+  turnipSVC.removeListenerPriceList(weekStart)
+  turnipSVC.removeListenerHistoriesByUserId()
+})
+
+async function initListener() {
+  isLoading.value = true
+
+  await Promise.all([
+    turnipSVC.listenerGroupList((list) => {
+      groupList.value = list
+    }),
+    turnipSVC.listenerPriceList(weekStart, (list) => {
+      priceList.value = list
+    }),
+    turnipSVC.listenerUserList((list) => {
+      userList.value = list
+    }),
+  ])
+
+  isLoading.value = false
+}
+
+function openEditor() {
+  if (!isLoggedIn.value) {
+    showFailToast({
+      message: '必須要登入才可以使用唷',
+    })
+    return
+  }
+
+  showEditor.value = true
+}
+
+function login() {
+  window.liff.login({
+    redirectUri: window.location.href,
+  })
 }
 </script>
 
